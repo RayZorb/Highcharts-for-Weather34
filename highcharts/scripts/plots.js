@@ -267,7 +267,8 @@ var commonOptions = {
         lineWidth: 1,
         crosshair: {
             width: 1,
-            color: 'green'
+            color: '#009bab',
+          	dashStyle: 'Dash',
         },
       	gridLineColor: '#197F07',
         gridLineDashStyle: 'dot',
@@ -297,7 +298,8 @@ var commonOptions = {
         lineWidth: 1,
         crosshair: {
             width: 1,
-            color: 'green'
+            color: '#ff832f',
+          	dashStyle: 'Dash',
         },
       	gridLineWidth: 1,
       	gridLineColor: '#197F07',

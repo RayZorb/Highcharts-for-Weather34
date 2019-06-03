@@ -68,6 +68,8 @@ Highcharts.theme = {
                 whiteSpace: 'nowrap'
             }
         },
+      	gridLineColor: '#DDD',
+        gridLineWidth: 1,
         minorGridLineWidth: 0,
         minorTickInterval: 'auto',
         minorTickLength: 2,
@@ -103,9 +105,9 @@ Highcharts.theme = {
     },
 
     tooltip: {
-        backgroundColor: 'rgba(255, 255, 204, .8)',
-        borderWidth: 0,
-        dateTimeLabelFormats: {
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+ 		dateTimeLabelFormats: {
             hour: '%e %b %H:%M',
             day: '%e %b',
             week: '%e %b',
