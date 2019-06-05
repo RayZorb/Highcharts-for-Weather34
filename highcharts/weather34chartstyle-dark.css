@@ -147,7 +147,7 @@ body {
 @media screen and (max-width:640px) {
   .chartContainer {
     width: 155vh;
-    height: 60vh;
+    height: auto;
     border: 3px solid rgba(86, 95, 103, 0.7);
     -webkit-border-radius: 3px;
     border-radius: 3px;

@@ -152,7 +152,21 @@ Highcharts.theme = {
         }
     },
 
-    navigation: {
+    exporting: {
+            buttons: {
+                contextButton: {
+                    symbolStroke: "#555",
+                    theme: {
+            fill:"#fff",
+            stroke:"#fff",
+            stroke-width: 0          
+        },
+                  
+                }
+            }
+        },
+
+  	navigation: {
         buttonOptions: {
             symbolStroke: '#DDDDDD',
             hoverSymbolStroke: '#FFFFFF',

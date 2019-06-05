@@ -22,18 +22,19 @@ Revision History
     <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
     <script src="scripts/theme.js" type="text/javascript"></script>
     <script src="scripts/plots.js" type="text/javascript"></script>
-    <script type="text/javascript">
+     <script type="text/javascript">
         window.onload = function() {
             //Get references to links on the page
-            var w = document.getElementById("seven_days");
-            var y = document.getElementById("calendar_year");
+            //var w = document.getElementById("seven_days");
+            //var y = document.getElementById("calendar_year");
 
-            weekly();
+           weekly({temp:'F',pressure:'hPa',wind:'mph',rain:'mm'}, alert);
 
             
         }
     </script>
     <link rel="stylesheet" href="weather34chartstyle-<?php echo $charttheme;?>.css">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css">
     <style>body{background:rgba(30, 31, 35, 1.000);}
 .webcamlarge{
 -webkit-border-radius:4px;	-moz-border-radius:4px;	-o-border-radius:4px;	-ms-border-radius:4px;border-radius:4px;border:solid RGBA(84, 85, 86, 1.00) 2px;	width:167vh;height:80vh;}

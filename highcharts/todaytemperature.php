@@ -1,4 +1,3 @@
-<?php include('chartslivedata.php');include('chart_theme.php'); ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <!--
@@ -15,25 +14,28 @@ Revision History
 
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Today Temperature</title>
+    <title>Today Barometer</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <script src="https://code.highcharts.com/stock/highcharts-more.js"></script>
     <script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
     <script src="scripts/theme.js" type="text/javascript"></script>
     <script src="scripts/plots.js" type="text/javascript"></script>
+    <script src="scripts/convert_units.js" type="text/javascript"></script>
     <script type="text/javascript">
         window.onload = function() {
             //Get references to links on the page
-            var w = document.getElementById("seven_days");
-            var y = document.getElementById("calendar_year");
+            //var w = document.getElementById("seven_days");
+            //var y = document.getElementById("calendar_year");
 
-            weekly();
+           weekly({temp:'C',pressure:'hPa',wind:'mph',rain:'mm'}, alert);
 
             
         }
     </script>
     <link rel="stylesheet" href="weather34chartstyle-<?php echo $charttheme;?>.css">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css">
     <style>body{background:rgba(30, 31, 35, 1.000);}
 .webcamlarge{
 -webkit-border-radius:4px;	-moz-border-radius:4px;	-o-border-radius:4px;	-ms-border-radius:4px;border-radius:4px;border:solid RGBA(84, 85, 86, 1.00) 2px;	width:167vh;height:80vh;}
@@ -42,9 +44,10 @@ Revision History
   </head>
   <body>
        <div style="width:auto;">  
-        <div id="temperatureplot" style="width:100%; height:435px;"></div>
+        <div id="temperatureplot" style="min-height:435px;"></div>
         
     </div>
 </body>   
 
 </html>
+
