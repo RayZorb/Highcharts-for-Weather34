@@ -29,7 +29,7 @@ Revision History
             //var w = document.getElementById("seven_days");
             //var y = document.getElementById("calendar_year");
 
-           yearly({temp:'C',pressure:'hPa',wind:'mph',rain:'mm'}, alert);
+           yearly({temp:'F',pressure:'mb',wind:'mls',rain:'in'}, alert);
 
             
         }
@@ -44,7 +44,7 @@ Revision History
   </head>
   <body>
        <div style="width:auto;">  
-        <div id="barometerplot" style="min-height:435px;"></div>
+        <div id="temperatureplot" style="min-height:435px;"></div>
         
     </div>
 </body>   

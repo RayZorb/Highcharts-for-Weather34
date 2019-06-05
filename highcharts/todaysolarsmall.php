@@ -28,7 +28,7 @@ Revision History
             //var w = document.getElementById("seven_days");
             //var y = document.getElementById("calendar_year");
 
-           weekly({temp:'F',pressure:'hPa',wind:'mph',rain:'mm'}, alert);
+           weekly({temp:'F',pressure:'mb',wind:'mls',rain:'in'}, alert);
 
             
         }
