@@ -12,8 +12,8 @@ your reference.
 
 Highcharts.theme = {
     chart: {
-        backgroundColor: '#FFFFFF',
-        borderWidth: 0,
+        backgroundColor: 'rgb(208, 208, 208)',
+        borderWidth: 1,
         borderColor: '#000000',
         borderRadius: 8,
         plotShadow: false,
@@ -68,8 +68,6 @@ Highcharts.theme = {
                 whiteSpace: 'nowrap'
             }
         },
-      	gridLineColor: '#DDD',
-        gridLineWidth: 1,
         minorGridLineWidth: 0,
         minorTickInterval: 'auto',
         minorTickLength: 2,
@@ -105,9 +103,9 @@ Highcharts.theme = {
     },
 
     tooltip: {
-        backgroundColor: '#FFFFFF',
-        borderWidth: 1,
- 		dateTimeLabelFormats: {
+        backgroundColor: 'rgba(255, 255, 204, .8)',
+        borderWidth: 0,
+        dateTimeLabelFormats: {
             hour: '%e %b %H:%M',
             day: '%e %b',
             week: '%e %b',
@@ -152,21 +150,7 @@ Highcharts.theme = {
         }
     },
 
-    exporting: {
-            buttons: {
-                contextButton: {
-                    symbolStroke: "#555",
-                    theme: {
-            fill:"#fff",
-            stroke:"#fff",
-            stroke-width: 0          
-        },
-                  
-                }
-            }
-        },
-
-  	navigation: {
+    navigation: {
         buttonOptions: {
             symbolStroke: '#DDDDDD',
             hoverSymbolStroke: '#FFFFFF',
