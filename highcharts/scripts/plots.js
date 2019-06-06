@@ -77,8 +77,8 @@ Set paths/names of our week and year JSON data files
 Paths are relative to the web server root
 
 *****************************************************************************/
-var week_json = 'json/week.json';
-var year_json = 'json/year.json';
+var week_json = '../../weewx/json/week.json';
+var year_json = '../../weewx/json/year.json';
 
 /*****************************************************************************
 
@@ -94,8 +94,8 @@ var commonOptions = {
         plotBackgroundColor: {
             linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
             stops: [
-                [0, '#FFFFFF'],
-                [1, '#FFFFFF']
+                [0, '#FCFFC5'],
+                [1, '#E0E0FF']
             ]
         },
         spacing: [15, 20, 10, 0],
@@ -241,7 +241,6 @@ var commonOptions = {
         },
     },
     rangeSelector: {
-        buttonSpacing: 0,
     },
     series: [{
     }],
@@ -265,13 +264,6 @@ var commonOptions = {
         },
         lineColor: '#555',
         lineWidth: 1,
-        crosshair: {
-            width: 1,
-            color: '#009bab',
-          	dashStyle: 'Dash',
-        },
-      	gridLineColor: '#197F07',
-        gridLineDashStyle: 'dot',
         minorGridLineWidth: 0,
         minorTickColor: '#555',
         minorTickLength: 2,
@@ -296,14 +288,6 @@ var commonOptions = {
         },
         lineColor: '#555',
         lineWidth: 1,
-        crosshair: {
-            width: 1,
-            color: '#ff832f',
-          	dashStyle: 'Dash',
-        },
-      	gridLineWidth: 1,
-      	gridLineColor: '#197F07',
-      	gridLineDashStyle: 'dot',
         minorGridLineWidth: 0,
         minorTickColor: '#555',
         minorTickLength: 2,
@@ -321,7 +305,6 @@ var commonOptions = {
         }
     }
 };
-
 
 function clone(obj) {
 /*****************************************************************************
@@ -452,12 +435,11 @@ Function to add/set various plot options specific to temperature spline plots
 *****************************************************************************/
     obj.chart.renderTo = plotIds.temperature;
     obj.chart.type = 'spline';
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            lineColor: '#B44242'
         },
+    },
     obj.title = {
         text: 'Temperature'
     };
@@ -498,12 +480,12 @@ Function to add/set various plot options specific to windchill spline plots
 *****************************************************************************/
     obj.chart.renderTo = plotIds.windChill;
     obj.chart.type = 'spline';
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            color: '#C07777',
+            lineColor: '#047B04'
         },
+    },
     obj.title = {
         text: 'Apparent Temperature/Wind Chill/Heat Index'
     };
@@ -552,12 +534,11 @@ Function to add/set various plot options specific to humidity spline plots
 *****************************************************************************/
     obj.chart.renderTo = plotIds.humidity;
     obj.chart.type = 'spline';
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            lineColor: '#4242B4'
         },
+    },
     obj.plotOptions.series = {
         color: '#4242B4'
     };
@@ -583,12 +564,12 @@ humidity spline plots
 *****************************************************************************/
     obj = setHumidity(obj);
     obj.chart.type = 'columnrange';
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            color: '#C07777',
+            lineColor: '#B06060'
         },
+    },
     obj.series = [{
         color: '#8EC3D3',
         name: 'Humidity Range',
@@ -613,12 +594,11 @@ spline plots
 *****************************************************************************/
     obj.chart.renderTo = plotIds.barometer;
     obj.chart.type = 'spline';
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            lineColor: '#4242B4'
         },
+    },
     obj.plotOptions.series = {
         color: '#4242B4'
     };
@@ -639,12 +619,12 @@ spline barometric pressure plots
 *****************************************************************************/
     obj = setBarometer(obj);
     obj.chart.type = 'columnrange';
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            color: '#C07777',
+            lineColor: '#B06060'
         },
+    },
     obj.series = [{
         color: '#8EC3D3',
         name: 'Barometeric Pressure Range',
@@ -669,12 +649,11 @@ Function to add/set various plot options specific to wind speed spline plots
     obj.chart.renderTo = plotIds.wind;
     obj.chart.type = 'spline';
     obj.legend.reversed = true;
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            lineColor: '#439BB6'
         },
+    },
     obj.title = {
         text: 'Wind/Gust Speed'
     };
@@ -719,12 +698,11 @@ plots
 *****************************************************************************/
     obj.chart.renderTo = plotIds.windDir;
     obj.chart.type = 'scatter';
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            lineColor: '#439BB6'
         },
+    },
     obj.title = {
         text: 'Wind Direction'
     };
@@ -759,12 +737,11 @@ spline wind direction plots
 
 *****************************************************************************/
     obj = setWindDir(obj);
-  	obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            lineColor: '#439BB6'
         },
+    };
     obj.series = [{
         name: 'Vector Average Wind Direction',
         color: '#439BB6'
@@ -812,12 +789,9 @@ spline rainfall plots
 
 *****************************************************************************/
     obj = setRain(obj);
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
-        },
+        enabled: true
+    };
     obj.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = [
         '%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'
     ];
@@ -852,12 +826,11 @@ plots
 *****************************************************************************/
     obj.chart.renderTo = plotIds.radiation;
     obj.chart.type = 'spline';
-    obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            lineColor: '#B44242'
         },
+    },
     obj.title = {
         text: 'Solar Radiation'
     };
@@ -897,12 +870,11 @@ Function to add/set various plot options specific to UV index spline plots
 *****************************************************************************/
     obj.chart.renderTo = plotIds.uv;
     obj.chart.type = 'spline';
-   obj.scrollbar = {
-            enabled: false
-        },
     obj.navigator = {
-            enabled: false
+        series: {
+            lineColor: '#9933FF'
         },
+    },
     obj.plotOptions.spline.color = '#9933FF';
     obj.title = {
         text: 'UV Index'
@@ -938,7 +910,7 @@ spline UV index plots
     return obj
 };
 
-function weekly () {
+function weekly (units, cb_func) {
 /*****************************************************************************
 
 Function to add/set various plot options and then plot each week plot
@@ -1028,10 +1000,13 @@ Function to add/set various plot options and then plot each week plot
         optionsHumidity.xAxis.min = seriesData[0].timespan.start;
         optionsHumidity.xAxis.max = seriesData[0].timespan.stop;
         optionsHumidity.yAxis.title.text = "(" + seriesData[0].humidityplot.units + ")";
-        optionsBarometer.series[0] = seriesData[0].barometerplot.series.barometer;
+        //optionsBarometer.series[0] = seriesData[0].barometerplot.series.barometer;
+        optionsBarometer.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
         optionsBarometer.yAxis.minRange = seriesData[0].barometerplot.minRange;
-        optionsBarometer.yAxis.title.text = "(" + seriesData[0].barometerplot.units + ")";
-        optionsBarometer.tooltip.valueSuffix = seriesData[0].barometerplot.units;
+        //optionsBarometer.yAxis.title.text = "(" + seriesData[0].barometerplot.units + ")";
+        optionsBarometer.yAxis.title.text = "(" + units.pressure + ")";
+        //optionsBarometer.tooltip.valueSuffix = seriesData[0].barometerplot.units;
+        optionsBarometer.tooltip.valueSuffix = units.pressure;
         optionsBarometer.xAxis.min = seriesData[0].timespan.start;
         optionsBarometer.xAxis.max = seriesData[0].timespan.stop;
         optionsWind.series[0] = seriesData[0].windplot.series.windSpeed;
@@ -1096,6 +1071,14 @@ Function to add/set various plot options and then plot each week plot
         if (document.getElementById(optionsUv.chart.renderTo)){
             var chart = new Highcharts.StockChart(optionsUv);
         };
+        chart.series[0].update({
+        cursor: 'pointer',
+            point: {
+                events: {
+                    click: function(e){cb_func(e);}
+                         }
+                   }
+        });
         setTimeout(function(){$('input.highcharts-range-selector',$(chart.container).parent()).datepicker();},0);
         $.datepicker.setDefaults({dateFormat:'d M yy',onSelect:function(dateText){this.onchange();this.onblur();}});
     });
