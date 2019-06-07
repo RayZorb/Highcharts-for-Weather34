@@ -13,7 +13,7 @@ Revision History
 -->
 
   <head>
-    <?php include_once('../settings1.php'); ?>
+    <?php include_once('../livedata.php');?>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>Today Barometer</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -29,7 +29,7 @@ Revision History
             //Get references to links on the page
             //var w = document.getElementById("seven_days");
             //var y = document.getElementById("calendar_year");
-            weekly({temp:"<?php echo $tempunit; ?>", pressure:"<?php echo $pressureunit; ?>", wind:"<?php echo $windunit; ?>", rain:"<?php echo $rainunit; ?>"}, alert);
+            weekly({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, alert);
         }
     </script>
     <link rel="stylesheet" href="../css/weather34chartstyle-.css">
