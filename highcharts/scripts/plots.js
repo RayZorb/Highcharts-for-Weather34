@@ -910,7 +910,8 @@ spline UV index plots
     return obj
 };
 
-function weekly (units, cb_func) {
+function weekly(){weekly(null, null);}
+function weekly(units, cb_func){
 /*****************************************************************************
 
 Function to add/set various plot options and then plot each week plot
@@ -976,54 +977,121 @@ Function to add/set various plot options and then plot each week plot
     data file and then display the actual plots
     */
     $.getJSON(week_json, function(seriesData) {
-        optionsTemp.series[0] = seriesData[0].temperatureplot.series.outTemp;
-        optionsTemp.series[1] = seriesData[0].temperatureplot.series.dewpoint;
+        if (units == null)
+            optionsTemp.series[0] = seriesData[0].temperatureplot.series.outTemp;
+        else
+            optionsTemp.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
+        if (units == null)
+            optionsTemp.series[1] = seriesData[0].temperatureplot.series.dewpoint;
+        else
+            optionsTemp.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
         if ("appTemp" in seriesData[0].temperatureplot.series) {
-            optionsTemp.series[2] = seriesData[0].temperatureplot.series.appTemp;
+            if (units == null)
+                optionsTemp.series[2] = seriesData[0].temperatureplot.series.appTemp;
+            else
+                optionsTemp.series[2] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp);
         }
         optionsTemp.yAxis.minRange = seriesData[0].temperatureplot.minRange;
-        optionsTemp.yAxis.title.text = "(" + seriesData[0].temperatureplot.units + ")";
-        optionsTemp.tooltip.valueSuffix = seriesData[0].temperatureplot.units;
+        if (units == null)
+            optionsTemp.yAxis.title.text = "(" + seriesData[0].temperatureplot.units + ")";
+        else
+            optionsTemp.yAxis.title.text = "(" + units.temp + ")";
+        if (units == null)
+            optionsTemp.tooltip.valueSuffix = seriesData[0].temperatureplot.units;
+        else
+            optionsTemp.yAxis.title.text = "(" + units.temp + ")";
         optionsTemp.xAxis.min = seriesData[0].timespan.start;
         optionsTemp.xAxis.max = seriesData[0].timespan.stop;
-        optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
-        optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
+
+        if (units == null)
+            optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
+        else
+            optionsWindchill.series[1] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill);
+        if (units == null)
+            optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
+        else
+            optionsWindchill.series[0] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex);
         if ("appTemp" in seriesData[0].temperatureplot.series) {
-            optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
+            if (units == null)
+                optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
+            else
+                optionsWindchill.series[2] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.appTemp);
         }
+        if (units == null)
+            optionsWindchill.yAxis.title.text = "(" + seriesData[0].windchillplot.units + ")";
+        else
+            optionsWindchill.yAxis.title.text = "(" + units.temp + ")";
+        if (units == null)
+            optionsWindchill.tooltip.valueSuffix = seriesData[0].windchillplot.units;
+        else
+            optionsWindchill.tooltip.valueSuffix = units.temp;
         optionsWindchill.yAxis.minRange = seriesData[0].windchillplot.minRange;
-        optionsWindchill.yAxis.title.text = "(" + seriesData[0].windchillplot.units + ")";
-        optionsWindchill.tooltip.valueSuffix = seriesData[0].windchillplot.units;
         optionsWindchill.xAxis.min = seriesData[0].timespan.start;
         optionsWindchill.xAxis.max = seriesData[0].timespan.stop;
+
         optionsHumidity.series[0] = seriesData[0].humidityplot.series.outHumidity;
+        optionsHumidity.yAxis.title.text = "(" + seriesData[0].humidityplot.units + ")";
         optionsHumidity.xAxis.min = seriesData[0].timespan.start;
         optionsHumidity.xAxis.max = seriesData[0].timespan.stop;
-        optionsHumidity.yAxis.title.text = "(" + seriesData[0].humidityplot.units + ")";
-        //optionsBarometer.series[0] = seriesData[0].barometerplot.series.barometer;
-        optionsBarometer.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
+
+        if (units == null)
+            optionsBarometer.series[0] = seriesData[0].barometerplot.series.barometer;
+        else
+            optionsBarometer.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
+        if (units == null)
+            optionsBarometer.yAxis.title.text = "(" + seriesData[0].barometerplot.units + ")";
+        else
+            optionsBarometer.yAxis.title.text = "(" + units.pressure + ")";
+        if (units == null)
+            optionsBarometer.tooltip.valueSuffix = seriesData[0].barometerplot.units;
+        else
+            optionsBarometer.tooltip.valueSuffix = units.pressure;
         optionsBarometer.yAxis.minRange = seriesData[0].barometerplot.minRange;
-        //optionsBarometer.yAxis.title.text = "(" + seriesData[0].barometerplot.units + ")";
-        optionsBarometer.yAxis.title.text = "(" + units.pressure + ")";
-        //optionsBarometer.tooltip.valueSuffix = seriesData[0].barometerplot.units;
-        optionsBarometer.tooltip.valueSuffix = units.pressure;
         optionsBarometer.xAxis.min = seriesData[0].timespan.start;
         optionsBarometer.xAxis.max = seriesData[0].timespan.stop;
-        optionsWind.series[0] = seriesData[0].windplot.series.windSpeed;
-        optionsWind.series[1] = seriesData[0].windplot.series.windGust;
+
+        if (units == null)
+            optionsWind.series[0] = seriesData[0].windplot.series.windSpeed;
+        else
+            optionsWind.series[0] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed);
+        if (units == null)
+            optionsWind.series[1] = seriesData[0].windplot.series.windGust;
+        else
+            optionsWind.series[1] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust);
+        if (units == null)
+            optionsWind.yAxis.title.text = "(" + seriesData[0].windplot.units + ")";
+        else
+            optionsWind.yAxis.title.text = "(" + units.wind + ")";
+        if (units == null)
+            optionsWind.tooltip.valueSuffix = seriesData[0].windplot.units;
+        else
+            optionsWind.tooltip.valueSuffix = units.wind;
         optionsWind.yAxis.minRange = seriesData[0].windplot.minRange;
-        optionsWind.yAxis.title.text = "(" + seriesData[0].windplot.units + ")";
-        optionsWind.tooltip.valueSuffix = seriesData[0].windplot.units;
         optionsWind.xAxis.min = seriesData[0].timespan.start;
         optionsWind.xAxis.max = seriesData[0].timespan.stop;
+
         optionsWindDir.series[0] = seriesData[0].winddirplot.series.windDir;
-        optionsWindDir.yAxis.title.text = "(" + seriesData[0].winddirplot.units + ")";
+        if (units == null)
+            optionsWindDir.yAxis.title.text = "(" + seriesData[0].winddirplot.units + ")";
+        else
+            optionsWindDir.yAxis.title.text = "(" + units.wind + ")";
         optionsWindDir.xAxis.min = seriesData[0].timespan.start;
         optionsWindDir.xAxis.max = seriesData[0].timespan.stop;
-        optionsRain.series[0] = seriesData[0].rainplot.series.rain;
+
+        if (units == null)
+            optionsRain.series[0] = seriesData[0].rainplot.series.rain;
+        else
+            optionsRain.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
+        if (units == null)
+            optionsRain.yAxis.title.text = "(" + seriesData[0].rainplot.units + ")";
+        else
+            optionsRain.yAxis.title.text = "(" + units.rain + ")";
+        if (units == null)
+            optionsRain.tooltip.valueSuffix = seriesData[0].rainplot.units;
+        else
+            optionsRain.tooltip.valueSuffix = units.rain;
         optionsRain.yAxis.minRange = seriesData[0].rainplot.minRange;
-        optionsRain.yAxis.title.text = "(" + seriesData[0].rainplot.units + ")";
-        optionsRain.tooltip.valueSuffix = seriesData[0].rainplot.units;
+
         optionsRadiation.series[0] = seriesData[0].radiationplot.series.radiation;
         if ("insolation" in seriesData[0].radiationplot.series) {
             optionsRadiation.series[1] = seriesData[0].radiationplot.series.insolation;
@@ -1033,6 +1101,7 @@ Function to add/set various plot options and then plot each week plot
         optionsRadiation.yAxis.title.text = "(" + seriesData[0].radiationplot.units + ")";
         optionsRadiation.xAxis.min = seriesData[0].timespan.start;
         optionsRadiation.xAxis.max = seriesData[0].timespan.stop;
+
         optionsUv.series[0] = seriesData[0].uvplot.series.uv;
         optionsUv.yAxis.minRange = seriesData[0].uvplot.minRange;
         optionsUv.yAxis.title.text = "(" + seriesData[0].uvplot.units + ")";
@@ -1071,14 +1140,16 @@ Function to add/set various plot options and then plot each week plot
         if (document.getElementById(optionsUv.chart.renderTo)){
             var chart = new Highcharts.StockChart(optionsUv);
         };
-        chart.series[0].update({
-        cursor: 'pointer',
-            point: {
-                events: {
-                    click: function(e){cb_func(e);}
-                         }
-                   }
-        });
+        if (cb_func != null){
+            chart.series[0].update({
+            cursor: 'pointer',
+                point: {
+                    events: {
+                        click: function(e){cb_func(e);}
+                             }
+                       }
+            });
+        }
         setTimeout(function(){$('input.highcharts-range-selector',$(chart.container).parent()).datepicker();},0);
         $.datepicker.setDefaults({dateFormat:'d M yy',onSelect:function(dateText){this.onchange();this.onblur();}});
     });
