@@ -984,7 +984,7 @@ Function to add/set various plot options and then plot each week plot
         if (units == null)
             optionsTemp.series[1] = seriesData[0].temperatureplot.series.dewpoint;
         else
-            optionsTemp.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
+            optionsTemp.series[1] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint);
         if ("appTemp" in seriesData[0].temperatureplot.series) {
             if (units == null)
                 optionsTemp.series[2] = seriesData[0].temperatureplot.series.appTemp;
@@ -999,7 +999,7 @@ Function to add/set various plot options and then plot each week plot
         if (units == null)
             optionsTemp.tooltip.valueSuffix = seriesData[0].temperatureplot.units;
         else
-            optionsTemp.yAxis.title.text = "(" + units.temp + ")";
+            optionsTemp.tooltip.valueSuffix = units.temp;
         optionsTemp.xAxis.min = seriesData[0].timespan.start;
         optionsTemp.xAxis.max = seriesData[0].timespan.stop;
 
