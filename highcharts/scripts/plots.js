@@ -832,9 +832,9 @@ Function to create wind chart
 
 *****************************************************************************/
     if (span == "yearly"){
-        options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, [seriesData[0].windplot.windmax]);
-        options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, [seriesData[0].windplot.windAvmax]);
-        options.series[2].data = convert_wind(seriesData[0].windplot.units, units.wind, [seriesData[0].windplot.windaverage]);
+        options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windmax);
+        options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windAvmax);
+        options.series[2].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windaverage);
     }
     else if (span == "weekly"){
         options.series[0] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed);
@@ -1001,7 +1001,7 @@ Function to create rain chart
 
 *****************************************************************************/
     if (span == "yearly")
-        options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rainsum);
+        options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rainsum);
     if (span == "weekly")
         options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
     options.yAxis.title.text = "(" + units.rain + ")";
