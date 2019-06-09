@@ -70,6 +70,41 @@ var plotIds = {
     uv: 'uvplot'
 };
 
+var createweeklyoptions = {
+    temperatureplot: [addWeekOptions, setTemp],
+    humidityplot: [addWeekOptions, setHumidity],
+    barometerplot: [addWeekOptions, setBarometer],
+    windchillplot: [addWeekOptions, setWindchill],
+    windplot: [addWeekOptions, setWind],
+    winddirplot: [addWeekOptions, setWindDir],
+    rainplot: [addWeekOptions, setRain],
+    radiationplot: [addWeekOptions, setRadiation],
+    uvplot: [addWeekOptions, setUv]
+};
+
+var createyearlyoptions = {
+    temperatureplot: [addYearOptions, setTempStock],
+    humidityplot: [addYearOptions, setHumidityStock],
+    barometerplot: [addYearOptions, setBarometerStock],
+    windchillplot: [addYearOptions, setWindchillStock],
+    windplot: [addYearOptions, setWindStock],
+    winddirplot: [addYearOptions, setWindDirStock],
+    rainplot: [addYearOptions, setRainStock],
+    radiationplot: [addYearOptions, setRadiationStock],
+    uvplot: [addYearOptions, setUvStock]
+};
+
+var createfunctions = {
+    temperatureplot: [create_temperature_chart],
+    humidityplot: [create_humidity_chart],
+    barometerplot: [create_barometer_chart],
+    windchillplot: [create_windchill_chart],
+    windplot: [create_wind_chart],
+    winddirplot: [create_winddir_chart],
+    rainplot: [create_rain_chart],
+    radiationplot: [create_radiation_chart],
+    uvplot: [create_uv_chart]
+};
 /*****************************************************************************
 
 Set paths/names of our week and year JSON data files
@@ -349,7 +384,7 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
 
     throw new Error('Unable to copy obj! Its type isn\'t supported.');
 };
-
+    
 function addWeekOptions(obj) {
 /*****************************************************************************
 
@@ -472,6 +507,31 @@ spline temperature plots
     return obj
 };
 
+function create_temperature_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create temperature chart
+
+*****************************************************************************/
+    if (span == "yearly"){
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
+    }
+    else if (span == "weekly"){        
+        options.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
+        options.series[1] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint);
+        if ("appTemp" in seriesData[0].temperatureplot.series) {
+           options.series[2] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp);
+        }
+    }
+    options.yAxis.title.text = "(" + units.temp + ")";
+    options.tooltip.valueSuffix = units.temp;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    options.yAxis.minRange = seriesData[0].temperatureplot.minRange;
+    return options;
+}
+
 function setWindchill(obj) {
 /*****************************************************************************
 
@@ -526,6 +586,44 @@ spline windchill plots
     return obj
 };
 
+function create_windchill_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create windchill chart
+
+*****************************************************************************/
+    if (span == "yearly"){
+        options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexaverage);
+        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillaverage);
+        if ("appTempminmax" in seriesData[0].windchillplot) {
+            options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.appTempminmax);
+        } else {
+            options.series.shift();
+        }
+        if ("appTempaverage" in seriesData[0].windchillplot) {
+            options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.appTempaverage);
+        } else {
+            options.series.shift();
+        }
+        if ((!("appTempminmax" in seriesData[0].windchillplot)) && (!("appTempaverage" in seriesData[0].windchillplot))) {
+            options.title.text = 'Wind Chill/Heat Index';
+        }
+    }
+    else {
+        options.series[1] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill);
+        options.series[0] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex);
+        if ("appTemp" in seriesData[0].temperatureplot.series) {
+            options.series[2] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.appTemp);
+        }
+    }
+    options.yAxis.title.text = "(" + units.temp + ")";
+    options.tooltip.valueSuffix = units.temp;
+    options.yAxis.minRange = seriesData[0].windchillplot.minRange;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    return options;
+}
+        
 function setHumidity(obj) {
 /*****************************************************************************
 
@@ -585,6 +683,24 @@ humidity spline plots
     return obj
 };
 
+function create_humidity_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create humidity chart
+
+*****************************************************************************/
+    if (span == "yearly"){
+        options.series[0].data = seriesData[0].humidityplot.outHumidityminmax;
+        options.series[1].data = seriesData[0].humidityplot.outHumidityaverage;
+    }
+    else if (span == "weekly")
+        options.series[0] = seriesData[0].humidityplot.series.outHumidity;
+    options.yAxis.title.text = "(" + seriesData[0].humidityplot.units + ")";
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    return options;
+}
+
 function setBarometer(obj) {
 /*****************************************************************************
 
@@ -640,6 +756,26 @@ spline barometric pressure plots
     return obj
 };
 
+function create_barometer_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create barometer chart
+
+*****************************************************************************/
+    if (span == "yearly"){
+        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
+        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
+    }
+    else if (span == "weekly")
+        options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
+    options.yAxis.title.text = "(" + units.pressure + ")";
+    options.tooltip.valueSuffix = units.pressure;
+    options.yAxis.minRange = seriesData[0].barometerplot.minRange;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    return options
+}
+
 function setWind(obj) {
 /*****************************************************************************
 
@@ -688,6 +824,29 @@ spline wind speed plots
     obj.tooltip.valueDecimals = 1;
     return obj
 };
+
+function create_wind_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create wind chart
+
+*****************************************************************************/
+    if (span == "yearly"){
+        options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, [seriesData[0].windplot.windmax]);
+        options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, [seriesData[0].windplot.windAvmax]);
+        options.series[2].data = convert_wind(seriesData[0].windplot.units, units.wind, [seriesData[0].windplot.windaverage]);
+    }
+    else if (span == "weekly"){
+        options.series[0] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed);
+        options.series[1] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust);
+    }
+    options.yAxis.title.text = "(" + units.wind + ")";
+    options.tooltip.valueSuffix = units.wind;
+    options.yAxis.minRange = seriesData[0].windplot.minRange;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    return options;
+}
 
 function setWindDir(obj) {
 /*****************************************************************************
@@ -751,6 +910,23 @@ spline wind direction plots
     return obj
 };
 
+function create_winddir_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create wind direction chart
+
+*****************************************************************************/
+    if (span == "yearly")
+        options.series[0].data = seriesData[0].winddirplot.windDir;
+    else if (span == "weekly")
+        options.series[0] = seriesData[0].winddirplot.series.windDir;
+    options.yAxis.minRange = seriesData[0].winddirplot.minRange;
+    options.yAxis.title.text = "(" + units.wind + ")";
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    return options;
+}
+
 function setRain(obj) {
 /*****************************************************************************
 
@@ -796,6 +972,7 @@ spline rainfall plots
         '%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'
     ];
     obj.plotOptions.column.dataGrouping.enabled = true;
+    obj.plotOptions.column.dataGrouping.groupPixelWidth = 50;
     obj.series = [{
         name: 'Rainfall',
         type: 'column',
@@ -817,6 +994,25 @@ spline rainfall plots
     return obj
 };
 
+function create_rain_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create rain chart
+
+*****************************************************************************/
+    if (span == "yearly")
+        options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rainsum);
+    if (span == "weekly")
+        options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
+    options.yAxis.title.text = "(" + units.rain + ")";
+    options.tooltip.valueSuffix = units.rain;
+    options.yAxis.minRange = seriesData[0].rainplot.minRange;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    options.title.text = 'Rainfall';
+    return options;
+}
+
 function setRadiation(obj) {
 /*****************************************************************************
 
@@ -837,6 +1033,31 @@ plots
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.yAxis.min = 0;
+    obj.tooltip.formatter = function() {
+        var order = [], i, j, temp = [],
+            points = this.points;
+
+        for(i=0; i<points.length; i++)
+        {
+            j=0;
+            if( order.length )
+            {
+                while( points[order[j]] && points[order[j]].y > points[i].y )
+                    j++;
+            }
+            temp = order.splice(0, j);
+            temp.push(i);
+            order = temp.concat(order);
+        }
+        console.log(order);
+        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
+        $(order).each(function(i,j){
+            temp += '<span style="color: '+points[j].series.color+'">' +
+                points[j].series.name + ': ' + points[j].y + 'W/m\u00B2</span><br/>';
+        });
+        return temp;
+    };
+
     return obj
 };
 
@@ -861,6 +1082,30 @@ spline solar radiation plots
     obj.tooltip.valueSuffix = 'W/m\u00B2';
     return obj
 };
+
+function create_radiation_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create radiation chart
+
+*****************************************************************************/
+    if (span == "yearly"){
+        options.series[0].data = seriesData[0].radiationplot.radiationmax;
+        options.series[1].data = seriesData[0].radiationplot.radiationaverage;
+    }
+    else if (span == "weekly"){
+        options.series[0] = seriesData[0].radiationplot.series.radiation;
+        if ("insolation" in seriesData[0].radiationplot.series) {
+            options.series[1] = seriesData[0].radiationplot.series.insolation;
+            options.series[1].type = 'area';
+        }
+    }    
+    options.yAxis.minRange = seriesData[0].radiationplot.minRange;
+    options.yAxis.title.text = "(" + seriesData[0].radiationplot.units + ")";
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    return options;
+}
 
 function setUv(obj) {
 /*****************************************************************************
@@ -910,397 +1155,117 @@ spline UV index plots
     return obj
 };
 
-function weekly(){weekly(null, null);}
-function weekly(units, cb_func){
+function create_uv_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create uv chart
+
+*****************************************************************************/
+    if (span == "yearly"){
+        options.series[0].data = seriesData[0].uvplot.uvmax;
+        options.series[1].data = seriesData[0].uvplot.uvaverage;
+    }
+    else if (span == "weekly")
+        options.series[0] = seriesData[0].uvplot.series.uv;
+    options.yAxis.minRange = seriesData[0].uvplot.minRange;
+    options.yAxis.title.text = "(" + seriesData[0].uvplot.units + ")";
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    Highcharts.setOptions({
+        global: {
+            timezoneOffset: -seriesData[0].utcoffset,
+        },
+    });
+    return options;
+}
+
+function setup_weekly_plots(plot_id, options_obj){
+/*****************************************************************************
+
+Function to add/set various weekly plot options specific to the 'week' plot.
+
+*****************************************************************************/
+    var i;
+    for (i = 0; i < createweeklyoptions[plot_id].length; i++)
+       options_obj = createweeklyoptions[plot_id][i](options_obj);
+    return options_obj
+};
+
+function weekly(units, cb_func, plot_type){console.log(units, cb_func, plot_type);
 /*****************************************************************************
 
 Function to add/set various plot options and then plot each week plot
 
 *****************************************************************************/
     // gather all fixed plot options for each plot
-    var optionsTemp = clone(commonOptions);
-    optionsTemp = addWeekOptions(optionsTemp);
-    optionsTemp = setTemp(optionsTemp);
-    var optionsWindchill = clone(commonOptions);
-    optionsWindchill = addWeekOptions(optionsWindchill);
-    optionsWindchill = setWindchill(optionsWindchill);
-    var optionsHumidity = clone(commonOptions);
-    optionsHumidity = addWeekOptions(optionsHumidity);
-    optionsHumidity = setHumidity(optionsHumidity);
-    var optionsBarometer = clone(commonOptions);
-    optionsBarometer = addWeekOptions(optionsBarometer);
-    optionsBarometer = setBarometer(optionsBarometer);
-    var optionsWind = clone(commonOptions);
-    optionsWind = addWeekOptions(optionsWind);
-    optionsWind = setWind(optionsWind);
-    var optionsWindDir = clone(commonOptions);
-    optionsWindDir = addWeekOptions(optionsWindDir);
-    optionsWindDir = setWindDir(optionsWindDir);
-    var optionsRain = clone(commonOptions);
-    optionsRain = addWeekOptions(optionsRain);
-    optionsRain = setRain(optionsRain);
-    optionsRain.plotOptions.column.dataGrouping.groupPixelWidth = 50;
-    var optionsRadiation = clone(commonOptions);
-    optionsRadiation = addWeekOptions(optionsRadiation);
-    optionsRadiation = setRadiation(optionsRadiation);
-    optionsRadiation.tooltip.formatter = function() {
-        var order = [], i, j, temp = [],
-            points = this.points;
-
-        for(i=0; i<points.length; i++)
-        {
-            j=0;
-            if( order.length )
-            {
-                while( points[order[j]] && points[order[j]].y > points[i].y )
-                    j++;
-            }
-            temp = order.splice(0, j);
-            temp.push(i);
-            order = temp.concat(order);
-        }
-        console.log(order);
-        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
-        $(order).each(function(i,j){
-            temp += '<span style="color: '+points[j].series.color+'">' +
-                points[j].series.name + ': ' + points[j].y + 'W/m\u00B2</span><br/>';
-        });
-        return temp;
-    };
-    var optionsUv = clone(commonOptions);
-    optionsUv = addWeekOptions(optionsUv);
-    optionsUv = setUv(optionsUv);
-
+    var options = setup_weekly_plots(plot_type, clone(commonOptions));
     /*
     jquery function call to get the week JSON data, set plot series and
     other 'variable' plot options (eg units of measure) obtain from the JSON
     data file and then display the actual plots
     */
     $.getJSON(week_json, function(seriesData) {
-        if (units == null)
-            optionsTemp.series[0] = seriesData[0].temperatureplot.series.outTemp;
-        else
-            optionsTemp.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
-        if (units == null)
-            optionsTemp.series[1] = seriesData[0].temperatureplot.series.dewpoint;
-        else
-            optionsTemp.series[1] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint);
-        if ("appTemp" in seriesData[0].temperatureplot.series) {
-            if (units == null)
-                optionsTemp.series[2] = seriesData[0].temperatureplot.series.appTemp;
-            else
-                optionsTemp.series[2] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp);
-        }
-        optionsTemp.yAxis.minRange = seriesData[0].temperatureplot.minRange;
-        if (units == null)
-            optionsTemp.yAxis.title.text = "(" + seriesData[0].temperatureplot.units + ")";
-        else
-            optionsTemp.yAxis.title.text = "(" + units.temp + ")";
-        if (units == null)
-            optionsTemp.tooltip.valueSuffix = seriesData[0].temperatureplot.units;
-        else
-            optionsTemp.tooltip.valueSuffix = units.temp;
-        optionsTemp.xAxis.min = seriesData[0].timespan.start;
-        optionsTemp.xAxis.max = seriesData[0].timespan.stop;
-
-        if (units == null)
-            optionsWindchill.series[1] = seriesData[0].windchillplot.series.windchill;
-        else
-            optionsWindchill.series[1] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill);
-        if (units == null)
-            optionsWindchill.series[0] = seriesData[0].windchillplot.series.heatindex;
-        else
-            optionsWindchill.series[0] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex);
-        if ("appTemp" in seriesData[0].temperatureplot.series) {
-            if (units == null)
-                optionsWindchill.series[2] = seriesData[0].windchillplot.series.appTemp;
-            else
-                optionsWindchill.series[2] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.appTemp);
-        }
-        if (units == null)
-            optionsWindchill.yAxis.title.text = "(" + seriesData[0].windchillplot.units + ")";
-        else
-            optionsWindchill.yAxis.title.text = "(" + units.temp + ")";
-        if (units == null)
-            optionsWindchill.tooltip.valueSuffix = seriesData[0].windchillplot.units;
-        else
-            optionsWindchill.tooltip.valueSuffix = units.temp;
-        optionsWindchill.yAxis.minRange = seriesData[0].windchillplot.minRange;
-        optionsWindchill.xAxis.min = seriesData[0].timespan.start;
-        optionsWindchill.xAxis.max = seriesData[0].timespan.stop;
-
-        optionsHumidity.series[0] = seriesData[0].humidityplot.series.outHumidity;
-        optionsHumidity.yAxis.title.text = "(" + seriesData[0].humidityplot.units + ")";
-        optionsHumidity.xAxis.min = seriesData[0].timespan.start;
-        optionsHumidity.xAxis.max = seriesData[0].timespan.stop;
-
-        if (units == null)
-            optionsBarometer.series[0] = seriesData[0].barometerplot.series.barometer;
-        else
-            optionsBarometer.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
-        if (units == null)
-            optionsBarometer.yAxis.title.text = "(" + seriesData[0].barometerplot.units + ")";
-        else
-            optionsBarometer.yAxis.title.text = "(" + units.pressure + ")";
-        if (units == null)
-            optionsBarometer.tooltip.valueSuffix = seriesData[0].barometerplot.units;
-        else
-            optionsBarometer.tooltip.valueSuffix = units.pressure;
-        optionsBarometer.yAxis.minRange = seriesData[0].barometerplot.minRange;
-        optionsBarometer.xAxis.min = seriesData[0].timespan.start;
-        optionsBarometer.xAxis.max = seriesData[0].timespan.stop;
-
-        if (units == null)
-            optionsWind.series[0] = seriesData[0].windplot.series.windSpeed;
-        else
-            optionsWind.series[0] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed);
-        if (units == null)
-            optionsWind.series[1] = seriesData[0].windplot.series.windGust;
-        else
-            optionsWind.series[1] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust);
-        if (units == null)
-            optionsWind.yAxis.title.text = "(" + seriesData[0].windplot.units + ")";
-        else
-            optionsWind.yAxis.title.text = "(" + units.wind + ")";
-        if (units == null)
-            optionsWind.tooltip.valueSuffix = seriesData[0].windplot.units;
-        else
-            optionsWind.tooltip.valueSuffix = units.wind;
-        optionsWind.yAxis.minRange = seriesData[0].windplot.minRange;
-        optionsWind.xAxis.min = seriesData[0].timespan.start;
-        optionsWind.xAxis.max = seriesData[0].timespan.stop;
-
-        optionsWindDir.series[0] = seriesData[0].winddirplot.series.windDir;
-        if (units == null)
-            optionsWindDir.yAxis.title.text = "(" + seriesData[0].winddirplot.units + ")";
-        else
-            optionsWindDir.yAxis.title.text = "(" + units.wind + ")";
-        optionsWindDir.xAxis.min = seriesData[0].timespan.start;
-        optionsWindDir.xAxis.max = seriesData[0].timespan.stop;
-
-        if (units == null)
-            optionsRain.series[0] = seriesData[0].rainplot.series.rain;
-        else
-            optionsRain.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
-        if (units == null)
-            optionsRain.yAxis.title.text = "(" + seriesData[0].rainplot.units + ")";
-        else
-            optionsRain.yAxis.title.text = "(" + units.rain + ")";
-        if (units == null)
-            optionsRain.tooltip.valueSuffix = seriesData[0].rainplot.units;
-        else
-            optionsRain.tooltip.valueSuffix = units.rain;
-        optionsRain.yAxis.minRange = seriesData[0].rainplot.minRange;
-
-        optionsRadiation.series[0] = seriesData[0].radiationplot.series.radiation;
-        if ("insolation" in seriesData[0].radiationplot.series) {
-            optionsRadiation.series[1] = seriesData[0].radiationplot.series.insolation;
-            optionsRadiation.series[1].type = 'area';
-        }
-        optionsRadiation.yAxis.minRange = seriesData[0].radiationplot.minRange;
-        optionsRadiation.yAxis.title.text = "(" + seriesData[0].radiationplot.units + ")";
-        optionsRadiation.xAxis.min = seriesData[0].timespan.start;
-        optionsRadiation.xAxis.max = seriesData[0].timespan.stop;
-
-        optionsUv.series[0] = seriesData[0].uvplot.series.uv;
-        optionsUv.yAxis.minRange = seriesData[0].uvplot.minRange;
-        optionsUv.yAxis.title.text = "(" + seriesData[0].uvplot.units + ")";
-        optionsUv.xAxis.min = seriesData[0].timespan.start;
-        optionsUv.xAxis.max = seriesData[0].timespan.stop;
-        Highcharts.setOptions({
-            global: {
-                timezoneOffset: -seriesData[0].utcoffset,
-            },
-        });
+        options = createfunctions[plot_type][0](seriesData, units, options, "weekly");
         // generate/display the actual plots
-        if (document.getElementById(optionsTemp.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsTemp);
-        };
-        if (document.getElementById(optionsWindchill.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsWindchill);
-        };
-        if (document.getElementById(optionsHumidity.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsHumidity);
-        };
-        if (document.getElementById(optionsBarometer.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsBarometer);
-        };
-        if (document.getElementById(optionsWind.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsWind);
-        };
-        if (document.getElementById(optionsWindDir.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsWindDir);
-        };
-        if (document.getElementById(optionsRain.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsRain);
-        };
-        if (document.getElementById(optionsRadiation.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsRadiation);
-        };
-        if (document.getElementById(optionsUv.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsUv);
-        };
+        var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (cb_func != null){
-            chart.series[0].update({
-            cursor: 'pointer',
-                point: {
-                    events: {
-                        click: function(e){cb_func(e);}
-                             }
-                       }
-            });
+            var i;
+            for (i = 0; i < chart.series.length; i++){
+                chart.series[i].update({
+                    cursor: 'pointer',
+                    point: {
+                       events: {
+                                click: function(e){cb_func(e);}
+                                }
+                    }
+                });
+            }
         }
-        setTimeout(function(){$('input.highcharts-range-selector',$(chart.container).parent()).datepicker();},0);
-        $.datepicker.setDefaults({dateFormat:'d M yy',onSelect:function(dateText){this.onchange();this.onblur();}});
     });
 };
 
-function yearly () {
+function setup_yearly_plots(plot_id, options_obj){
+/*****************************************************************************
+
+Function to add/set various yearly plot options specific to the 'week' plot.
+
+*****************************************************************************/
+    var i;
+    for (i = 0; i < createyearlyoptions[plot_id].length; i++)
+       options_obj = createyearlyoptions[plot_id][i](options_obj);
+    return options_obj
+};
+
+function yearly(units, cb_func, plot_type){console.log(units, cb_func, plot_type);
 /*****************************************************************************
 
 Function to add/set various plot options and then plot each year plot
 
 *****************************************************************************/
     // gather all fixed plot options for each plot
-    var optionsTemp = clone(commonOptions);
-    optionsTemp = addYearOptions(optionsTemp);
-    optionsTemp = setTempStock(optionsTemp);
-    var optionsWindchill = clone(commonOptions);
-    optionsWindchill = addYearOptions(optionsWindchill);
-    optionsWindchill = setWindchillStock(optionsWindchill);
-    var optionsHumidity = clone(commonOptions);
-    optionsHumidity = addYearOptions(optionsHumidity);
-    optionsHumidity = setHumidityStock(optionsHumidity);
-    var optionsBarometer = clone(commonOptions);
-    optionsBarometer = addYearOptions(optionsBarometer);
-    optionsBarometer = setBarometerStock(optionsBarometer);
-    var optionsWind = clone(commonOptions);
-    optionsWind = addYearOptions(optionsWind);
-    optionsWind = setWindStock(optionsWind);
-    var optionsWindDir = clone(commonOptions);
-    optionsWindDir = addYearOptions(optionsWindDir);
-    optionsWindDir = setWindDirStock(optionsWindDir);
-    var optionsRain = clone(commonOptions);
-    optionsRain = addYearOptions(optionsRain);
-    optionsRain = setRainStock(optionsRain);
-    optionsRain.title.text = 'Rainfall';
-    var optionsRadiation = clone(commonOptions);
-    optionsRadiation = addYearOptions(optionsRadiation);
-    optionsRadiation = setRadiationStock(optionsRadiation);
-    var optionsUv = clone(commonOptions);
-    optionsUv = addYearOptions(optionsUv);
-    optionsUv = setUvStock(optionsUv);
-
+    var options = setup_yearly_plots(plot_type, clone(commonOptions));
     /*
     jquery function call to get the year JSON data, set plot series and
     other 'variable' plot options (eg units of measure) obtain from the JSON
     data file and then display the actual plots
     */
     $.getJSON(year_json, function(seriesData) {
-        optionsTemp.series[0].data = seriesData[0].temperatureplot.outTempminmax;
-        optionsTemp.series[1].data = seriesData[0].temperatureplot.outTempaverage;
-        optionsTemp.yAxis.minRange = seriesData[0].temperatureplot.minRange;
-        optionsTemp.yAxis.title.text = "(" + seriesData[0].temperatureplot.units + ")";
-        optionsTemp.tooltip.valueSuffix = seriesData[0].temperatureplot.units;
-        optionsTemp.xAxis.min = seriesData[0].timespan.start;
-        optionsTemp.xAxis.max = seriesData[0].timespan.stop;
-        optionsWindchill.series[3].data = seriesData[0].windchillplot.heatindexaverage;
-        optionsWindchill.series[2].data = seriesData[0].windchillplot.windchillaverage;
-        if ("appTempminmax" in seriesData[0].windchillplot) {
-            optionsWindchill.series[0].data = seriesData[0].windchillplot.appTempminmax;
-        } else {
-            optionsWindchill.series.shift();
-        }
-        if ("appTempaverage" in seriesData[0].windchillplot) {
-            optionsWindchill.series[1].data = seriesData[0].windchillplot.appTempaverage;
-        } else {
-            optionsWindchill.series.shift();
-        }
-        if ((!("appTempminmax" in seriesData[0].windchillplot)) && (!("appTempaverage" in seriesData[0].windchillplot))) {
-            optionsWindchill.title.text = 'Wind Chill/Heat Index';
-        }
-        optionsWindchill.yAxis.minRange = seriesData[0].windchillplot.minRange;
-        optionsWindchill.yAxis.title.text = "(" + seriesData[0].windchillplot.units + ")";
-        optionsWindchill.tooltip.valueSuffix = seriesData[0].windchillplot.units;
-        optionsWindchill.xAxis.min = seriesData[0].timespan.start;
-        optionsWindchill.xAxis.max = seriesData[0].timespan.stop;
-        optionsHumidity.series[0].data = seriesData[0].humidityplot.outHumidityminmax;
-        optionsHumidity.series[1].data = seriesData[0].humidityplot.outHumidityaverage;
-        optionsHumidity.yAxis.title.text = "(" + seriesData[0].humidityplot.units + ")";
-        optionsHumidity.xAxis.min = seriesData[0].timespan.start;
-        optionsHumidity.xAxis.max = seriesData[0].timespan.stop;
-        optionsBarometer.series[0].data = seriesData[0].barometerplot.barometerminmax;
-        optionsBarometer.series[1].data = seriesData[0].barometerplot.barometeraverage;
-        optionsBarometer.yAxis.minRange = seriesData[0].barometerplot.minRange;
-        optionsBarometer.yAxis.title.text = "(" + seriesData[0].barometerplot.units + ")";
-        optionsBarometer.tooltip.valueSuffix = seriesData[0].barometerplot.units;
-        optionsBarometer.xAxis.min = seriesData[0].timespan.start;
-        optionsBarometer.xAxis.max = seriesData[0].timespan.stop;
-        optionsWind.series[0].data = seriesData[0].windplot.windmax;
-        optionsWind.series[1].data = seriesData[0].windplot.windAvmax;
-        optionsWind.series[2].data = seriesData[0].windplot.windaverage;
-        optionsWind.yAxis.minRange = seriesData[0].windplot.minRange;
-        optionsWind.yAxis.title.text = "(" + seriesData[0].windplot.units + ")";
-        optionsWind.tooltip.valueSuffix = seriesData[0].windplot.units;
-        optionsWind.xAxis.min = seriesData[0].timespan.start;
-        optionsWind.xAxis.max = seriesData[0].timespan.stop;
-        optionsWindDir.series[0].data = seriesData[0].winddirplot.windDir;
-        optionsWindDir.yAxis.minRange = seriesData[0].winddirplot.minRange;
-        optionsWindDir.yAxis.title.text = "(" + seriesData[0].winddirplot.units + ")";
-        optionsWindDir.xAxis.min = seriesData[0].timespan.start;
-        optionsWindDir.xAxis.max = seriesData[0].timespan.stop;
-        optionsRain.series[0].data = seriesData[0].rainplot.rainsum;
-        optionsRain.yAxis.minRange = seriesData[0].rainplot.minRange;
-        optionsRain.yAxis.title.text = "(" + seriesData[0].rainplot.units + ")";
-        optionsRain.tooltip.valueSuffix = seriesData[0].rainplot.units;
-        optionsRain.xAxis.min = seriesData[0].timespan.start;
-        optionsRain.xAxis.max = seriesData[0].timespan.stop;
-        optionsRadiation.series[0].data = seriesData[0].radiationplot.radiationmax;
-        optionsRadiation.series[1].data = seriesData[0].radiationplot.radiationaverage;
-        optionsRadiation.yAxis.minRange = seriesData[0].radiationplot.minRange;
-        optionsRadiation.yAxis.title.text = "(" + seriesData[0].radiationplot.units + ")";
-        optionsRadiation.xAxis.min = seriesData[0].timespan.start;
-        optionsRadiation.xAxis.max = seriesData[0].timespan.stop;
-        optionsUv.series[0].data = seriesData[0].uvplot.uvmax;
-        optionsUv.series[1].data = seriesData[0].uvplot.uvaverage;
-        optionsUv.yAxis.minRange = seriesData[0].uvplot.minRange;
-        optionsUv.yAxis.title.text = "(" + seriesData[0].uvplot.units + ")";
-        optionsUv.xAxis.min = seriesData[0].timespan.start;
-        optionsUv.xAxis.max = seriesData[0].timespan.stop;
-        Highcharts.setOptions({
-            global: {
-                timezoneOffset: -seriesData[0].utcoffset,
-            },
-        });
+        options = createfunctions[plot_type][0](seriesData, units, options, "yearly");
         // generate/display the actual plots
-        if (document.getElementById(optionsTemp.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsTemp);
-        };
-        if (document.getElementById(optionsWindchill.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsWindchill);
-        };
-        if (document.getElementById(optionsHumidity.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsHumidity);
-        };
-        if (document.getElementById(optionsBarometer.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsBarometer);
-        };
-        if (document.getElementById(optionsWind.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsWind);
-        };
-        if (document.getElementById(optionsWindDir.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsWindDir);
-        };
-        if (document.getElementById(optionsRain.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsRain);
-        };
-        if (document.getElementById(optionsRadiation.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsRadiation);
-        };
-        if (document.getElementById(optionsUv.chart.renderTo)){
-            var chart = new Highcharts.StockChart(optionsUv);
-        };
-        setTimeout(function(){$('input.highcharts-range-selector',$(chart.container).parent()).datepicker();},0);
-        $.datepicker.setDefaults({dateFormat:'d M yy',onSelect:function(dateText){this.onchange();this.onblur();}});
+        var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
+        if (cb_func != null){
+            var i;
+            for (i = 0; i < chart.series.length; i++){
+                chart.series[i].update({
+                    cursor: 'pointer',
+                    point: {
+                       events: {
+                                click: function(e){cb_func(e);}
+                                }
+                    }
+                });
+            }
+        }
+
     });
 };
