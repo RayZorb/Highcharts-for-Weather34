@@ -70,6 +70,7 @@ Highcharts.theme = {
         },
       	gridLineColor: '#DDD',
         gridLineWidth: 1,
+      	gridLineDashStyle: 'shortdot',
         minorGridLineWidth: 0,
         minorTickInterval: 'auto',
         minorTickLength: 2,
@@ -86,6 +87,7 @@ Highcharts.theme = {
         allowDecimals: false,
         gridLineColor: '#DDD',
         gridLineWidth: 1,
+      	gridLineDashStyle: 'shortdot',
         labels: {
             style: {
                 color: '#555',
@@ -240,6 +242,7 @@ Highcharts.theme = {
     },
 
     navigator: {
+      	enabled: false,
         handles: {
             backgroundColor: '#666',
             borderColor: '#AAA'
@@ -260,13 +263,8 @@ Highcharts.theme = {
     },
 
     scrollbar: {
-        barBackgroundColor: {
-                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                stops: [
-                    [0.4, '#888'],
-                    [0.6, '#555']
-                ]
-            },
+            enabled: false
+        },
         barBorderColor: '#CCC',
         buttonArrowColor: '#CCC',
         buttonBackgroundColor: {
