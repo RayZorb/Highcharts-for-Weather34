@@ -14,10 +14,13 @@
     <script src="../js/convert_units.js" type="text/javascript"></script>
     <script type="text/javascript">
         window.onload = function() {
-            var plot_name = 'temperatureplot'
-            $("#plot_name").attr('id', plot_name);
-            weekly({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, alert, plot_name);
-            //yearly({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, alert, plot_name);
+            var vars = {};
+            window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,function(m,key,value){vars[key.replace(/%27/g,"")]=value.replace(/%27/g,"");});
+            $("#plot_name").attr('id',vars['chart']);
+            if (vars['span'] == "weekly")
+                weekly({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, alert, vars['chart']);
+            else if (vars['span'] == "yearly")
+                yearly({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, alert, vars['chart']);
         }
     </script>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css">
