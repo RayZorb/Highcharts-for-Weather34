@@ -65,6 +65,7 @@ var plotIds = {
     barometer: 'barometerplot',
     wind: 'windplot',
     windDir: 'winddirplot',
+    windRose: 'windroseplot',
     rain: 'rainplot',
     radiation:  'radiationplot',
     uv: 'uvplot'
@@ -77,6 +78,7 @@ var createweeklyoptions = {
     windchillplot: [addWeekOptions, setWindchill],
     windplot: [addWeekOptions, setWind],
     winddirplot: [addWeekOptions, setWindDir],
+    windroseplot: [addWeekOptions, setWindRose],
     rainplot: [addWeekOptions, setRain],
     radiationplot: [addWeekOptions, setRadiation],
     uvplot: [addWeekOptions, setUv]
@@ -89,6 +91,7 @@ var createyearlyoptions = {
     windchillplot: [addYearOptions, setWindchillStock],
     windplot: [addYearOptions, setWindStock],
     winddirplot: [addYearOptions, setWindDirStock],
+    windroseplot: [addYearOptions, setWindRoseStock],
     rainplot: [addYearOptions, setRainStock],
     radiationplot: [addYearOptions, setRadiationStock],
     uvplot: [addYearOptions, setUvStock]
@@ -101,6 +104,7 @@ var createfunctions = {
     windchillplot: [create_windchill_chart],
     windplot: [create_wind_chart],
     winddirplot: [create_winddir_chart],
+    windroseplot: [create_windrose_chart],
     rainplot: [create_rain_chart],
     radiationplot: [create_radiation_chart],
     uvplot: [create_uv_chart]
@@ -914,6 +918,96 @@ function create_winddir_chart(seriesData, units, options, span){
 /*****************************************************************************
 
 Function to create wind direction chart
+
+*****************************************************************************/
+    if (span == "yearly")
+        options.series[0].data = seriesData[0].winddirplot.windDir;
+    else if (span == "weekly")
+        options.series[0] = seriesData[0].winddirplot.series.windDir;
+    options.yAxis.minRange = seriesData[0].winddirplot.minRange;
+    options.yAxis.title.text = "(" + units.wind + ")";
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    return options;
+}
+
+function setWindRose(obj) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to wind rose plots
+
+*****************************************************************************/
+    obj.chart.renderTo = plotIds.windRose;
+    obj.chart.polar = true;
+    obj.chart.type = 'column';
+    obj.chart.pane = {
+        size: '85%'
+    };
+    obj.navigator = {
+        series: {
+            lineColor: '#439BB6'
+        },
+    };
+    obj.title = {
+        text: 'Wind Rose'
+    };
+    obj.xAxis.tickmarkPlacement ='on';
+    obj.yAxis.min = 0;
+    obj.yAxis.endOnTick = false;
+    obj.yAxis.showLastLabel = true;
+    obj.yAxis.title = {
+            text: 'Frequency (%)'
+    };
+    obj.yAxis.labels = {
+            formatter: function () {return this.value + '%';}
+    };
+    obj.yAxis.reversedStacks = false;
+
+    obj.plotOptions.series = {
+            stacking: 'normal',
+            shadow: false,
+            groupPadding: 0,
+            pointPlacement: 'on'
+    };
+    obj.legend.series= {
+        align: 'right',
+        verticalAlign: 'top',
+        y: 100,
+        layout: 'vertical'
+    };
+    obj.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>'
+    obj.tooltip.pointFormat = '<span style="color: {series.color}">●</span> {series.name}: <b>{point.y}</b>'
+    obj.tooltip.valueSuffix = '\u00B0'
+    obj.tooltip.xDateFormat = '%e %B %Y %H:%M';
+    return obj
+};
+
+function setWindRoseStock(obj) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to combined columnrange
+ wind rose plots
+
+*****************************************************************************/
+    obj = setWindRose(obj);
+    obj.navigator = {
+        series: {
+            lineColor: '#439BB6'
+        },
+    };
+    obj.series = [{
+        name: 'Wind Rose',
+        color: '#439BB6'
+    }];
+    obj.tooltip.valueDecimals = 1;
+    obj.tooltip.xDateFormat = '%e %B %Y';
+    return obj
+};
+
+function create_windrose_chart(seriesData, units, options, span){
+/*****************************************************************************
+
+Function to create wind rose chart
 
 *****************************************************************************/
     if (span == "yearly")
