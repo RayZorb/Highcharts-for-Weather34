@@ -138,7 +138,7 @@ var commonOptions = {
             ]
         },
         spacing: [15, 20, 10, 0],
-        zoomType: 'x'
+        zoomType: 'xy'
     },
     legend: {
         enabled: true
@@ -292,7 +292,7 @@ var commonOptions = {
             day: '%A %e %B %Y'
         },
         shared: true,
-        // need to set valueSuffix so we can set it later if needed
+         //need to set valueSuffix so we can set it later if needed
         valueSuffix: ''
     },
     xAxis: {
@@ -940,45 +940,43 @@ Function to add/set various plot options specific to wind rose plots
     obj.chart.renderTo = plotIds.windRose;
     obj.chart.polar = true;
     obj.chart.type = 'column';
-    obj.chart.pane = {
-        size: '85%'
+    obj.chart.pane = {size: '85%'};
+    obj.title = {text: 'Wind Rose'};
+    obj.rangeSelector = {enabled: false};
+    obj.xAxis.tickmarkPlacement = "on";
+    obj.yAxis= {
+        lineColor: '#555',
+        lineWidth: 1,
+        minorGridLineWidth: 0,
+        minorTickColor: '#555',
+        minorTickLength: 2,
+        minorTickWidth: 1,
+        opposite: false,
+        showLastLabel: true,
+        startOnTick: true,
+        tickColor: '#555',
+        tickLength: 4,
+        tickWidth: 1,
     };
-    obj.navigator = {
-        series: {
-            lineColor: '#439BB6'
-        },
-    };
-    obj.title = {
-        text: 'Wind Rose'
-    };
-    obj.xAxis.tickmarkPlacement ='on';
     obj.yAxis.min = 0;
     obj.yAxis.endOnTick = false;
     obj.yAxis.showLastLabel = true;
-    obj.yAxis.title = {
-            text: 'Frequency (%)'
-    };
-    obj.yAxis.labels = {
-            formatter: function () {return this.value + '%';}
-    };
+    obj.yAxis.title = {text: 'Frequency (%)'};
+    obj.yAxis.labels = {formatter: function () {return this.value + '%';}};
     obj.yAxis.reversedStacks = false;
-
     obj.plotOptions.series = {
             stacking: 'normal',
             shadow: false,
             groupPadding: 0,
             pointPlacement: 'on'
     };
-    obj.legend.series= {
+    obj.legend= {
         align: 'right',
         verticalAlign: 'top',
         y: 100,
         layout: 'vertical'
     };
-    obj.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>'
-    obj.tooltip.pointFormat = '<span style="color: {series.color}">●</span> {series.name}: <b>{point.y}</b>'
-    obj.tooltip.valueSuffix = '\u00B0'
-    obj.tooltip.xDateFormat = '%e %B %Y %H:%M';
+    obj.tooltip.valueSuffix = '%';
     return obj
 };
 
@@ -990,17 +988,6 @@ Function to add/set various plot options specific to combined columnrange
 
 *****************************************************************************/
     obj = setWindRose(obj);
-    obj.navigator = {
-        series: {
-            lineColor: '#439BB6'
-        },
-    };
-    obj.series = [{
-        name: 'Wind Rose',
-        color: '#439BB6'
-    }];
-    obj.tooltip.valueDecimals = 1;
-    obj.tooltip.xDateFormat = '%e %B %Y';
     return obj
 };
 
@@ -1013,14 +1000,11 @@ Function to create wind rose chart
     if (span == "yearly")
         options.series[0].data = seriesData[0].winddirplot.windDir;
     else if (span == "weekly")
-        options.series[0] = seriesData[0].winddirplot.series.windDir;
-    options.yAxis.minRange = seriesData[0].winddirplot.minRange;
-    options.yAxis.title.text = "(" + units.wind + ")";
-    options.xAxis.min = seriesData[0].timespan.start;
-    options.xAxis.max = seriesData[0].timespan.stop;
+        options.series=seriesData[0].windroseDay.series;
+    console.log(options);
     return options;
 }
-
+  
 function setRain(obj) {
 /*****************************************************************************
 
@@ -1151,7 +1135,6 @@ plots
         });
         return temp;
     };
-
     return obj
 };
 
@@ -1285,7 +1268,7 @@ Function to add/set various weekly plot options specific to the 'week' plot.
     return options_obj
 };
 
-function weekly(units, cb_func, plot_type){console.log(units, cb_func, plot_type);
+function weekly(units, plot_type, cb_func){console.log(units, plot_type, cb_func);
 /*****************************************************************************
 
 Function to add/set various plot options and then plot each week plot
@@ -1308,13 +1291,20 @@ Function to add/set various plot options and then plot each week plot
                 chart.series[i].update({
                     cursor: 'pointer',
                     point: {
-                       events: {
-                                click: function(e){cb_func(e);}
-                                }
+                       events: {click: function(e){cb_func(e);}}
                     }
                 });
             }
         }
+        if (plot_type == 'windroseplot') //Needs to be here
+            chart.update({
+                xAxis: {
+                    type: "category",
+                    categories: ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"],
+                },
+                navigator: {enabled: false},
+                scrollbar: {enabled: false}
+            });
     });
 };
 
@@ -1330,7 +1320,7 @@ Function to add/set various yearly plot options specific to the 'week' plot.
     return options_obj
 };
 
-function yearly(units, cb_func, plot_type){console.log(units, cb_func, plot_type);
+function yearly(units, plot_type, cb_func){console.log(units, plot_type, cb_func);
 /*****************************************************************************
 
 Function to add/set various plot options and then plot each year plot
@@ -1353,13 +1343,19 @@ Function to add/set various plot options and then plot each year plot
                 chart.series[i].update({
                     cursor: 'pointer',
                     point: {
-                       events: {
-                                click: function(e){cb_func(e);}
-                                }
+                       events: {click: function(e){cb_func(e);}}
                     }
                 });
             }
         }
-
+        if (plot_type == 'windroseplot') //Needs to be here
+            chart.update({
+                xAxis: {
+                    type: "category",
+                    categories: ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"],
+                },
+                navigator: {enabled: false},
+                scrollbar: {enabled: false}
+            });
     });
 };
