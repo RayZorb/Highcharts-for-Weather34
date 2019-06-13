@@ -954,9 +954,17 @@ Function to add/set various plot options specific to wind rose plots
 
 *****************************************************************************/
     options.chart.renderTo = plotIds.windRose;
+    options.legend= {
+        align: 'right',
+        verticalAlign: 'top',
+        y: 100,
+        layout: 'vertical',
+        text: 'Wind Speed',
+        enabled: true
+    };
     options.chart.polar = true;
     options.chart.type = 'column';
-    options.chart.pane = {size: '85%'};
+    options.chart.pane = {size: '100%'};
     options.title = {text: 'Wind Rose'};
 
     options.xAxis.tickmarkPlacement = "on";
@@ -984,14 +992,7 @@ Function to add/set various plot options specific to wind rose plots
             shadow: false,
             groupPadding: 0,
             pointPlacement: 'on'
-    };
-    options.legend= {
-        align: 'right',
-        verticalAlign: 'top',
-        y: 100,
-        layout: 'vertical',
-        text: 'Wind Speed'
-    };
+    };   
     return options
 };
 
