@@ -940,7 +940,7 @@ Function to create wind direction chart
     else if (span == "weekly")
         options.series[0] = seriesData[0].winddirplot.series.windDir;
     options.yAxis.minRange = seriesData[0].winddirplot.minRange;
-    options.yAxis.title.text = "(" + units.wind + ")";
+    options.yAxis.title.text = "(Degrees)";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
