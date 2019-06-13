@@ -3,7 +3,7 @@
   <head>
     <?php include_once('../livedata.php');?>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>WX-HWS HIGHCHARTS</title>
+    <title>PUT CHART NAME HERE</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js"></script>
@@ -18,10 +18,7 @@
             var vars = {};
             window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key.replace(/%27/g,"")] = value.replace(/%27/g,"");});
             $("#plot_name").attr('id',vars['chart']);
-            if (vars['span'] == "weekly")
-                weekly({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, vars['chart'], null);
-            else if (vars['span'] == "yearly")
-                yearly({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, vars['chart'], null);
+            display_chart({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, vars['chart'], null, vars['span']);
         }
     </script>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css">
@@ -37,4 +34,5 @@
 </body>   
 
 </html>
+
 
