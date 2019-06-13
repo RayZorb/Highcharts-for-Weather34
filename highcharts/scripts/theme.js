@@ -12,10 +12,10 @@ your reference.
 
 Highcharts.theme = {
     chart: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: '#FFF',
         borderWidth: 0,
         borderColor: '#000000',
-        borderRadius: 8,
+        borderRadius: 0,
         plotShadow: false,
         plotBorderWidth: 0,
     },
@@ -68,9 +68,6 @@ Highcharts.theme = {
                 whiteSpace: 'nowrap'
             }
         },
-      	gridLineColor: '#DDD',
-        gridLineWidth: 1,
-      	gridLineDashStyle: 'shortdot',
         minorGridLineWidth: 0,
         minorTickInterval: 'auto',
         minorTickLength: 2,
@@ -87,7 +84,6 @@ Highcharts.theme = {
         allowDecimals: false,
         gridLineColor: '#DDD',
         gridLineWidth: 1,
-      	gridLineDashStyle: 'shortdot',
         labels: {
             style: {
                 color: '#555',
@@ -108,8 +104,8 @@ Highcharts.theme = {
 
     tooltip: {
         backgroundColor: '#FFFFFF',
-        borderWidth: 1,
- 		dateTimeLabelFormats: {
+        borderWidth: 0,
+        dateTimeLabelFormats: {
             hour: '%e %b %H:%M',
             day: '%e %b',
             week: '%e %b',
@@ -153,8 +149,7 @@ Highcharts.theme = {
             color: '#CCC'
         }
     },
-
-    exporting: {
+  	exporting: {
             buttons: {
                 contextButton: {
                     symbolStroke: "#555",
@@ -163,12 +158,8 @@ Highcharts.theme = {
             stroke:"#fff",
             stroke-width: 0          
         },
-                  
-                }
-            }
-        },
 
-  	navigation: {
+    navigation: {
         buttonOptions: {
             symbolStroke: '#DDDDDD',
             hoverSymbolStroke: '#FFFFFF',
@@ -188,6 +179,7 @@ Highcharts.theme = {
     // scroll charts
     rangeSelector: {
         buttonTheme: {
+            width:36,
             fill: {
                 linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
                 stops: [
@@ -224,7 +216,7 @@ Highcharts.theme = {
                     },
                     stroke: '#000000',
                     style: {
-                        color: 'yellow'
+                        color: 'white'
                     }
                 }
             }
@@ -242,7 +234,6 @@ Highcharts.theme = {
     },
 
     navigator: {
-      	enabled: false,
         handles: {
             backgroundColor: '#666',
             borderColor: '#AAA'
@@ -262,29 +253,7 @@ Highcharts.theme = {
         }
     },
 
-    scrollbar: {
-            enabled: false
-        },
-        barBorderColor: '#CCC',
-        buttonArrowColor: '#CCC',
-        buttonBackgroundColor: {
-                linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-                stops: [
-                    [0.4, '#888'],
-                    [0.6, '#555']
-                ]
-            },
-        buttonBorderColor: '#CCC',
-        rifleColor: '#FFF',
-        trackBackgroundColor: {
-            linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
-            stops: [
-                [0, '#000'],
-                [1, '#333']
-            ]
-        },
-        trackBorderColor: '#666'
-    },
+   
 
     // special colors for some of the demo examples
     legendBackgroundColor: 'rgba(48, 48, 48, 0.8)',
