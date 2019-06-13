@@ -96,6 +96,7 @@ var createyearlyfunctions = {
     radiationplot: [addYearOptions, setRadiationStock, create_radiation_chart],
     uvplot: [addYearOptions, setUvStock, setUvStock, create_uv_chart]
 };
+var windrosespans = ["Day","Week","Month","Year"];
 
 /*****************************************************************************
 
@@ -386,17 +387,17 @@ Function to add/set various plot options specific to the 'wind rose' plot.
     // set range selector buttons
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
-        text: 'Day',
-        events: {click: function (e) {weekly(units, plot_type, cb_func, e.target.innerHTML); return false;}}
+        text: windrosespans[0],
+        events: {click: function (e) {weekly(units, plot_type, cb_func, windrosespans[0]); return false;}}
     }, {
-        text: 'Week',
-        events: {click: function (e) {weekly(units, plot_type, cb_func, e.target.innerHTML); return false;}}
+        text: windrosespans[1],
+        events: {click: function (e) {weekly(units, plot_type, cb_func, windrosespans[1]); return false;}}
     }, {
-        text: 'Month',
-        events: {click: function (e) {yearly(units, plot_type, cb_func, e.target.innerHTML); return false;}}
+        text: windrosespans[2],
+        events: {click: function (e) {yearly(units, plot_type, cb_func, windrosespans[2]); return false;}}
     }, {
-        text: 'Year',
-        events: {click: function (e) {yearly(units, plot_type, cb_func, e.target.innerHTML); return false;}}
+        text: windrosespans[3],
+        events: {click: function (e) {yearly(units, plot_type, cb_func, windrosespans[3]); return false;}}
     }];
     // set default range selector button
     options.plotOptions.column.dataGrouping.enabled = false;
@@ -957,6 +958,7 @@ Function to add/set various plot options specific to wind rose plots
     options.chart.type = 'column';
     options.chart.pane = {size: '85%'};
     options.title = {text: 'Wind Rose'};
+
     options.xAxis.tickmarkPlacement = "on";
     options.yAxis= {
         lineColor: '#555',
@@ -999,29 +1001,29 @@ function create_windrose_chart(options, span, seriesData){
 Function to create wind rose chart
 
 *****************************************************************************/
-    if (span == 'Day' || span == "weekly"){ // need weekly for first time
-        span = 'Day';
+    if (!windrosespans.includes(span)) span = 'Day'; // need weekly for first time
+    if (span == windrosespans[0]){
         options.series=seriesData[0].windroseDay.series;
-        options.yAxis.min = seriesData[0].windroseDay.yAxis.min;
-        options.yAxis.max = seriesData[0].windroseDay.yAxis.max;
+        //options.yAxis.min = seriesData[0].windroseDay.yAxis.min;
+        //options.yAxis.max = seriesData[0].windroseDay.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
     }
-    if (span == 'Week'){
+    if (span == windrosespans[1]){
         options.series=seriesData[0].windroseWeek.series;
-        options.yAxis.min = seriesData[0].windroseWeek.yAxis.min;
-        options.yAxis.max = seriesData[0].windroseWeek.yAxis.max;
+        //options.yAxis.min = seriesData[0].windroseWeek.yAxis.min;
+        //options.yAxis.max = seriesData[0].windroseWeek.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
-    if (span == 'Month'){
+    if (span == windrosespans[2]){
         options.series=seriesData[0].windroseMonth.series;
-        options.yAxis.min = seriesData[0].windroseMonth.yAxis.min;
-        options.yAxis.max = seriesData[0].windroseMonth.yAxis.max;
+        //options.yAxis.min = seriesData[0].windroseMonth.yAxis.min;
+        //options.yAxis.max = seriesData[0].windroseMonth.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseMonth.xAxis.categories;
     }
-    if (span == 'Year'){
+    if (span == windrosespans[3]){
         options.series=seriesData[0].windroseYear.series;
-        options.yAxis.min = seriesData[0].windroseYear.yAxis.min;
-        options.yAxis.max = seriesData[0].windroseYear.yAxis.max;
+        //options.yAxis.min = seriesData[0].windroseYear.yAxis.min;
+        //options.yAxis.max = seriesData[0].windroseYear.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     options.subtitle = {text: span};
@@ -1306,7 +1308,6 @@ function weekly(units, plot_type, cb_func, span){
 Function to add/set various plot options and then plot each week plot
 
 *****************************************************************************/
-    if (span.length == 0) return;
     // gather all fixed plot options for each plot
     $.getJSON(week_json, function(seriesData) {
         var options = setup_weekly_plots(seriesData, units, clone(commonOptions), cb_func, plot_type, span);
@@ -1359,7 +1360,6 @@ function yearly(units, plot_type, cb_func, span){
 Function to add/set various plot options and then plot each year plot
 
 *****************************************************************************/
-    if (span.length == 0) return;
     // gather all fixed plot options for each plot
     $.getJSON(year_json, function(seriesData) {
         var options = setup_yearly_plots(seriesData, units, clone(commonOptions), cb_func, plot_type, span);
