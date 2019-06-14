@@ -8,4 +8,19 @@ This repository contains the instructions and code to enable Highcharts to be us
 1. Install the WeeWX Highcharts extension. Full intructions can be found at https://github.com/gjr80/weewx-highcharts. Pay careful attention to the modification of weewx.conf and skin.conf files.
 2. Download the .zip file to the root folder of WX-HWS template installation.
 3. Unzip the file which will result in a new folder, highcharts.
-4
+4. Included in this folder is and alternative version of index.php with the links to the new charts. Rename your existing WX-HWS index.php file to index.php.cjs and replace it with the alternative version.
+5. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
+6. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
+7. Open your website page and click on any of the chart links and a new chart will be displayed.
+8. You will find additional controls which allows you change the time frame and zoom-in on data etc.
+9. The charts that are set up to be generated are as follows: -
+*   Temperature = 'temperatureplot'
+    Wind Chill/Heat Index/Apparent Temperature = 'windchillplot'
+    Humidity = 'humidityplot'
+    Barometer = 'barometerplot'
+    Wind = 'windplot'
+    Wind Direction = 'winddirplot'
+    Wind Rose = 'windroseplot'
+    Rain = 'rainplot'
+    Solar =  'radiationplot'
+    UV = 'uvplot'
