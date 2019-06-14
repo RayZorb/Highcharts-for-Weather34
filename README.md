@@ -17,7 +17,7 @@ This repository contains the instructions and code to enable Highcharts to be us
         # Highcharts week json data
         [[[WeekJSON]]]
             template = json/week.json.tmpl
-	HTML_ROOT = [YOUR_PATH]/highcharts
+	    HTML_ROOT = [YOUR_PATH]/highcharts
             
         # Highcharts week json data
         [[[YearJSON]]]
