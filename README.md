@@ -35,11 +35,11 @@ This repository contains the instructions and code to enable Highcharts to be us
             
             UV = 'uvplot'
             
-10. You will notice that not all of these charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used: -
+10. You will notice that not all of these charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
 
             href="<?php echo $chartsource ;?>/highchart.php?chart='[chart-ID]'&span='[time_frame]'" data-lity>
             
-            where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly'
+            
             
             
             
