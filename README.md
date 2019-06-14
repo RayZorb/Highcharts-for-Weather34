@@ -14,13 +14,32 @@ This repository contains the instructions and code to enable Highcharts to be us
 7. Open your website page and click on any of the chart links and a new chart will be displayed.
 8. You will find additional controls which allows you change the time frame and zoom-in on data etc.
 9. The charts that are set up to be generated are as follows: -
-*   Temperature = 'temperatureplot'
-    Wind Chill/Heat Index/Apparent Temperature = 'windchillplot'
-    Humidity = 'humidityplot'
-    Barometer = 'barometerplot'
-    Wind = 'windplot'
-    Wind Direction = 'winddirplot'
-    Wind Rose = 'windroseplot'
-    Rain = 'rainplot'
-    Solar =  'radiationplot'
-    UV = 'uvplot'
+
+            Temperature = 'temperatureplot'
+            
+            Wind Chill/Heat Index/Apparent Temperature = 'windchillplot'
+            
+            Humidity = 'humidityplot'
+            
+            Barometer = 'barometerplot'
+            
+            Wind = 'windplot'
+            
+            Wind Direction = 'winddirplot'
+            
+            Wind Rose = 'windroseplot'
+            
+            Rain = 'rainplot'
+            
+            Solar =  'radiationplot'
+            
+            UV = 'uvplot'
+            
+10. You will notice that not all of these charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used: -
+
+            href="<?php echo $chartsource ;?>/highchart.php?chart='[chart-ID]'&span='[time_frame]'" data-lity>
+            
+            where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly'
+            
+            
+            
