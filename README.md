@@ -12,17 +12,17 @@ This repository contains the instructions and code to enable Highcharts to be us
 5. Find and edit your Highcharts skin.conf file. Towards the end of the code you will find in the [CheetahGenerator] stanza something like: -
 
 
-    [[ToDate]]
+    	[[ToDate]]
 
-        # Highcharts week json data
-        [[[WeekJSON]]]
-            template = json/week.json.tmpl
-	    HTML_ROOT = [YOUR_PATH]/highcharts
+        	# Highcharts week json data
+        	[[[WeekJSON]]]
+            		template = json/week.json.tmpl
+	    		HTML_ROOT = [YOUR_PATH]/highcharts
             
-        # Highcharts week json data
-        [[[YearJSON]]]
-            template = json/year.json.tmpl	
-            HTML_ROOT = [YOUR_PATH]/highcharts
+        	# Highcharts week json data
+        	[[[YearJSON]]]
+            		template = json/year.json.tmpl	
+            		HTML_ROOT = [YOUR_PATH]/highcharts
             
 6. You must change this to reflect your own path. For example it might be '/var/www/html/pws/highcharts'            
 7. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
