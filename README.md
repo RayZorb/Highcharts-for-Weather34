@@ -1,6 +1,6 @@
 # Highcharts for WX-HWS
 
-This repository contains the instructions and code to enable Highcharts to be used with the WeeWX version of weather34 home weather templates.
+This repository contains the instructions and code to enable Highcharts to be used with the WeeWX version of weather34 home weather templates. Please make sure that you are using the current version of WX-HWS from https://github.com/steepleian/WX-HWS
 
 
 # Installation and Setup Instructions
