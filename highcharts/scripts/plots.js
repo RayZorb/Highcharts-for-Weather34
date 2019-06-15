@@ -1020,7 +1020,7 @@ Function to create wind rose chart
         options.series=seriesData[0].windroseYear.series;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
-    options.subtitle = {text: span};
+    options.title = {text: "Wind Rose " + span};
     return options;
 };
  
