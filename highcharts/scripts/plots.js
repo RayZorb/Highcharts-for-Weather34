@@ -281,7 +281,7 @@ var commonOptions = {
             day: '%A %e %B %Y'
         },
         shared: true,
-         //need to set valueSuffix so we can set it later if needed
+        //need to set valueSuffix so we can set it later if needed
         valueSuffix: ''
     },
     xAxis: {
@@ -966,7 +966,8 @@ Function to add/set various plot options specific to wind rose plots
     options.chart.type = 'column';
     options.chart.pane = {size: '100%'};
     options.title = {text: 'Wind Rose'};
-
+    options.tooltip.split = false; 
+    options.tooltip.shared = false;
     options.xAxis.tickmarkPlacement = "on";
     options.yAxis= {
         lineColor: '#555',
@@ -1005,26 +1006,19 @@ Function to create wind rose chart
     if (!windrosespans.includes(span)) span = 'Day'; // need weekly for first time
     if (span == windrosespans[0]){
         options.series=seriesData[0].windroseDay.series;
-        //options.yAxis.min = seriesData[0].windroseDay.yAxis.min;
-        //options.yAxis.max = seriesData[0].windroseDay.yAxis.max;
+        console.log(options.series);
         options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
     }
     if (span == windrosespans[1]){
         options.series=seriesData[0].windroseWeek.series;
-        //options.yAxis.min = seriesData[0].windroseWeek.yAxis.min;
-        //options.yAxis.max = seriesData[0].windroseWeek.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
     if (span == windrosespans[2]){
         options.series=seriesData[0].windroseMonth.series;
-        //options.yAxis.min = seriesData[0].windroseMonth.yAxis.min;
-        //options.yAxis.max = seriesData[0].windroseMonth.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseMonth.xAxis.categories;
     }
     if (span == windrosespans[3]){
         options.series=seriesData[0].windroseYear.series;
-        //options.yAxis.min = seriesData[0].windroseYear.yAxis.min;
-        //options.yAxis.max = seriesData[0].windroseYear.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     options.subtitle = {text: span};
