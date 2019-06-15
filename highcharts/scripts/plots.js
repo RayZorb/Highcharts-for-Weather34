@@ -1006,8 +1006,7 @@ Function to create wind rose chart
     if (!windrosespans.includes(span)) span = 'Day'; // need weekly for first time
     if (span == windrosespans[0]){
         options.series=seriesData[0].windroseDay.series;
-        console.log(options.series);
-        options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
+        options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
     if (span == windrosespans[1]){
         options.series=seriesData[0].windroseWeek.series;

@@ -73,8 +73,8 @@ function convert_pressure(source, dest, fields){
 
 //function to convert rain 
 function convert_rain(source, dest, fields){
-   dest = dest.trim();
-   source = source.trim();
+   dest = dest.replace("inch","in").trim();
+   source = source.replace("inch","in").trim();
    if (source == dest) return fields;
    var i;
    if (fields.hasOwnProperty('data')){
