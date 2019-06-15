@@ -968,6 +968,7 @@ Function to add/set various plot options specific to wind rose plots
     options.title = {text: 'Wind Rose'};
     options.tooltip.split = false; 
     options.tooltip.shared = false;
+    options.tooltip.valueSuffix = '%';
     options.xAxis.tickmarkPlacement = "on";
     options.yAxis= {
         lineColor: '#555',
