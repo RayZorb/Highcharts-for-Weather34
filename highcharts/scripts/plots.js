@@ -967,7 +967,7 @@ Function to add/set various plot options specific to wind rose plots
     options.chart.pane = {size: '100%'};
     options.title = {text: 'Wind Rose'};
 
-    options.xAxis.tickmarkPlacement = "on";
+    options.xAxis.tickmarkPlacement = "between";
     options.yAxis= {
         lineColor: '#555',
         lineWidth: 1,
@@ -991,8 +991,17 @@ Function to add/set various plot options specific to wind rose plots
             stacking: 'normal',
             shadow: false,
             groupPadding: 0,
-            pointPlacement: 'on'
-    };   
+            pointPlacement: 'between',
+    };
+     options.tooltip = {
+        followPointer: true,
+        shared: false,
+       	split: false,
+        shadow: false,
+        
+    };    
+        
+    
     return options
 };
 
