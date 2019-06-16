@@ -968,7 +968,7 @@ Function to add/set various plot options specific to wind rose plots
     options.title = {text: 'Wind Rose'};
     options.tooltip.split = false; 
     options.tooltip.shared = false;
-    options.tooltip.valueSuffix = '%';
+    options.tooltip.valueSuffix ='%';
     options.xAxis.tickmarkPlacement = "on";
     options.yAxis= {
         lineColor: '#555',
@@ -998,7 +998,7 @@ Function to add/set various plot options specific to wind rose plots
     return options
 };
 
-function create_windrose_chart(options, span, seriesData){
+function create_windrose_chart(options, span, seriesData, units){
 /*****************************************************************************
 
 Function to create wind rose chart
@@ -1006,24 +1006,45 @@ Function to create wind rose chart
 *****************************************************************************/
     if (!windrosespans.includes(span)) span = 'Day'; // need weekly for first time
     if (span == windrosespans[0]){
+        convertlegend(seriesData[0].windroseDay.series, units);
         options.series=seriesData[0].windroseDay.series;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
     if (span == windrosespans[1]){
+        convertlegend(seriesData[0].windroseWeek.series, units);
         options.series=seriesData[0].windroseWeek.series;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
     if (span == windrosespans[2]){
+        convertlegend(seriesData[0].windroseMonth.series, units);
         options.series=seriesData[0].windroseMonth.series;
         options.xAxis.categories = seriesData[0].windroseMonth.xAxis.categories;
     }
     if (span == windrosespans[3]){
+        convertlegend(seriesData[0].windroseYear.series, units);
         options.series=seriesData[0].windroseYear.series;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     options.title = {text: "Wind Rose " + span};
     return options;
 };
+
+function convertlegend(series, units){
+/*****************************************************************************
+
+Function to convert wind rose legend display units
+
+*****************************************************************************/
+    for (i = 0; i < series.length; i++){
+        var newName = "";
+        var parts = series[i].name.split("-");
+        for (j = 0; j < parts.length; j++){
+            newName += convert_wind(series[i].name.replace(/[0-9-]/g,''), units['wind'], parseInt(parts[j]), 1);
+            if (j + 1 < parts.length) newName += "-";
+        }
+        series[i].name = newName + " " + units['wind'];
+    }
+}
  
 function setRain(obj) {
 /*****************************************************************************

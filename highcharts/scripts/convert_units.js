@@ -1,91 +1,103 @@
 // function to convert temp
-function convert_temp(source, dest, fields){
+function convert_temp(source, dest, fields, fixed = 2){
    dest = dest.replace(/[^\x00-\x7F]/g, "").trim();
    source = source.replace(/[^\x00-\x7F]/g, "").trim();
    if (source == dest) return fields;
-   var i, j;
    if (fields.hasOwnProperty('data')){
+      var i, j;
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
-            if (source == 'C') fields.data[i][j] = parseFloat((fields.data[i][j] * (9 / 5) + 32).toFixed(2));
-            else if (source == 'F') fields.data[i][j] = parseFloat(((fields.data[i][j] - 32) * 5 / 9).toFixed(2));
-   }else
+            fields.data[i][j] = do_temp_conversion(source, dest, fields.data[i][j], fixed);
+   }else if (Array.isArray(fields)){
       for (i = 0; i < fields.length -1; i++)
          for (j = 1; j < fields[i].length; j++)
-            if (source == 'C') fields[i][j] = parseFloat((fields[i][j] * (9 / 5) + 32).toFixed(2));
-            else if (source == 'F') fields[i][j] = parseFloat(((fields[i][j] - 32) * 5 / 9).toFixed(2));
+            fields[i][j] = do_temp_conversion(source, dest, fields[i][j], fixed);
+   }else
+      return do_temp_conversion(source, dest, fields, fixed);
    return fields;
+}
+function do_temp_conversion(source, dest, data, fixed){
+   if (source == 'C')      return parseFloat((data * (9 / 5) + 32).toFixed(fixed));
+   else if (source == 'F') return parseFloat(((data - 32) * 5 / 9).toFixed(fixed));
+   return data;
 }
 
 //function to convert wind 
-function convert_wind(source, dest, fields){
+function convert_wind(source, dest, fields, fixed = 2){
    dest = dest.replace("hr","h").trim();
    source = source.replace("hr","h").trim();
    if (dest == source) return fields;
-   var i;
    if (fields.hasOwnProperty('data')){
+      var i;
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
-           if (source == 'mph'  && dest == 'm/s') fields.data[i][j] = parseFloat((fields.data[i][1] * 0.44704).toFixed(2));
-           else if (source == 'mph'  && dest == 'km/h') fields.data[i][j] = parseFloat((fields.data[i][j] * 1.609344).toFixed(2));
-           else if (source == 'm/s'  && dest == 'mph')  fields.data[i][j] = parseFloat((fields.data[i][j] * 2.23694).toFixed(2));
-           else if (source == 'm/s'  && dest == 'km/h') fields.data[i][j] = parseFloat((fields.data[i][j] * 3.6).toFixed(2)); 
-           else if (source == 'km/h' && dest == 'mph')  fields.data[i][j] = parseFloat((fields.data[i][j] * 0.621371).toFixed(2));
-           else if (source == 'km/h' && dest == 'm/s')  fields.data[i][j] = parseFloat((fields.data[i][j] * 0.277778).toFixed(2));
-   }else
+           fields.data[i][j] = do_speed_conversion(source, dest, fields.data[i][j], fixed);
+   }else if (Array.isArray(fields)){
       for (i = 0; i < fields.length; i++)
          for (j = 1; j < fields[i].length; j++)
-            if (source == 'mph'  && dest == 'm/s') fields[i][j] = parseFloat((fields[i][j] * 0.44704).toFixed(2));
-            else if (source == 'mph'  && dest == 'km/h') fields[i][j] = parseFloat((fields[i][j] * 1.609344).toFixed(2));
-            else if (source == 'm/s'  && dest == 'mph')  fields[i][j] = parseFloat((fields[i][j] * 2.23694).toFixed(2));
-            else if (source == 'm/s'  && dest == 'km/h') fields[i][j] = parseFloat((fields[i][j] * 3.6).toFixed(2)); 
-            else if (source == 'km/h' && dest == 'mph')  fields[i][j] = parseFloat((fields[i][j] * 0.621371).toFixed(2));
-            else if (source == 'km/h' && dest == 'm/s')  fields[i][j] = parseFloat((fields[i][j] * 0.277778).toFixed(2));
+            fields[i][j] = do_speed_conversion(source, dest, fields[i][j], fixed);
+   }else
+      return do_speed_conversion(source, dest, fields, fixed);
    return fields;
+}
+function do_speed_conversion(source, dest, data, fixed){
+   if (source == 'mph'  && dest == 'm/s') return parseFloat((data * 0.44704).toFixed(fixed));
+   else if (source == 'mph'  && dest == 'km/h') return parseFloat((data * 1.609344).toFixed(fixed));
+   else if (source == 'm/s'  && dest == 'mph')  return parseFloat((data * 2.23694).toFixed(fixed));
+   else if (source == 'm/s'  && dest == 'km/h') return parseFloat((data * 3.6).toFixed(fixed)); 
+   else if (source == 'km/h' && dest == 'mph')  return parseFloat((data * 0.621371).toFixed(fixed));
+   else if (source == 'km/h' && dest == 'm/s')  return parseFloat((data * 0.277778).toFixed(fixed));
+   return data;
 }
 
 //function to convert pressure 
-function convert_pressure(source, dest, fields){
+function convert_pressure(source, dest, fields, fixed = 2){
    dest = dest.trim();
    source = source.trim();
    if (dest == source) return fields;
-   var i;
    if (fields.hasOwnProperty('data')){
       for (i = 0; i < fields.data.length; i++)
+         var i;
          for (j = 1; j < fields.data[i].length; j++)
-            if (source == 'inHg' && dest == 'hPa')  fields.data[i][j] = parseFloat((fields.data[i][j] * 33.8639).toFixed(2));
-            else if (source == 'inHg' && dest == 'mb')   fields.data[i][j] = parseFloat((fields.data[i][j] * 33.8639).toFixed(2));
-            else if (source == 'hPa'  && dest == 'inHg') fields.data[i][j] = parseFloat((fields.data[i][j] * 0.02953).toFixed(2));
-            else if (source == 'hPa'  && dest == 'mb')   fields.data[i][j] = parseFloat((fields.data[i][j]).toFixed(2));
-            else if (source == 'mb'   && dest == 'inHg') fields.data[i][j] = parseFloat((fields.data[i][j] * 0.02953).toFixed(2));
-            else if (source == 'mb'   && dest == 'hPa')  fields.data[i][j] = parseFloat((fields.data[i][j]).toFixed(2));
-   }else
+            fields.data[i][j] = do_pressure_conversion(source, dest, fields.data[i][j], fixed);
+   }else if (Array.isArray(fields)){
       for (i = 0; i < fields.length; i++)
          for (j = 1; j < fields[i].length; j++)
-            if (source == 'inHg' && dest == 'hPa')  fields[i][1] = parseFloat((fields[i][j] * 33.8639).toFixed(2));
-            else if (source == 'inHg' && dest == 'mb')   fields[i][j] = parseFloat((fields[i][j] * 33.8639).toFixed(2));
-            else if (source == 'hPa'  && dest == 'inHg') fields[i][j] = parseFloat((fields[i][j] * 0.02953).toFixed(2));
-            else if (source == 'hPa'  && dest == 'mb')   fields[i][j] = parseFloat((fields[i][j]).toFixed(2));
-            else if (source == 'mb'   && dest == 'inHg') fields[i][j] = parseFloat((fields[i][j] * 0.02953).toFixed(2));
-            else if (source == 'mb'   && dest == 'hPa')  fields[i][j] = parseFloat((fields[i][j]).toFixed(2));
+            fields[i][j] = do_pressure_conversion(source, dest, fields[i][j], fixed);
+   }else
+      return do_pressure_conversion(source, dest, fields, fixed);
    return fields;
+}
+function do_pressure_conversion(source, dest, data, fixed){
+   if (source == 'inHg' && dest == 'hPa')       return parseFloat((data * 33.8639).toFixed(fixed));
+   else if (source == 'inHg' && dest == 'mb')   return parseFloat((data * 33.8639).toFixed(fixed));
+   else if (source == 'hPa'  && dest == 'inHg') return parseFloat((data * 0.02953).toFixed(fixed));
+   else if (source == 'hPa'  && dest == 'mb')   return parseFloat(data.toFixed(fixed));
+   else if (source == 'mb'   && dest == 'inHg') return parseFloat((data * 0.02953).toFixed(fixed));
+   else if (source == 'mb'   && dest == 'hPa')  return parseFloat((data).toFixed(fixed));
+   return data;
 }
 
 //function to convert rain 
-function convert_rain(source, dest, fields){
+function convert_rain(source, dest, fields, fixed = 2){
    dest = dest.replace("inch","in").trim();
    source = source.replace("inch","in").trim();
    if (source == dest) return fields;
-   var i;
    if (fields.hasOwnProperty('data')){
+      var i;
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
-            if (source == 'in') fields.data[i][j] = parseFloat((fields.data[i][j] * 25.4).toFixed(2));
-            else if (source == 'mm') fields.data[i][j] = parseFloat((fields.data[i][j] * 0.0393701).toFixed(2));
-   }else
+            fields.data[i][j] = do_distance_conversion(source, dest, fields.data[i][j], fixed);
+   }else if (Array.isArray(fields)){
       for (i = 0; i < fields.length -1; i++)
          for (j = 1; j < fields[i].length; j++)
-            if (source == 'in') fields[i][j] = parseFloat((fields[i][j] * 25.4).toFixed(2));
-            else if (source == 'mm') fields[i][j] = parseFloat((fields[i][j] * 0.0393701).toFixed(2));
+            fields[i][j] = do_distance_conversion(source, dest, fields[i][j], fixed);
+   }else
+      return do_distance_conversion(source, dest, fields, fixed);
    return fields;
+}
+function do_distance_conversion(source, dest, data, fixed){
+   if (source == 'in')      return parseFloat((data * 25.4).toFixed(fixed));
+   else if (source == 'mm') return parseFloat((data * 0.0393701).toFixed(fixed));
+   return data;
 }
