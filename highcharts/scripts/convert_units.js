@@ -4,7 +4,6 @@ function convert_temp(source, dest, fields, fixed = 2){
    source = source.replace(/[^\x00-\x7F]/g, "").trim();
    if (source == dest) return fields;
    if (fields.hasOwnProperty('data')){
-      var i, j;
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
             fields.data[i][j] = do_temp_conversion(source, dest, fields.data[i][j], fixed);
@@ -16,6 +15,7 @@ function convert_temp(source, dest, fields, fixed = 2){
       return do_temp_conversion(source, dest, fields, fixed);
    return fields;
 }
+
 function do_temp_conversion(source, dest, data, fixed){
    if (source == 'C')      return parseFloat((data * (9 / 5) + 32).toFixed(fixed));
    else if (source == 'F') return parseFloat(((data - 32) * 5 / 9).toFixed(fixed));
@@ -28,7 +28,6 @@ function convert_wind(source, dest, fields, fixed = 2){
    source = source.replace("hr","h").trim();
    if (dest == source) return fields;
    if (fields.hasOwnProperty('data')){
-      var i;
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
            fields.data[i][j] = do_speed_conversion(source, dest, fields.data[i][j], fixed);
@@ -40,8 +39,9 @@ function convert_wind(source, dest, fields, fixed = 2){
       return do_speed_conversion(source, dest, fields, fixed);
    return fields;
 }
+
 function do_speed_conversion(source, dest, data, fixed){
-   if (source == 'mph'  && dest == 'm/s') return parseFloat((data * 0.44704).toFixed(fixed));
+   if (source == 'mph'  && dest == 'm/s')       return parseFloat((data * 0.44704).toFixed(fixed));
    else if (source == 'mph'  && dest == 'km/h') return parseFloat((data * 1.609344).toFixed(fixed));
    else if (source == 'm/s'  && dest == 'mph')  return parseFloat((data * 2.23694).toFixed(fixed));
    else if (source == 'm/s'  && dest == 'km/h') return parseFloat((data * 3.6).toFixed(fixed)); 
@@ -68,6 +68,7 @@ function convert_pressure(source, dest, fields, fixed = 2){
       return do_pressure_conversion(source, dest, fields, fixed);
    return fields;
 }
+
 function do_pressure_conversion(source, dest, data, fixed){
    if (source == 'inHg' && dest == 'hPa')       return parseFloat((data * 33.8639).toFixed(fixed));
    else if (source == 'inHg' && dest == 'mb')   return parseFloat((data * 33.8639).toFixed(fixed));
@@ -84,7 +85,6 @@ function convert_rain(source, dest, fields, fixed = 2){
    source = source.replace("inch","in").trim();
    if (source == dest) return fields;
    if (fields.hasOwnProperty('data')){
-      var i;
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
             fields.data[i][j] = do_distance_conversion(source, dest, fields.data[i][j], fixed);
@@ -96,6 +96,7 @@ function convert_rain(source, dest, fields, fixed = 2){
       return do_distance_conversion(source, dest, fields, fixed);
    return fields;
 }
+
 function do_distance_conversion(source, dest, data, fixed){
    if (source == 'in')      return parseFloat((data * 25.4).toFixed(fixed));
    else if (source == 'mm') return parseFloat((data * 0.0393701).toFixed(fixed));

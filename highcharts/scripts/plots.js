@@ -97,6 +97,7 @@ var createyearlyfunctions = {
     uvplot: [addYearOptions, setUvStock, setUvStock, create_uv_chart]
 };
 var windrosespans = ["Day","Week","Month","Year"];
+var categories;
 
 /*****************************************************************************
 
@@ -388,16 +389,16 @@ Function to add/set various plot options specific to the 'wind rose' plot.
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: windrosespans[0],
-        events: {click: function (e) {weekly(units, plot_type, cb_func, windrosespans[0]); return false;}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[0]]); return false;}}
     }, {
         text: windrosespans[1],
-        events: {click: function (e) {weekly(units, plot_type, cb_func, windrosespans[1]); return false;}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[1]]); return false;}}
     }, {
         text: windrosespans[2],
-        events: {click: function (e) {yearly(units, plot_type, cb_func, windrosespans[2]); return false;}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[2]]); return false;}}
     }, {
         text: windrosespans[3],
-        events: {click: function (e) {yearly(units, plot_type, cb_func, windrosespans[3]); return false;}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[3]]); return false;}}
     }];
     // set default range selector button
     options.plotOptions.column.dataGrouping.enabled = false;
@@ -532,11 +533,11 @@ function create_temperature_chart(options, span, seriesData, units){
 Function to create temperature chart
 
 *****************************************************************************/
-    if (span == "yearly"){
+    if (span[0] == "yearly"){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
     }
-    else if (span == "weekly"){        
+    else if (span[0] == "weekly"){        
         options.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
         options.series[1] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint);
         if ("appTemp" in seriesData[0].temperatureplot.series) {
@@ -611,7 +612,7 @@ function create_windchill_chart(options, span, seriesData, units){
 Function to create windchill chart
 
 *****************************************************************************/
-    if (span == "yearly"){
+    if (span[0] == "yearly"){
         options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexaverage);
         options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillaverage);
         if ("appTempminmax" in seriesData[0].windchillplot) {
@@ -708,11 +709,11 @@ function create_humidity_chart(options, span, seriesData, units){
 Function to create humidity chart
 
 *****************************************************************************/
-    if (span == "yearly"){
+    if (span[0] == "yearly"){
         options.series[0].data = seriesData[0].humidityplot.outHumidityminmax;
         options.series[1].data = seriesData[0].humidityplot.outHumidityaverage;
     }
-    else if (span == "weekly")
+    else if (span[0] == "weekly")
         options.series[0] = seriesData[0].humidityplot.series.outHumidity;
     options.yAxis.title.text = "(" + seriesData[0].humidityplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
@@ -781,11 +782,11 @@ function create_barometer_chart(options, span, seriesData, units){
 Function to create barometer chart
 
 *****************************************************************************/
-    if (span == "yearly"){
+    if (span[0] == "yearly"){
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
         options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
     }
-    else if (span == "weekly")
+    else if (span[0] == "weekly")
         options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
     options.yAxis.title.text = "(" + units.pressure + ")";
     options.tooltip.valueSuffix = units.pressure;
@@ -850,12 +851,12 @@ function create_wind_chart(options, span, seriesData, units){
 Function to create wind chart
 
 *****************************************************************************/
-    if (span == "yearly"){
+    if (span[0] == "yearly"){
         options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windmax);
         options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windAvmax);
         options.series[2].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windaverage);
     }
-    else if (span == "weekly"){
+    else if (span[0] == "weekly"){
         options.series[0] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed);
         options.series[1] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust);
     }
@@ -935,9 +936,9 @@ function create_winddir_chart(options, span, seriesData, units){
 Function to create wind direction chart
 
 *****************************************************************************/
-    if (span == "yearly")
+    if (span[0] == "yearly")
         options.series[0].data = seriesData[0].winddirplot.windDir;
-    else if (span == "weekly")
+    else if (span[0] == "weekly")
         options.series[0] = seriesData[0].winddirplot.series.windDir;
     options.yAxis.minRange = seriesData[0].winddirplot.minRange;
     options.yAxis.title.text = "(" + units.wind + ")";
@@ -1004,28 +1005,29 @@ function create_windrose_chart(options, span, seriesData, units){
 Function to create wind rose chart
 
 *****************************************************************************/
-    if (!windrosespans.includes(span)) span = 'Day';
-    if (span == windrosespans[0]){
+    if (!windrosespans.includes(span[1])) span[1] = 'Day';
+    if (span[1] == windrosespans[0]){
         convertlegend(seriesData[0].windroseDay.series, units);
-        options.series=seriesData[0].windroseDay.series;
-        options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
+        options.series = seriesData[0].windroseDay.series;
+        options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
     }
-    if (span == windrosespans[1]){
+    else if (span[1] == windrosespans[1]){
         convertlegend(seriesData[0].windroseWeek.series, units);
-        options.series=seriesData[0].windroseWeek.series;
+        options.series = seriesData[0].windroseWeek.series;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
-    if (span == windrosespans[2]){
+    else if (span[1] == windrosespans[2]){
         convertlegend(seriesData[0].windroseMonth.series, units);
-        options.series=seriesData[0].windroseMonth.series;
+        options.series = seriesData[0].windroseMonth.series;
         options.xAxis.categories = seriesData[0].windroseMonth.xAxis.categories;
     }
-    if (span == windrosespans[3]){
+    else if (span[1] == windrosespans[3]){
         convertlegend(seriesData[0].windroseYear.series, units);
-        options.series=seriesData[0].windroseYear.series;
+        options.series = seriesData[0].windroseYear.series;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
-    options.title = {text: "Wind Rose " + span};
+    categories = options.xAxis.categories;
+    options.title = {text: "Wind Rose " + span[1]};
     return options;
 };
 
@@ -1040,7 +1042,7 @@ Function to convert wind rose legend display units
         var newName = "";
         var parts = series[i].name.split("-");
         for (j = 0; j < parts.length; j++){
-            newName += convert_wind(series[i].name.replace(/[0-9-]/g,''), units['wind'], parseInt(parts[j]), 1);
+            newName += convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 1);
             if (j + 1 < parts.length) newName += "-";
         }
         for (j = 0; j < series[i].data.length; j++)
@@ -1122,9 +1124,9 @@ function create_rain_chart(options, span, seriesData, units){
 Function to create rain chart
 
 *****************************************************************************/
-    if (span == "yearly")
+    if (span[0] == "yearly")
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rainsum);
-    if (span == "weekly")
+    if (span[0] == "weekly")
         options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
     options.yAxis.title.text = "(" + units.rain + ")";
     options.tooltip.valueSuffix = units.rain;
@@ -1210,11 +1212,11 @@ function create_radiation_chart(options, span, seriesData, units){
 Function to create radiation chart
 
 *****************************************************************************/
-    if (span == "yearly"){
+    if (span[0] == "yearly"){
         options.series[0].data = seriesData[0].radiationplot.radiationmax;
         options.series[1].data = seriesData[0].radiationplot.radiationaverage;
     }
-    else if (span == "weekly"){
+    else if (span[0] == "weekly"){
         options.series[0] = seriesData[0].radiationplot.series.radiation;
         if ("insolation" in seriesData[0].radiationplot.series) {
             options.series[1] = seriesData[0].radiationplot.series.insolation;
@@ -1282,11 +1284,11 @@ function create_uv_chart(options, span, seriesData, units){
 Function to create uv chart
 
 *****************************************************************************/
-    if (span == "yearly"){
+    if (span[0] == "yearly"){
         options.series[0].data = seriesData[0].uvplot.uvmax;
         options.series[1].data = seriesData[0].uvplot.uvaverage;
     }
-    else if (span == "weekly")
+    else if (span[0] == "weekly")
         options.series[0] = seriesData[0].uvplot.series.uv;
     options.yAxis.minRange = seriesData[0].uvplot.minRange;
     options.yAxis.title.text = "(" + seriesData[0].uvplot.units + ")";
@@ -1300,46 +1302,32 @@ Function to create uv chart
     return options;
 }
 
-function setup_weekly_plots(seriesData, units, options, cb_func, plot_type, span){
+function setup_plots(seriesData, units, options, cb_func, plot_type, span){
 /*****************************************************************************
 
 Function to add/set various weekly plot options specific to the 'week' plot.
 
 *****************************************************************************/
-    var i;
-    for (i = 0; i < createweeklyfunctions[plot_type].length; i++)
-       options = createweeklyfunctions[plot_type][i](options, span, seriesData, units, cb_func,plot_type);
+    Highcharts.setOptions({lang:{ rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
+    for (i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
+       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, cb_func,plot_type) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, cb_func,plot_type));
     return options
 };
 
-function display_chart(units, plot_type, cb_func, span){console.log(units, plot_type, cb_func, span);
+function display_chart(units, plot_type, cb_func, span){
 /*****************************************************************************
 
-Function to choose weekly or yearly charts
+Function to display weekly or yearly charts
 
 *****************************************************************************/
-    this[span].apply(this,[units, plot_type, cb_func, span]);
-};
-
-function weekly(units, plot_type, cb_func, span){
-/*****************************************************************************
-
-Function to add/set various plot options and then plot each week plot
-
-*****************************************************************************/
+    if (!Array.isArray(span)) span = [span];
+    console.log(units, plot_type, cb_func, span);
     // gather all fixed plot options for each plot
-    $.getJSON(week_json, function(seriesData) {
-        var options = setup_weekly_plots(seriesData, units, clone(commonOptions), cb_func, plot_type, span);
-        var categories = options.xAxis.categories; //Needs to be here possible Highcharts bug
+    $.getJSON((span[0] == "weekly" ? week_json : year_json), function(seriesData) {
+        var options = setup_plots(seriesData, units, clone(commonOptions), cb_func, plot_type, span);
         // generate/display the actual plots
-        Highcharts.setOptions({
-            lang:{
-                rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")
-            }
-        });
         var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (cb_func != null){
-            var i;
             for (i = 0; i < chart.series.length; i++){
                 chart.series[i].update({
                     cursor: 'pointer',
@@ -1349,59 +1337,7 @@ Function to add/set various plot options and then plot each week plot
                 });
             }
         }
-        if (plot_type == 'windroseplot') //Needs to be here possible Highcharts bug
-            chart.update({
-                xAxis: {
-                    type: "category",
-                    categories: categories 
-                },
-                navigator: {enabled: false},
-                scrollbar: {enabled: false}
-            });
-    });
-};
-
-function setup_yearly_plots(seriesData, units, options, cb_func, plot_type, span){
-/*****************************************************************************
-
-Function to add/set various yearly plot options specific to the 'week' plot.
-
-*****************************************************************************/
-    var i;
-    for (i = 0; i < createyearlyfunctions[plot_type].length; i++)
-       options = createyearlyfunctions[plot_type][i](options, span, seriesData, units, cb_func, plot_type);
-    return options
-};
-
-function yearly(units, plot_type, cb_func, span){
-/*****************************************************************************
-
-Function to add/set various plot options and then plot each year plot
-
-*****************************************************************************/
-    // gather all fixed plot options for each plot
-    $.getJSON(year_json, function(seriesData) {
-        var options = setup_yearly_plots(seriesData, units, clone(commonOptions), cb_func, plot_type, span);
-        var categories = options.xAxis.categories; //Needs to be here possible Highcharts bug
-        // generate/display the actual plots
-        Highcharts.setOptions({
-            lang:{
-                rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")
-            }
-        });
-        var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
-        if (cb_func != null){
-            var i;
-            for (i = 0; i < chart.series.length; i++){
-                chart.series[i].update({
-                    cursor: 'pointer',
-                    point: {
-                       events: {click: function(e){cb_func(e);}}
-                    }
-                });
-            }
-        }
-        if (plot_type == 'windroseplot') //Needs to be here possible Highcharts bug
+        if (plot_type == 'windroseplot') //Needs to be here
             chart.update({
                 xAxis: {
                     type: "category",
