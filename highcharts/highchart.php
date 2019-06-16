@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
   <head>
-    <?php include_once('../livedata.php');?>
+    <?php include('chartslivedata.php');?>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>PUT CHART NAME HERE</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -18,7 +18,7 @@
             var vars = {};
             window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key.replace(/%27/g,"")] = value.replace(/%27/g,"");});
             $("#plot_name").attr('id',vars['chart']);
-            display_chart({temp:'<?php echo $weather["temp_units"]; ?>', pressure:'<?php echo $weather["barometer_units"]; ?>', wind:'<?php echo $weather["wind_units"]; ?>', rain:'<?php echo $weather["rain_units"]; ?>'}, vars['chart'], null, vars['span']);
+            display_chart({temp:'<?php echo $tempunit; ?>', pressure:'<?php echo $pressureunit; ?>', wind:'<?php echo $windunit ?>', rain:'<?php echo $rainunit; ?>'}, vars['chart'], null, vars['span']);
         }
     </script>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css">
