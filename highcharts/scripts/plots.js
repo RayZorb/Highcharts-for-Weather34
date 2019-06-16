@@ -1004,7 +1004,7 @@ function create_windrose_chart(options, span, seriesData, units){
 Function to create wind rose chart
 
 *****************************************************************************/
-    if (!windrosespans.includes(span)) span = 'Day'; // need weekly for first time
+    if (!windrosespans.includes(span)) span = 'Day';
     if (span == windrosespans[0]){
         convertlegend(seriesData[0].windroseDay.series, units);
         options.series=seriesData[0].windroseDay.series;
@@ -1036,13 +1036,16 @@ Function to convert wind rose legend display units
 
 *****************************************************************************/
     for (i = 0; i < series.length; i++){
+        var percent = 0;
         var newName = "";
         var parts = series[i].name.split("-");
         for (j = 0; j < parts.length; j++){
             newName += convert_wind(series[i].name.replace(/[0-9-]/g,''), units['wind'], parseInt(parts[j]), 1);
             if (j + 1 < parts.length) newName += "-";
         }
-        series[i].name = newName + " " + units['wind'];
+        for (j = 0; j < series[i].data.length; j++)
+            percent += series[i].data[j];
+        series[i].name = newName + " " + units['wind'] + " " + percent.toFixed(1) + "%";
     }
 }
  
