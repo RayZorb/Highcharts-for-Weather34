@@ -388,7 +388,7 @@ Function to add/set various plot options specific to the 'wind rose' plot.
     // set range selector buttons
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
-        text: windrosespans[0],
+        text: '24h',
         events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[0]]); return false;}}
     }, {
         text: windrosespans[1],
@@ -1027,7 +1027,7 @@ Function to create wind rose chart
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     categories = options.xAxis.categories;
-    options.title = {text: "Wind Rose " + span[1]};
+    options.title = {text: "Wind Rose " + (span[1] == "Day" ? "24h" : span[1])};
     return options;
 };
 
