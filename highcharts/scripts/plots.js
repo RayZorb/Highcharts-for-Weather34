@@ -281,7 +281,7 @@ var commonOptions = {
             day: '%A %e %B %Y'
         },
         shared: true,
-         //need to set valueSuffix so we can set it later if needed
+        //need to set valueSuffix so we can set it later if needed
         valueSuffix: ''
     },
     xAxis: {
@@ -940,7 +940,7 @@ Function to create wind direction chart
     else if (span == "weekly")
         options.series[0] = seriesData[0].winddirplot.series.windDir;
     options.yAxis.minRange = seriesData[0].winddirplot.minRange;
-    options.yAxis.title.text = "(Degrees)";
+    options.yAxis.title.text = "(" + units.wind + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -966,8 +966,10 @@ Function to add/set various plot options specific to wind rose plots
     options.chart.type = 'column';
     options.chart.pane = {size: '100%'};
     options.title = {text: 'Wind Rose'};
-
-    options.xAxis.tickmarkPlacement = "between";
+    options.tooltip.split = false; 
+    options.tooltip.shared = false;
+    options.tooltip.valueSuffix ='%';
+    options.xAxis.tickmarkPlacement = "on";
     options.yAxis= {
         lineColor: '#555',
         lineWidth: 1,
@@ -991,54 +993,61 @@ Function to add/set various plot options specific to wind rose plots
             stacking: 'normal',
             shadow: false,
             groupPadding: 0,
-            pointPlacement: 'between',
-    };
-     options.tooltip = {
-        followPointer: true,
-        shared: false,
-       	split: false,
-        shadow: false,
-        
-    };    
-        
-    
+            pointPlacement: 'on'
+    };   
     return options
 };
 
-function create_windrose_chart(options, span, seriesData){
+function create_windrose_chart(options, span, seriesData, units){
 /*****************************************************************************
 
 Function to create wind rose chart
 
 *****************************************************************************/
-    if (!windrosespans.includes(span)) span = 'Day'; // need weekly for first time
+    if (!windrosespans.includes(span)) span = 'Day';
     if (span == windrosespans[0]){
+        convertlegend(seriesData[0].windroseDay.series, units);
         options.series=seriesData[0].windroseDay.series;
-        //options.yAxis.min = seriesData[0].windroseDay.yAxis.min;
-        //options.yAxis.max = seriesData[0].windroseDay.yAxis.max;
-        options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
+        options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
     if (span == windrosespans[1]){
+        convertlegend(seriesData[0].windroseWeek.series, units);
         options.series=seriesData[0].windroseWeek.series;
-        //options.yAxis.min = seriesData[0].windroseWeek.yAxis.min;
-        //options.yAxis.max = seriesData[0].windroseWeek.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
     if (span == windrosespans[2]){
+        convertlegend(seriesData[0].windroseMonth.series, units);
         options.series=seriesData[0].windroseMonth.series;
-        //options.yAxis.min = seriesData[0].windroseMonth.yAxis.min;
-        //options.yAxis.max = seriesData[0].windroseMonth.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseMonth.xAxis.categories;
     }
     if (span == windrosespans[3]){
+        convertlegend(seriesData[0].windroseYear.series, units);
         options.series=seriesData[0].windroseYear.series;
-        //options.yAxis.min = seriesData[0].windroseYear.yAxis.min;
-        //options.yAxis.max = seriesData[0].windroseYear.yAxis.max;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
-    options.subtitle = {text: span};
+    options.title = {text: "Wind Rose " + span};
     return options;
 };
+
+function convertlegend(series, units){
+/*****************************************************************************
+
+Function to convert wind rose legend display units
+
+*****************************************************************************/
+    for (i = 0; i < series.length; i++){
+        var percent = 0;
+        var newName = "";
+        var parts = series[i].name.split("-");
+        for (j = 0; j < parts.length; j++){
+            newName += convert_wind(series[i].name.replace(/[0-9-]/g,''), units['wind'], parseInt(parts[j]), 1);
+            if (j + 1 < parts.length) newName += "-";
+        }
+        for (j = 0; j < series[i].data.length; j++)
+            percent += series[i].data[j];
+        series[i].name = newName + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
+    }
+}
  
 function setRain(obj) {
 /*****************************************************************************
