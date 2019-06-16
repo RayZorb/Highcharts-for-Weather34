@@ -147,9 +147,9 @@ if ('serviceWorker' in navigator) {
 <span class="yearpopup">  <a alt="yearly windspeed" title="yearly windspeed" href="<?php echo $chartsource ;?>/highchart.php?chart='windplot'&span='yearly'" data-lity ><?php echo $menucharticonpage?> Yearly </a></span>
 <!--<span class="monthpopup"> <a alt="monthly windspeed" title="monthly windspeed"href="<?php echo $chartsource ;?>/monthlywindspeedgust.php" data-lity><?php echo $menucharticonpage?> <?php echo strftime(" %b") ;?> </a></span>-->
 <span class="todaypopup"> <a alt="weekly windspeed" title="weekly windspeed" href="<?php echo $chartsource ;?>/highchart.php?chart='windplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Weekly </a></span>
-<span class="todaypopup"> <a alt="weekly wind direction" title="weekly wind direction" href="<?php echo $chartsource ;?>/highchart.php?chart='winddirplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Direction </a></span>
+<span class="todaypopup"> <a alt="weekly wind direction" title="weekly wind direction" href="<?php echo $chartsource ;?>/highchart.php?chart='winddirplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Dir</a></span>
 <span class="todaypopup"> <a alt="weekly wind rose" title="weekly wind rose" href="<?php echo $chartsource ;?>/highchart.php?chart='windroseplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Rose </a></span>
-<span class="monthpopup"><a href="windywind.php" title="Windy.com Wind Map" alt="Windy.com Wind Map" data-lity><?php echo $chartinfo?> Wind Map</a></span>
+<span class="monthpopup"><a href="windywind.php" title="Windy.com Wind Map" alt="Windy.com Wind Map" data-lity><?php echo $chartinfo?> Map</a></span>
       </div>
   <span class='moduletitle'><?php echo $lang['Direction'];?> | <?php echo $lang['Windspeed'] ," (<valuetitleunit>",$weather["wind_units"];?></valuetitleunit>)</span><br />
          <div id="windspeed"></div></div>
