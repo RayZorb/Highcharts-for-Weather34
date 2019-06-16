@@ -29,7 +29,7 @@
   </head>
   <body>
        <div style="width:auto;">  
-        <div id="plot_name" style="width:100%; height:380px;"></div>
+        <div id="plot_name" style="width:100%; height:430px;"></div>
     </div>
 </body>   
 
