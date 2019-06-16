@@ -1045,7 +1045,7 @@ Function to convert wind rose legend display units
         }
         for (j = 0; j < series[i].data.length; j++)
             percent += series[i].data[j];
-        series[i].name = newName + " " + units['wind'] + " " + percent.toFixed(1) + "%";
+        series[i].name = newName + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
     }
 }
  
