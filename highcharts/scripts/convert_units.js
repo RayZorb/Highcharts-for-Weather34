@@ -54,10 +54,10 @@ function do_speed_conversion(source, dest, data, fixed){
 function convert_pressure(source, dest, fields, fixed = 2){
    dest = dest.trim();
    source = source.trim();
+   console.log(fields);
    if (dest == source) return fields;
    if (fields.hasOwnProperty('data')){
       for (i = 0; i < fields.data.length; i++)
-         var i;
          for (j = 1; j < fields.data[i].length; j++)
             fields.data[i][j] = do_pressure_conversion(source, dest, fields.data[i][j], fixed);
    }else if (Array.isArray(fields)){
