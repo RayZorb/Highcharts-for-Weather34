@@ -112,13 +112,14 @@ if ('serviceWorker' in navigator) {
 <!--begin outside/station data section for homeweatherstation template-->
 <div class="weather-container"><div class="weather-item"><div class="chartforecast">
 <span class="yearpopup">  <a alt="almanac temperature" title="almanac temperature" href="tempalmanac.php" data-lity > <?php echo $chartinfo?> Almanac </a></span>
-<span class="yearpopup">  <a alt="yearly temperature" title="yearly temperature" href="<?php echo $chartsource ;?>/highchart.php?chart='temperatureplot'&span='yearly'" data-lity ><?php echo $menucharticonpage?> Yearly</a></span>
-<a alt="yearly wind chill" title="yearly winchill" href="<?php echo $chartsource ;?>/highchart.php?chart='windchillplot'&span='yearly'" data-lity > <?php echo '| Feels';?> </a></span>
-<!--<span class="monthpopup"> <a alt="monthly temperature" title="monthly temperature" href="<?php echo $chartsource ;?>/monthlytemperature.php" data-lity > <?php echo $menucharticonpage?> <?php echo strftime(" %b") ;?> </a>-->
-<!--<a alt="monthly dew point" title="monthly dew point" href="<?php echo $chartsource ;?>/monthlydewpoint.php" data-lity > <?php echo '| Dew' ;?> </a></span>-->
-<span class="todaypopup"> <a alt="weekly temperature" title="weekly temperature" href="<?php echo $chartsource ;?>/highchart.php?chart='temperatureplot'&span='weekly'" data-lity >  <?php echo $menucharticonpage?> Weekly </a></span>
-<a alt="weekly wind chill" title="weekly winchill" href="<?php echo $chartsource ;?>/highchart.php?chart='windchillplot'&span='weekly'" data-lity > <?php echo '| Feels';?> </a></span>
-  </div>
+<span class="yearpopup">  <a alt="yearly temperature" title="yearly temperature" href="<?php echo $chartsource;?>/highcharts.html?chart='temperatureplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Yearly</a></span>
+<a alt="yearly wind chill" title="yearly winchill" href="<?php echo $chartsource;?>/highcharts.html?chart='windchillplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity > <?php echo '| Feels';?> </a></span>
+<a alt="yearly humidity" title="yearly humidity" href="<?php echo $chartsource;?>/highcharts.html?chart='humidityplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity > <?php echo '| Hum';?> </a></span>  
+<span class="todaypopup"> <a alt="weekly temperature" title="weekly temperature" href="<?php echo $chartsource;?>/highcharts.html?chart='temperatureplot'&span='weekly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity >  <?php echo $menucharticonpage?> Weekly </a></span>
+<a alt="weekly wind chill" title="weekly winchill" href="<?php echo $chartsource;?>/highcharts.html?chart='windchillplot'&span='weekly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity > <?php echo '| Feels';?> </a></span>
+<a alt="weekly humidity" title="weekly humidity" href="<?php echo $chartsource;?>/highcharts.html?chart='humidityplot'&span='weekly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity > <?php echo '| Hum';?> </a></span>
+ 
+</div>
 <span class='moduletitle'> <?php echo $lang['Temperature']; ?> (<valuetitleunit>&deg;<?php echo $weather["temp_units"] ;?></valuetitleunit>) </span><br /></span>
   <div id="temperature"></div><br></div>
   <!--forecast for homeweatherstation template-->
@@ -127,7 +128,7 @@ if ('serviceWorker' in navigator) {
 <?php if ($position6=='forecast3ds.php'){echo'<a alt="Dark Sky Forecast " title="Dark Sky Forecast " href="outlookds.php" data-lity>'. $chartinfo. " Daily Forecast </a>";}?>
 <?php if ($position6=='forecast3wu.php' || $position6=='forecast3wularge.php') {echo ' <a alt="weather underground forecast" title="weather underground forecast" href="outlookwu.php" data-lity>'. $chartinfo. " Daily Forecast </a>";}?>
 <?php if ($position6=='forecast3ds.php' || ($dshourly=='yes' && $apikey!= '11111111111111' && ($position6=='forecast3wu.php' || $position6=='forecast3wularge.php'))) {echo '<a alt="Hourly Forecast" title="Hourly Forecast" href="forecastdshour.php" data-lity>&nbsp;'. $chartinfo. " Hourly Forecast</a>";}?></span>
-      </div>
+  </div>
   <span class='moduletitle'>
     <?php echo $position6title ;?>  (<valuetitleunit>&deg;<?php echo $weather["temp_units"] ;?></valuetitleunit>)  </span><br />
   <div id="currentfore"></div></div>
@@ -136,19 +137,19 @@ if ('serviceWorker' in navigator) {
          <!-- HOURLY & Outlook for homeweather station-->
   <span class="yearpopup"> <a alt="nearby metar station" title="nearby metar station" href="metarnearby.php" data-lity><?php echo $chartinfo?> <?php echo 'Nearby Metar';?> <?php if(filesize('jsondata/metar34.txt')<160){echo "(<ored>Offline</ored>)";}else echo "" ?></a></span>
   <span class="monthpopup"><a href="windyradar.php" title="Windy.com Radar" alt="Windy.com Radar" data-lity><?php echo $chartinfo?> Radar</a></span>
-  <!--<span class="monthpopup"><a href="windywind.php" title="Windy.com Wind Map" alt="Windy.com Wind Map" data-lity><?php echo $chartinfo?> Wind Map</a></span>-->
-   <span class="yearpopup"><a alt="Webcam " title="Webcam " href="cam.php" data-lity><?php echo $webcamicon?> Live Webcam </a></span>  
+  <span class="todaypopup"> <a alt="today cloud cover" title="today cloud cover" href="mbcharts/todaycloudcover.php" data-lity >  <?php echo $menucharticonpage?> Cloud Cover </a></span>
+  <span class="yearpopup"><a alt="Webcam " title="Webcam " href="cam.php" data-lity><?php echo $webcamicon?> Live Webcam </a></span>  
   </div>
   <span class='moduletitle'><?php echo $lang['Currentsky'];?></span><br />
   <div id="currentsky"></div></div></div>
  <!--windspeed for homeweatherstation template-->
 <div class="weather-container"><div class="weather-item"><div class="chartforecast">
 <span class="yearpopup">  <a alt="windspeed almanac" title="windspeed almanac" href="windalmanac.php" data-lity ><?php echo $chartinfo?> Almanac </a></span>
-<span class="yearpopup">  <a alt="yearly windspeed" title="yearly windspeed" href="<?php echo $chartsource ;?>/highchart.php?chart='windplot'&span='yearly'" data-lity ><?php echo $menucharticonpage?> Yearly </a></span>
+<span class="yearpopup">  <a alt="yearly windspeed" title="yearly windspeed" href="<?php echo $chartsource;?>/highcharts.html?chart='windplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Yearly</a></span>
 <!--<span class="monthpopup"> <a alt="monthly windspeed" title="monthly windspeed"href="<?php echo $chartsource ;?>/monthlywindspeedgust.php" data-lity><?php echo $menucharticonpage?> <?php echo strftime(" %b") ;?> </a></span>-->
-<span class="todaypopup"> <a alt="weekly windspeed" title="weekly windspeed" href="<?php echo $chartsource ;?>/highchart.php?chart='windplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Weekly </a></span>
-<span class="todaypopup"> <a alt="weekly wind direction" title="weekly wind direction" href="<?php echo $chartsource ;?>/highchart.php?chart='winddirplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Dir</a></span>
-<span class="todaypopup"> <a alt="weekly wind rose" title="weekly wind rose" href="<?php echo $chartsource ;?>/highchart.php?chart='windroseplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Rose </a></span>
+<span class="todaypopup"> <a alt="weekly windspeed" title="weekly windspeed" href="<?php echo $chartsource;?>/highcharts.html?chart='windplot'&span='weekly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Weekly</a></span>
+<span class="todaypopup"> <a alt="weekly wind direction" title="weekly wind direction" href="<?php echo $chartsource;?>/highcharts.html?chart='winddirplot'&span='weekly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Dir</a></span>
+<span class="todaypopup"> <a alt="weekly wind rose" title="weekly wind rose" href="<?php echo $chartsource;?>/highcharts.html?chart='windroseplot'&span='weekly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Rose</a></span>
 <span class="monthpopup"><a href="windywind.php" title="Windy.com Wind Map" alt="Windy.com Wind Map" data-lity><?php echo $chartinfo?> Map</a></span>
       </div>
   <span class='moduletitle'><?php echo $lang['Direction'];?> | <?php echo $lang['Windspeed'] ," (<valuetitleunit>",$weather["wind_units"];?></valuetitleunit>)</span><br />
@@ -156,10 +157,8 @@ if ('serviceWorker' in navigator) {
        <!--barometer for homeweatherstation template-->
   <div class="weather-item"><div class="chartforecast" >
   <span class="yearpopup">  <a alt="barometer almanac" title="barometer almanac" href="barometeralmanac.php" data-lity ><?php echo $chartinfo?> Almanac</a></span>
-<span class="yearpopup">  <a alt="yearly barometer" title="yearly barometer" href="<?php echo $chartsource ;?>/highchart.php?chart='barometerplot'&span='yearly'" data-lity ><?php echo $menucharticonpage?> Yearly </a></span>
-<!--<span class="monthpopup"> <a alt="monthly barometer" title="monthly barometer" href="<?php echo $chartsource ;?>/monthlybarometer.php" data-lity ><?php echo $menucharticonpage?> <?php echo strftime(" %b") ;?> </a></span>-->
-<!--<span class="todaypopup"> <a alt="today barometer" title="today barometer" href="<?php echo $chartsource ;?>/todaybarometer.php" data-lity ><?php echo $menucharticonpage?> <?php echo $lang['Today']; ?></a></span>-->
-<span class="todaypopup"> <a alt="weekly barometer" title="weekly barometer" href="<?php echo $chartsource ;?>/highchart.php?chart='barometerplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Weekly </a></span>
+<span class="yearpopup">  <a alt="yearly barometer" title="yearly barometer" href="<?php echo $chartsource;?>/highcharts.html?chart='barometerplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Yearly </a></span>
+<span class="todaypopup"> <a alt="weekly barometer" title="weekly barometer" href="<?php echo $chartsource;?>/highcharts.html?chart='barometerplot'&span='weekly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Weekly </a></span>
 
     </div>
   <span class='moduletitle'><?php echo $lang['Barometer']," (<valuetitleunit>",$weather["barometer_units"]; ?></valuetitleunit>)</span><br />
@@ -178,9 +177,8 @@ if ('serviceWorker' in navigator) {
  <!--rainfall for homeweatherstation template-->
 <div class="weather-container"><div class="weather-item"><div class="chartforecast" >
 <span class="yearpopup">  <a alt="almanac rainfall" title="almanac rainfall" href="rainfallalmanac.php" data-lity ><?php echo $chartinfo?> Almanac </a></span>
-<span class="yearpopup">  <a alt="yearly rainfall" title="yearly rainfall" href="<?php echo $chartsource ;?>/highchart.php?chart='rainplot'&span='yearly'" data-lity ><?php echo $menucharticonpage?> Yearly </a></span>
-<!--<span class="monthpopup"> <a alt="monthly rainfall" title="monthly rainfall" href="<?php echo $chartsource ;?>/monthlyrainfall.php" data-lity ><?php echo $menucharticonpage?> <?php echo strftime(" %b") ;?> </a></span>-->
-<span class="todaypopup"> <a alt="weekly rainfall" title="weekly rainfall" href="<?php echo $chartsource ;?>/highchart.php?chart='rainplot'&span='weekly'" data-lity ><?php echo $menucharticonpage?> Weekly </a></span>
+<span class="yearpopup">  <a alt="yearly rainfall" title="yearly rainfall" href="<?php echo $chartsource;?>/highcharts.html?chart='rainplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Yearly </a></span>
+<span class="todaypopup"> <a alt="weekly rainfall" title="weekly rainfall" href="<?php echo $chartsource;?>/highcharts.html?chart='rainplot'&span='weekly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity ><?php echo $menucharticonpage?> Weekly </a></span>
       </div>
   <span class='moduletitle'><?php echo $lang['Rainfalltoday']," (<valuetitleunit>".$weather["rain_units"]?></valuetitleunit>)</span><br />
          <div id="rainfall"></div></div>        
@@ -195,6 +193,7 @@ if ($position12=='airqualitymodule.php') {echo ' <span class="yearpopup"><a alt=
 if ($position12=='weather34uvsolar.php') {echo ' <span class="yearpopup"><a alt="UV Guide" title="UV Guide" href="uvindex.php" data-lity>'. $chartinfo. " UV Guide  </a></span>";} 
 if ($position12=='weather34uvsolar.php') {echo ' <span class="yearpopup"><a alt="UV Alamanac" title="UV Alamanac" href="uvalmanac.php" data-lity>&nbsp;'. $chartinfo. " UV Alamanac </a></span>";}
 if ($position12=='weather34uvsolar.php') {echo '<span class="yearpopup"> <a alt="Solar Alamanac" title="Solar Alamanac" href="solaralmanac.php" data-lity>'. $chartinfo. " Solar Alamanac </a></span>";}
+
 if ($position12=='solaruvds.php') {echo ' <span class="yearpopup"><a alt="UV Guide" title="UV Guide" href="uvindexds.php" data-lity>'. $chartinfo. " UV Guide </a></span>";}
 if ($position12=='solaruvds.php') {echo ' <span class="yearpopup"><a alt="Solar Alamanac" title="Solar Alamanac" href="solaralmanac.php" data-lity>'. $chartinfo. " Solar Alamanac </a></span>";}
 if ($position12=='solaruvwu.php') {echo ' <span class="yearpopup"><a alt="UV Guide" title="UV Guide" href="uvindexwu.php" data-lity>'. $chartinfo. " UV Guide </a></span>";}
