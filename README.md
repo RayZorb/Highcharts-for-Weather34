@@ -24,12 +24,13 @@ This repository contains the instructions and code to enable Highcharts to be us
             		template = json/year.json.tmpl	
             		HTML_ROOT = [YOUR_PATH]/highcharts
             
-6. You must change this to reflect your own path. For example it might be '/var/www/html/pws/highcharts'            
-7. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
-8. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
-9. Open your website page and click on any of the chart links and a new chart will be displayed.
-10. You will find additional controls which allows you change the time frame and zoom-in on data etc.
-11. The charts that are set up to be generated are as follows: -
+6. You must change this to reflect your own path. For example it might be '/var/www/html/pws/highcharts'
+7. Go to your WeeWX installation and find the /bin/user folder. Rename the highchartsSearchX.py to say highchartsSearchX.py.backup and copy the highchartsSearchX.py in this repository into /bin/user folder in its place. 
+8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
+9. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
+10. Open your website page and click on any of the chart links and a new chart will be displayed.
+11. You will find additional controls which allows you change the time frame and zoom-in on data etc.
+12. The charts that are set up to be generated are as follows: -
 
             Temperature/Dewpoint = 'temperatureplot'
             
@@ -51,9 +52,9 @@ This repository contains the instructions and code to enable Highcharts to be us
             
             UV = 'uvplot'
             
-12. You will notice that not all of these charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
+13. You will notice that not all of these charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
 
-            href="<?php echo $chartsource ;?>/highchart.php?chart='[chart-ID]'&span='[time_frame]'" data-lity>
+            href="<?php echo $chartsource;?>/highcharts.html?chart='[chart_ID]'&span='[time_frame]'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity >
             
             
 Any problems, contact me on steepleian@gmail.com or raise an Issue            
