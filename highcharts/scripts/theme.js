@@ -12,11 +12,11 @@ your reference.
 
 Highcharts.theme = {
     chart: {
-        backgroundColor: '#FFF',
+        backgroundColor: 'rgba(40, 45, 52,.4)',
         borderWidth: 0,
         borderColor: '#000000',
         borderRadius: 0,
-        plotShadow: false,
+        plotShadow: true,
         plotBorderWidth: 0,
     },
 
@@ -103,7 +103,7 @@ Highcharts.theme = {
     },
 
     tooltip: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'rgba(37, 41, 45, 0.95)',
         borderWidth: 0,
         dateTimeLabelFormats: {
             hour: '%e %b %H:%M',
