@@ -31,7 +31,7 @@ This repository contains the instructions and code to enable Highcharts to be us
 10. You will find additional controls which allows you change the time frame and zoom-in on data etc.
 11. The charts that are set up to be generated are as follows: -
 
-            Temperature = 'temperatureplot'
+            Temperature/Dewpoint = 'temperatureplot'
             
             Wind Chill/Heat Index/Apparent Temperature = 'windchillplot'
             
