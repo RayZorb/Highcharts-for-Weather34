@@ -62,6 +62,7 @@ var plotIds = {
     temperature: 'temperatureplot',
     windChill: 'windchillplot',
     humidity: 'humidityplot',
+    dewpoint: 'dewpointplot',
     barometer: 'barometerplot',
     wind: 'windplot',
     windDir: 'winddirplot',
@@ -75,6 +76,7 @@ var createweeklyfunctions = {
     temperatureplot: [addWeekOptions, setTemp, create_temperature_chart],
     humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
     barometerplot: [addWeekOptions, setBarometer, create_barometer_chart],
+    dewpointplot: [addWeekOptions, setDewpoint, create_dewpoint_chart],
     windchillplot: [addWeekOptions, setWindchill, create_windchill_chart],
     windplot: [addWeekOptions, setWind, create_wind_chart],
     winddirplot: [addWeekOptions, setWindDir, create_winddir_chart],
@@ -88,6 +90,7 @@ var createyearlyfunctions = {
     temperatureplot: [addYearOptions, setTempStock,create_temperature_chart],
     humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
     barometerplot: [addYearOptions, setBarometerStock, create_barometer_chart],
+    dewpointplot: [addYearOptions, setDewpointStock, create_dewpoint_chart],
     windchillplot: [addYearOptions, setWindchillStock, create_windchill_chart],
     windplot: [addYearOptions, setWindStock, create_wind_chart],
     winddirplot: [addYearOptions, setWindDirStock, create_winddir_chart],
@@ -549,6 +552,73 @@ Function to create temperature chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis.minRange = seriesData[0].temperatureplot.minRange;
+    return options;
+}
+
+function setDewpoint(obj) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to dewpoint spline plots
+
+*****************************************************************************/
+    obj.chart.renderTo = plotIds.dewpoint;
+    obj.chart.type = 'spline';
+    obj.navigator = {
+        series: {
+            lineColor: '#B44242'
+        },
+    },
+    obj.title = {
+        text: 'Dewpoint'
+    };
+    obj.xAxis.minRange = 900000;
+    obj.xAxis.minTickInterval = 900000;
+    return obj
+};
+
+function setDewpointStock(obj) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to combined columnrange
+spline dewpoint plots
+
+*****************************************************************************/
+    obj = setDewpoint(obj);
+    obj.chart.type = 'columnrange';
+    obj.series = [{
+        color: '#F0B0B0',
+        name: 'Dewpoint Range',
+        type: 'columnrange',
+        visible: true
+    }, {
+        color: '#B44242',
+        name: 'Average Dewpoint',
+        type: 'spline',
+        visible: true
+    }];
+    obj.tooltip.valueDecimals = 1;
+    return obj
+};
+
+function create_dewpoint_chart(options, span, seriesData, units){
+/*****************************************************************************
+
+Function to create dewpoint chart
+
+*****************************************************************************/
+    if (span[0] == "yearly"){
+        options.series[0].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
+        options.series[1].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
+    }
+    else if (span[0] == "weekly"){        
+        options.series[0] = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointeplot.series.dewpoint);
+        options.series[1] = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.series.dewpoint);
+    }
+    options.yAxis.title.text = "(" + units.temp + ")";
+    options.tooltip.valueSuffix = units.temp;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    options.yAxis.minRange = seriesData[0].dewpointplot.minRange;
     return options;
 }
 
