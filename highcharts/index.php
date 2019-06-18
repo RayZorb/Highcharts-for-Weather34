@@ -137,8 +137,7 @@ if ('serviceWorker' in navigator) {
          <!-- HOURLY & Outlook for homeweather station-->
   <span class="yearpopup"> <a alt="nearby metar station" title="nearby metar station" href="metarnearby.php" data-lity><?php echo $chartinfo?> <?php echo 'Nearby Metar';?> <?php if(filesize('jsondata/metar34.txt')<160){echo "(<ored>Offline</ored>)";}else echo "" ?></a></span>
   <span class="monthpopup"><a href="windyradar.php" title="Windy.com Radar" alt="Windy.com Radar" data-lity><?php echo $chartinfo?> Radar</a></span>
-  <span class="todaypopup"> <a alt="today cloud cover" title="today cloud cover" href="mbcharts/todaycloudcover.php" data-lity >  <?php echo $menucharticonpage?> Cloud Cover </a></span>
-  <span class="yearpopup"><a alt="Webcam " title="Webcam " href="cam.php" data-lity><?php echo $webcamicon?> Live Webcam </a></span>  
+    <span class="yearpopup"><a alt="Webcam " title="Webcam " href="cam.php" data-lity><?php echo $webcamicon?> Live Webcam </a></span>  
   </div>
   <span class='moduletitle'><?php echo $lang['Currentsky'];?></span><br />
   <div id="currentsky"></div></div></div>
