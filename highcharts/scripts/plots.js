@@ -58,20 +58,6 @@ History
 Set names of div ids to which the various plots will be rendered
 
 *****************************************************************************/
-var plotIds = {
-    temperature: 'temperatureplot',
-    windChill: 'windchillplot',
-    humidity: 'humidityplot',
-    dewpoint: 'dewpointplot',
-    barometer: 'barometerplot',
-    wind: 'windplot',
-    windDir: 'winddirplot',
-    windRose: 'windroseplot',
-    rain: 'rainplot',
-    radiation:  'radiationplot',
-    uv: 'uvplot'
-};
-
 var createweeklyfunctions = {
     temperatureplot: [addWeekOptions, setTemp, create_temperature_chart],
     humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
@@ -88,6 +74,7 @@ var createweeklyfunctions = {
 
 var createyearlyfunctions = {
     temperatureplot: [addYearOptions, setTempStock,create_temperature_chart],
+    tempsmallplot: [addYearOptions, setTempSmall,create_temperature_chart],
     humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
     barometerplot: [addYearOptions, setBarometerStock, create_barometer_chart],
     dewpointplot: [addYearOptions, setDewpointStock, create_dewpoint_chart],
@@ -99,6 +86,12 @@ var createyearlyfunctions = {
     radiationplot: [addYearOptions, setRadiationStock, create_radiation_chart],
     uvplot: [addYearOptions, setUvStock, setUvStock, create_uv_chart]
 };
+
+var postcreatefunctions={
+    tempsmallplot: [post_create_tempsmall_chart],
+    windroseplot: [post_create_windrose_chart]
+};
+
 var windrosespans = ["Day","Week","Month","Year"];
 var categories;
 
@@ -130,8 +123,9 @@ var commonOptions = {
                 [1, '#E0E0FF']
             ]
         },
-        spacing: [15, 20, 10, 0],
-        zoomType: 'xy'
+        renderTo: "plot_div",
+        spacing: [15, 10, 10, 0],
+        zoomType: 'xy',
     },
     legend: {
         enabled: true
@@ -491,7 +485,6 @@ function setTemp(obj) {
 Function to add/set various plot options specific to temperature spline plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.temperature;
     obj.chart.type = 'spline';
     obj.navigator = {
         series: {
@@ -503,6 +496,34 @@ Function to add/set various plot options specific to temperature spline plots
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
+    return obj
+};
+
+function setTempSmall(obj) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to combined columnrange
+spline temperature plots
+
+*****************************************************************************/
+    obj = setTemp(obj);
+    obj.chart.type = 'area';
+    obj.series = [{
+        color: 'rgba(0, 164, 180, 1)',
+        fillColor: 'rgba(0, 164, 180, 1)',
+        name: 'Temperature Range',
+        type: 'area',
+        visible: true
+    }, {
+        color: 'rgba(255, 148, 82, .85)',
+        fillColor: 'rgba(255, 148, 82, .85)',
+        name: 'Average Temperature',
+        type: 'area',
+        visible: true
+    }];
+    obj.tooltip.valueDecimals = 1;
+    obj.yAxis.tickInterval = 10;
+    $("#plot_div").css("height", 150);
     return obj
 };
 
@@ -552,8 +573,27 @@ Function to create temperature chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis.minRange = seriesData[0].temperatureplot.minRange;
+    options.yAxis.tickInterval = 20;
+
     return options;
-}
+};
+
+function post_create_tempsmall_chart(chart){
+/*****************************************************************************
+
+Function to update chart after creation
+
+*****************************************************************************/
+    chart.update({
+        exporting: { enabled: false },
+        rangeSelector: {enabled: false},
+        navigator: {enabled: false},
+        scrollbar: {enabled: false},
+        legend:{ enabled:false },
+        title: {text: ''},
+        credits:{ enabled:false },
+    });
+};
 
 function setDewpoint(obj) {
 /*****************************************************************************
@@ -561,7 +601,6 @@ function setDewpoint(obj) {
 Function to add/set various plot options specific to dewpoint spline plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.dewpoint;
     obj.chart.type = 'spline';
     obj.navigator = {
         series: {
@@ -628,7 +667,6 @@ function setWindchill(obj) {
 Function to add/set various plot options specific to windchill spline plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.windChill;
     obj.chart.type = 'spline';
     obj.navigator = {
         series: {
@@ -720,7 +758,6 @@ function setHumidity(obj) {
 Function to add/set various plot options specific to humidity spline plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.humidity;
     obj.chart.type = 'spline';
     obj.navigator = {
         series: {
@@ -798,11 +835,10 @@ Function to add/set various plot options specific to barometric pressure
 spline plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.barometer;
     obj.chart.type = 'spline';
     obj.navigator = {
         series: {
-            lineColor: '#4242B4'
+            lineColor: '#4242B4',
         },
     },
     obj.plotOptions.series = {
@@ -872,7 +908,6 @@ function setWind(obj) {
 Function to add/set various plot options specific to wind speed spline plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.wind;
     obj.chart.type = 'spline';
     obj.legend.reversed = true;
     obj.navigator = {
@@ -945,7 +980,6 @@ Function to add/set various plot options specific to wind direction spline
 plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.windDir;
     obj.chart.type = 'scatter';
     obj.navigator = {
         series: {
@@ -1024,7 +1058,6 @@ function setWindRose(options)
 Function to add/set various plot options specific to wind rose plots
 
 *****************************************************************************/
-    options.chart.renderTo = plotIds.windRose;
     options.legend= {
         align: 'right',
         verticalAlign: 'top',
@@ -1056,7 +1089,6 @@ Function to add/set various plot options specific to wind rose plots
         tickWidth: 1,
     };
     options.yAxis.endOnTick = false;
-    options.yAxis.showLastLabel = true;
     options.yAxis.title = {text: 'Frequency (%)'};
     options.yAxis.labels = {formatter: function () {return this.value + '%';}};
     options.yAxis.reversedStacks = false;
@@ -1121,13 +1153,29 @@ Function to convert wind rose legend display units
     }
 }
  
+function post_create_windrose_chart(chart){
+/*****************************************************************************
+
+Function to post create for wind rose chart
+
+*****************************************************************************/
+    chart.update({
+        xAxis: {
+            type: "category",
+            categories: categories 
+        },
+        navigator: {enabled: false},
+        scrollbar: {enabled: false},
+        credits:{ enabled:false },
+    });
+};
+
 function setRain(obj) {
 /*****************************************************************************
 
 Function to add/set various plot options specific to rainfall plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.rain;
     obj.chart.type = 'column';
     obj.plotOptions.column.dataGrouping.enabled = true;
     obj.title = {
@@ -1214,7 +1262,6 @@ Function to add/set various plot options specific to solar radiation spline
 plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.radiation;
     obj.chart.type = 'spline';
     obj.navigator = {
         series: {
@@ -1306,7 +1353,6 @@ function setUv(obj) {
 Function to add/set various plot options specific to UV index spline plots
 
 *****************************************************************************/
-    obj.chart.renderTo = plotIds.uv;
     obj.chart.type = 'spline';
     obj.navigator = {
         series: {
@@ -1407,14 +1453,8 @@ Function to display weekly or yearly charts
                 });
             }
         }
-        if (plot_type == 'windroseplot') //Needs to be here
-            chart.update({
-                xAxis: {
-                    type: "category",
-                    categories: categories 
-                },
-                navigator: {enabled: false},
-                scrollbar: {enabled: false}
-            });
+        if (postcreatefunctions.hasOwnProperty(plot_type))
+            for (i = 0; i < postcreatefunctions[plot_type].length; i++)
+                postcreatefunctions[plot_type][i](chart);
     });
 };
