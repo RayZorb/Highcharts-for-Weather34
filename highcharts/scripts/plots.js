@@ -123,6 +123,7 @@ var commonOptions = {
                 [1, '#E0E0FF']
             ]
         },
+        marginBottom: 10,
         renderTo: "plot_div",
         spacing: [15, 10, 10, 0],
         zoomType: 'xy',
@@ -138,7 +139,7 @@ var commonOptions = {
                 radius: 2,
                 symbol: 'circle'
             },
-            fillOpacity: 0.05
+            //fillOpacity: 0.05
         },
         column: {
             dataGrouping: {
@@ -509,20 +510,19 @@ spline temperature plots
     obj = setTemp(obj);
     obj.chart.type = 'area';
     obj.series = [{
+        color: 'rgba(255, 148, 82, 1)',
+        fillColor: 'rgba(255, 148, 82, 1)',
+        name: 'Average Temperature',
+        type: 'area',
+        visible: true
+    }, {
         color: 'rgba(0, 164, 180, 1)',
         fillColor: 'rgba(0, 164, 180, 1)',
         name: 'Temperature Range',
         type: 'area',
         visible: true
-    }, {
-        color: 'rgba(255, 148, 82, .85)',
-        fillColor: 'rgba(255, 148, 82, .85)',
-        name: 'Average Temperature',
-        type: 'area',
-        visible: true
     }];
     obj.tooltip.valueDecimals = 1;
-    obj.yAxis.tickInterval = 10;
     $("#plot_div").css("height", 150);
     return obj
 };
@@ -558,8 +558,8 @@ Function to create temperature chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
-        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
     }
     else if (span[0] == "weekly"){        
         options.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
