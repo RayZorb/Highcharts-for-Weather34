@@ -139,7 +139,6 @@ var commonOptions = {
                 radius: 2,
                 symbol: 'circle'
             },
-            //fillOpacity: 0.05
         },
         column: {
             dataGrouping: {
@@ -294,11 +293,11 @@ var commonOptions = {
         minorGridLineWidth: 0,
         minorTickColor: '#555',
         minorTickLength: 2,
-        minorTickPosition: 'inside',
+        minorTickPosition: 'outside',
         minorTickWidth: 1,
         tickColor: '#555',
         tickLength: 4,
-        tickPosition: 'inside',
+        tickPosition: 'outside',
         tickWidth: 1,
         title: {
             style: {
@@ -311,21 +310,21 @@ var commonOptions = {
         endOnTick: true,
         labels: {
             x: -8,
-            y: 3
+            y: 3,
         },
         lineColor: '#555',
         lineWidth: 1,
         minorGridLineWidth: 0,
         minorTickColor: '#555',
         minorTickLength: 2,
-        minorTickPosition: 'inside',
+        minorTickPosition: 'outside',
         minorTickWidth: 1,
         opposite: false,
         showLastLabel: true,
         startOnTick: true,
         tickColor: '#555',
         tickLength: 4,
-        tickPosition: 'inside',
+        tickPosition: 'outside',
         tickWidth: 1,
         title: {
             text: ''
