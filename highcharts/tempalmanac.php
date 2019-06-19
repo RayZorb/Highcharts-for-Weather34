@@ -901,7 +901,7 @@ align-items:center;justify-content:center;margin-bottom:10px;top:0}
 
   <main class="grid1" >
     <articlegraph> 
-  <iframe  src="mbcharts/highcharts.php?chart='tempsmallplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" frameborder="0" scrolling="no" width="100%" height="150px" ></iframe>
+  <iframe  src="highcharts/highcharts.html?chart='tempsmallplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" frameborder="0" scrolling="no" width="100%" height="150px" ></iframe>
    
   </articlegraph> 
   
