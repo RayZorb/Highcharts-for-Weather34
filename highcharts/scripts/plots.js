@@ -84,7 +84,8 @@ var createyearlyfunctions = {
     windsmallplot: [addYearOptions, setWind, setWindSmall, create_wind_chart],
     winddirplot: [addYearOptions, setWindDirStock, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
-    rainplot: [addYearOptions, setRainStock, create_rain_chart],
+    rainplot: [addYearOptions, setRain, setRainStock, create_rain_chart],
+    rainsmallplot: [addYearOptions, setRain, setRainSmall, create_rain_chart],
     radiationplot: [addYearOptions, setRadiationStock, create_radiation_chart],
     uvplot: [addYearOptions, setUvStock, setUvStock, create_uv_chart]
 };
@@ -93,6 +94,7 @@ var postcreatefunctions={
     tempsmallplot: [post_create_tempsmall_chart],
     barsmallplot: [post_create_tempsmall_chart],
     windsmallplot: [post_create_tempsmall_chart],
+    rainsmallplot: [post_create_tempsmall_chart],
     windroseplot: [post_create_windrose_chart]
 };
 
@@ -1276,7 +1278,6 @@ Function to add/set various plot options specific to combined columnrange
 spline rainfall plots
 
 *****************************************************************************/
-    obj = setRain(obj);
     obj.navigator = {
         enabled: true
     };
@@ -1303,6 +1304,26 @@ spline rainfall plots
     obj.yAxis.labels = {
         format: '{value:.0f}',
     };
+    return obj
+};
+
+function setRainSmall(obj) {
+/*****************************************************************************
+
+Function to add small rain chart
+
+*****************************************************************************/
+    obj.chart.marginBottom = 20;
+    obj.chart.type = 'column';
+    obj.series = [{
+        color: '#439BB6',
+        fillColor: '#439BB6',
+        name: 'Rainfall',
+        type: 'column',
+        visible: true
+    }];
+    obj.tooltip.valueDecimals = 1;
+    $("#plot_div").css("height", 225);
     return obj
 };
 
