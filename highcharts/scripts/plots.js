@@ -73,10 +73,11 @@ var createweeklyfunctions = {
 };
 
 var createyearlyfunctions = {
-    temperatureplot: [addYearOptions, setTempStock,create_temperature_chart],
-    tempsmallplot: [addYearOptions, setTempSmall,create_temperature_chart],
+    temperatureplot: [addYearOptions, setTemp, setTempStock,create_temperature_chart],
+    tempsmallplot: [addYearOptions, setTemp, setTempSmall,create_temperature_chart],
     humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
-    barometerplot: [addYearOptions, setBarometerStock, create_barometer_chart],
+    barometerplot: [addYearOptions, setBarometer, setBarometerStock, create_barometer_chart],
+    barsmallplot: [addYearOptions, setBarometer, setBarSmall, create_barometer_chart],
     dewpointplot: [addYearOptions, setDewpointStock, create_dewpoint_chart],
     windchillplot: [addYearOptions, setWindchillStock, create_windchill_chart],
     windplot: [addYearOptions, setWindStock, create_wind_chart],
@@ -89,6 +90,7 @@ var createyearlyfunctions = {
 
 var postcreatefunctions={
     tempsmallplot: [post_create_tempsmall_chart],
+    barsmallplot: [post_create_tempsmall_chart],
     windroseplot: [post_create_windrose_chart]
 };
 
@@ -123,7 +125,6 @@ var commonOptions = {
                 [1, '#E0E0FF']
             ]
         },
-        marginBottom: 10,
         renderTo: "plot_div",
         spacing: [15, 10, 10, 0],
         zoomType: 'xy',
@@ -309,8 +310,8 @@ var commonOptions = {
     yAxis: {
         endOnTick: true,
         labels: {
-            x: -8,
-            y: 3,
+            x: -4,
+            y: 4,
         },
         lineColor: '#555',
         lineWidth: 1,
@@ -506,7 +507,7 @@ Function to add/set various plot options specific to combined columnrange
 spline temperature plots
 
 *****************************************************************************/
-    obj = setTemp(obj);
+    obj.chart.marginBottom = 20;
     obj.chart.type = 'area';
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
@@ -522,7 +523,7 @@ spline temperature plots
         visible: true
     }];
     obj.tooltip.valueDecimals = 1;
-    $("#plot_div").css("height", 150);
+    $("#plot_div").css("height", 145);
     return obj
 };
 
@@ -533,7 +534,6 @@ Function to add/set various plot options specific to combined columnrange
 spline temperature plots
 
 *****************************************************************************/
-    obj = setTemp(obj);
     obj.chart.type = 'columnrange';
     obj.series = [{
         color: '#F0B0B0',
@@ -572,8 +572,7 @@ Function to create temperature chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis.minRange = seriesData[0].temperatureplot.minRange;
-    options.yAxis.tickInterval = 20;
-
+    options.yAxis.tickInterval = 10;
     return options;
 };
 
@@ -591,6 +590,7 @@ Function to update chart after creation
         legend:{ enabled:false },
         title: {text: ''},
         credits:{ enabled:false },
+        yAxis:{tickPositions: [parseInt(chart.yAxis[0].min), parseInt(chart.yAxis[0].min + (chart.yAxis[0].max - chart.yAxis[0].min) * 0.5), parseInt(chart.yAxis[0].max)]}
     });
 };
 
@@ -858,7 +858,6 @@ Function to add/set various plot options specific to combined columnrange
 spline barometric pressure plots
 
 *****************************************************************************/
-    obj = setBarometer(obj);
     obj.chart.type = 'columnrange';
     obj.navigator = {
         series: {
@@ -881,6 +880,33 @@ spline barometric pressure plots
     return obj
 };
 
+function setBarSmall(obj) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to combined columnrange
+spline temperature plots
+
+*****************************************************************************/
+    obj.chart.marginBottom = 20;
+    obj.chart.type = 'spline';
+    obj.series = [{
+        color: 'rgba(255, 148, 82, 1)',
+        fillColor: 'rgba(255, 148, 82, 1)',
+        name: 'Average Barometric Pressure',
+        type: 'spline',
+        visible: true
+    }, {
+        color: 'rgba(0, 164, 180, 1)',
+        fillColor: 'rgba(0, 164, 180, 1)',
+        name: 'Barometeric Pressure Range',
+        type: 'spline',
+        visible: true
+    }];
+    obj.tooltip.valueDecimals = 1;
+    $("#plot_div").css("height", 210);
+    return obj
+};
+
 function create_barometer_chart(options, span, seriesData, units){
 /*****************************************************************************
 
@@ -888,8 +914,8 @@ Function to create barometer chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
-        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
+        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
+        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
     }
     else if (span[0] == "weekly")
         options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
