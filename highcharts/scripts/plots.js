@@ -898,7 +898,13 @@ spline temperature plots
     }, {
         color: 'rgba(0, 164, 180, 1)',
         fillColor: 'rgba(0, 164, 180, 1)',
-        name: 'Barometeric Pressure Range',
+        name: 'Barometeric Pressure Max',
+        type: 'spline',
+        visible: true
+    }, {
+        color: 'rgba(100, 164, 180, 1)',
+        fillColor: 'rgba(0, 164, 180, 1)',
+        name: 'Barometeric Pressure Min',
         type: 'spline',
         visible: true
     }];
@@ -914,8 +920,15 @@ Function to create barometer chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        var min = [];
+        var max = [];
+        for (i = 0; i < seriesData[0].barometerplot.barometeraverage.length; i++){
+            min[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][1]];
+            max[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][2]];
+        }
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
-        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
+        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, max);
+        options.series[2].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, min);
     }
     else if (span[0] == "weekly")
         options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
