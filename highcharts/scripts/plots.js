@@ -80,7 +80,8 @@ var createyearlyfunctions = {
     barsmallplot: [addYearOptions, setBarometer, setBarSmall, create_barometer_chart],
     dewpointplot: [addYearOptions, setDewpointStock, create_dewpoint_chart],
     windchillplot: [addYearOptions, setWindchillStock, create_windchill_chart],
-    windplot: [addYearOptions, setWindStock, create_wind_chart],
+    windplot: [addYearOptions, setWind, setWindStock, create_wind_chart],
+    windsmallplot: [addYearOptions, setWind, setWindSmall, create_wind_chart],
     winddirplot: [addYearOptions, setWindDirStock, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addYearOptions, setRainStock, create_rain_chart],
@@ -91,6 +92,7 @@ var createyearlyfunctions = {
 var postcreatefunctions={
     tempsmallplot: [post_create_tempsmall_chart],
     barsmallplot: [post_create_tempsmall_chart],
+    windsmallplot: [post_create_tempsmall_chart],
     windroseplot: [post_create_windrose_chart]
 };
 
@@ -883,8 +885,7 @@ spline barometric pressure plots
 function setBarSmall(obj) {
 /*****************************************************************************
 
-Function to add/set various plot options specific to combined columnrange
-spline temperature plots
+Function to do small barometer chart
 
 *****************************************************************************/
     obj.chart.marginBottom = 20;
@@ -969,22 +970,53 @@ Function to add/set various plot options specific to combined columnrange
 spline wind speed plots
 
 *****************************************************************************/
-    obj = setWind(obj);
     obj.chart.type = 'spline';
     obj.series = [{
         name: 'Max Gust Speed',
         type: 'spline',
         color: '#B44242'
     },{
-        name: 'Max 5 Minute Average Wind Speed',
+        name: 'Max Average Wind Speed',
         type: 'spline',
         color: '#4242B4'
     }, {
-        name: 'Day Average Wind Speed',
+        name: 'Average Wind Speed',
         type: 'spline',
         color: '#439BB6'
     }];
     obj.tooltip.valueDecimals = 1;
+    return obj
+};
+
+function setWindSmall(obj) {
+/*****************************************************************************
+
+Function to do wind small chart
+
+*****************************************************************************/
+    obj.chart.marginBottom = 20;
+    obj.chart.type = 'spline';
+    obj.series = [{
+        color: 'rgba(255, 148, 82, 1)',
+        fillColor: 'rgba(255, 148, 82, 1)',
+        name: 'Max Gust Speed',
+        type: 'area',
+        visible: true
+    }, {
+        color: 'rgba(0, 164, 180, 1)',
+        fillColor: 'rgba(0, 164, 180, 1)',
+        name: 'Max Average Wind Speed',
+        type: 'area',
+        visible: true
+    }, {
+        color: 'rgba(155, 255, 255, 1)',
+        fillColor: 'rgba(155, 255, 255, 1)',
+        name: 'Average Wind Speed',
+        type: 'area',
+        visible: true
+    }];
+    obj.tooltip.valueDecimals = 1;
+    $("#plot_div").css("height", 205);
     return obj
 };
 
