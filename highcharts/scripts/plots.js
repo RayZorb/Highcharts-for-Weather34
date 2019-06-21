@@ -382,6 +382,11 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
     throw new Error('Unable to copy obj! Its type isn\'t supported.');
 };
 
+function getTranslation(term){
+    if (translations.hasOwnProperty(term)) return translations[term];
+    return term;
+}
+
 function addWindRoseOptions(options, span, seriesData, units, cb_func, plot_type) {
 /*****************************************************************************
 
@@ -498,7 +503,7 @@ Function to add/set various plot options specific to temperature spline plots
         },
     },
     obj.title = {
-        text: 'Temperature'
+        text: getTranslation('Temperature')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
@@ -662,7 +667,7 @@ Function to create dewpoint chart
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis.minRange = seriesData[0].dewpointplot.minRange;
+    options.yAxis.minRange = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.minRange);
     return options;
 }
 
@@ -751,7 +756,7 @@ Function to create windchill chart
     }
     options.yAxis.title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
-    options.yAxis.minRange = seriesData[0].windchillplot.minRange;
+    options.yAxis.minRange = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -894,15 +899,17 @@ Function to do small barometer chart
 *****************************************************************************/
     obj.chart.marginBottom = 20;
     obj.chart.type = 'spline';
-    obj.series = [{
+    obj.series = [
+    //{
+    //    color: 'rgba(255, 148, 82, 1)',
+    //    fillColor: 'rgba(255, 148, 82, 1)',
+      //  name: 'Average Barometric Pressure',
+      //  type: 'spline',
+        //visible: true
+    //}, 
+    {
         color: 'rgba(255, 148, 82, 1)',
         fillColor: 'rgba(255, 148, 82, 1)',
-        name: 'Average Barometric Pressure',
-        type: 'spline',
-        visible: true
-    }, {
-        color: 'rgba(0, 164, 180, 1)',
-        fillColor: 'rgba(0, 164, 180, 1)',
         name: 'Barometeric Pressure Max',
         type: 'spline',
         visible: true
@@ -931,15 +938,15 @@ Function to create barometer chart
             min[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][1]];
             max[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][2]];
         }
-        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
-        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, max);
-        options.series[2].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, min);
+        //options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
+        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, max);
+        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, min);
     }
     else if (span[0] == "weekly")
         options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
     options.yAxis.title.text = "(" + units.pressure + ")";
     options.tooltip.valueSuffix = units.pressure;
-    options.yAxis.minRange = seriesData[0].barometerplot.minRange;
+    options.yAxis.minRange = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options
@@ -1041,7 +1048,7 @@ Function to create wind chart
     }
     options.yAxis.title.text = "(" + units.wind + ")";
     options.tooltip.valueSuffix = units.wind;
-    options.yAxis.minRange = seriesData[0].windplot.minRange;
+    options.yAxis.minRange = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -1341,7 +1348,7 @@ Function to create rain chart
         options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
     options.yAxis.title.text = "(" + units.rain + ")";
     options.tooltip.valueSuffix = units.rain;
-    options.yAxis.minRange = seriesData[0].rainplot.minRange;
+    options.yAxis.minRange = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.title.text = 'Rainfall';
