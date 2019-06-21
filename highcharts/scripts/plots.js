@@ -91,10 +91,10 @@ var createyearlyfunctions = {
 };
 
 var postcreatefunctions={
-    tempsmallplot: [post_create_tempsmall_chart],
-    barsmallplot: [post_create_tempsmall_chart],
-    windsmallplot: [post_create_tempsmall_chart],
-    rainsmallplot: [post_create_tempsmall_chart],
+    tempsmallplot: [post_create_small_chart],
+    barsmallplot: [post_create_small_chart],
+    windsmallplot: [post_create_small_chart],
+    rainsmallplot: [post_create_small_chart],
     windroseplot: [post_create_windrose_chart]
 };
 
@@ -316,7 +316,6 @@ var commonOptions = {
         labels: {
             x: -4,
             y: 4,
-        //    format: '{value:.0f}',
         },
         lineColor: '#555',
         lineWidth: 1,
@@ -502,12 +501,19 @@ Function to add/set various plot options specific to temperature spline plots
         series: {
             lineColor: '#B44242'
         },
+        series: {
+            lineColor: 'rgba(0, 164, 180, 1)'
+        },  
+        series: {
+            lineColor: 'rgba(255, 148, 82, 1)'
+        },
     },
     obj.title = {
         text: getTranslation('Temperature')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
+    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -519,22 +525,26 @@ spline temperature plots
 
 *****************************************************************************/
     obj.chart.marginBottom = 20;
-    obj.chart.type = 'spline';
+    obj.chart.type = 'columnrange';
+    obj.navigator = {
+        series: {
+            color: '#C07777',
+            lineColor: '#B06060'
+        },
+    },
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
-        fillColor: 'rgba(255, 148, 82, 1)',
+        name: 'Temperature Range',
+        type: 'columnrange',
+        visible: true
+    }, {
+        color: '#4242B4',
         name: 'Average Temperature',
         type: 'spline',
         visible: true
-    }, {
-        color: 'rgba(0, 164, 180, 1)',
-        fillColor: 'rgba(0, 164, 180, 1)',
-        name: 'Temperature Range',
-        type: 'spline',
-        visible: true
     }];
-    obj.tooltip.valueDecimals = 1;
-    $("#plot_div").css("height", 145);
+    obj.yAxis.height = "90";
+    $("#plot_div").css("height", 150);
     return obj
 };
 
@@ -546,18 +556,23 @@ spline temperature plots
 
 *****************************************************************************/
     obj.chart.type = 'columnrange';
+    obj.navigator = {
+        series: {
+            color: '#C07777',
+            lineColor: '#B06060'
+        },
+    },
     obj.series = [{
-        color: '#F0B0B0',
+        color: 'rgba(255, 148, 82, 1)',
         name: 'Temperature Range',
         type: 'columnrange',
         visible: true
     }, {
-        color: '#B44242',
+        color: '#4242B4',
         name: 'Average Temperature',
         type: 'spline',
         visible: true
     }];
-    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -569,8 +584,8 @@ Function to create temperature chart
 *****************************************************************************/
 
     if (span[0] == "yearly"){
-        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
-        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
     }
     else if (span[0] == "weekly"){        
         options.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
@@ -588,12 +603,13 @@ Function to create temperature chart
     return options;
 };
 
-function post_create_tempsmall_chart(chart){
+function post_create_small_chart(chart, height){
 /*****************************************************************************
 
 Function to update chart after creation
 
 *****************************************************************************/
+console.log(chart);
     chart.update({
         exporting: { enabled: false },
         rangeSelector: {enabled: false},
@@ -601,8 +617,7 @@ Function to update chart after creation
         scrollbar: {enabled: false},
         legend:{ enabled:false },
         title: {text: ''},
-        credits:{ enabled:false },
-        yAxis:{tickPositions: [chart.yAxis[0].tickPositions[0], parseInt(chart.yAxis[0].tickPositions[0] + (chart.yAxis[0].tickPositions[1] - Math.abs(chart.yAxis[0].tickPositions[0])) / 2), chart.yAxis[0].tickPositions[1]]}
+        credits:{ enabled:false }    
     });
 };
 
@@ -760,6 +775,7 @@ Function to create windchill chart
     options.yAxis.minRange = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
+    options.yAxis.tickInterval = 10;
     return options;
 }
         
@@ -860,6 +876,7 @@ spline plots
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
+    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -888,7 +905,6 @@ spline barometric pressure plots
         type: 'spline',
         visible: true
     }];
-    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -917,7 +933,7 @@ Function to do small barometer chart
         type: 'spline',
         visible: true
     }];
-    obj.tooltip.valueDecimals = 1;
+    obj.yAxis.height = "150";
     $("#plot_div").css("height", 210);
     return obj
 };
@@ -961,6 +977,7 @@ Function to add/set various plot options specific to wind speed spline plots
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.yAxis.min = 0;
+    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -985,7 +1002,6 @@ spline wind speed plots
         type: 'spline',
         color: '#439BB6'
     }];
-    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -1016,7 +1032,7 @@ Function to do wind small chart
         type: 'area',
         visible: true
     }];
-    obj.tooltip.valueDecimals = 1;
+    obj.yAxis.height = "150";
     $("#plot_div").css("height", 205);
     return obj
 };
@@ -1041,6 +1057,7 @@ Function to create wind chart
     options.yAxis.minRange = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
+    options.yAxis.tickInterval = 10;
     return options;
 }
 
@@ -1321,7 +1338,7 @@ Function to add small rain chart
         type: 'column',
         visible: true
     }];
-    obj.tooltip.valueDecimals = 1;
+    obj.yAxis.height = "165";
     $("#plot_div").css("height", 225);
     return obj
 };
@@ -1339,9 +1356,11 @@ Function to create rain chart
     options.yAxis.title.text = "(" + units.rain + ")";
     options.tooltip.valueSuffix = units.rain;
     options.yAxis.minRange = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.minRange);
+    options.yAxis.min = 0;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.title.text = 'Rainfall';
+    options.yAxis.tickInterval = 1;
     return options;
 }
 
@@ -1528,10 +1547,7 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
-    // gather all fixed plot options for each plot
-    $.getJSON((span[0] == "weekly" ? week_json : year_json), function(seriesData) {
         var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
-        // generate/display the actual plots
         var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (cb_func != null){
             for (i = 0; i < chart.series.length; i++){
