@@ -316,6 +316,7 @@ var commonOptions = {
         labels: {
             x: -4,
             y: 4,
+        //    format: '{value:.0f}',
         },
         lineColor: '#555',
         lineWidth: 1,
@@ -333,7 +334,7 @@ var commonOptions = {
         tickWidth: 1,
         title: {
             text: ''
-        }
+        },
     }
 };
 
@@ -512,18 +513,18 @@ spline temperature plots
 
 *****************************************************************************/
     obj.chart.marginBottom = 20;
-    obj.chart.type = 'area';
+    obj.chart.type = 'spline';
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
         fillColor: 'rgba(255, 148, 82, 1)',
         name: 'Average Temperature',
-        type: 'area',
+        type: 'spline',
         visible: true
     }, {
         color: 'rgba(0, 164, 180, 1)',
         fillColor: 'rgba(0, 164, 180, 1)',
         name: 'Temperature Range',
-        type: 'area',
+        type: 'spline',
         visible: true
     }];
     obj.tooltip.valueDecimals = 1;
@@ -560,6 +561,7 @@ function create_temperature_chart(options, span, seriesData, units){
 Function to create temperature chart
 
 *****************************************************************************/
+
     if (span[0] == "yearly"){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
@@ -575,7 +577,7 @@ Function to create temperature chart
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis.minRange = seriesData[0].temperatureplot.minRange;
+    options.yAxis.minRange = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.minRange);
     options.yAxis.tickInterval = 10;
     return options;
 };
@@ -594,7 +596,7 @@ Function to update chart after creation
         legend:{ enabled:false },
         title: {text: ''},
         credits:{ enabled:false },
-        yAxis:{tickPositions: [parseInt(chart.yAxis[0].min), parseInt(chart.yAxis[0].min + (chart.yAxis[0].max - chart.yAxis[0].min) * 0.5), parseInt(chart.yAxis[0].max)]}
+        yAxis:{tickPositions: [chart.yAxis[0].tickPositions[0], parseInt(chart.yAxis[0].tickPositions[0] + (chart.yAxis[0].tickPositions[1] - Math.abs(chart.yAxis[0].tickPositions[0])) / 2), chart.yAxis[0].tickPositions[1]]}
     });
 };
 

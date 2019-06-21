@@ -13,7 +13,6 @@ function convert_temp(source, dest, fields, fixed = 2){
             fields[i][j] = do_temp_conversion(source, dest, fields[i][j], fixed);
    }else
       return do_temp_conversion(source, dest, fields, fixed);
-   console.log(fields);
    return fields;
 }
 
