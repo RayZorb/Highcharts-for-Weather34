@@ -383,11 +383,12 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
 };
 
 function getTranslation(term){
+    if (typeof translations == 'undefined') return term;
     if (translations.hasOwnProperty(term)) return translations[term];
     return term;
 }
 
-function addWindRoseOptions(options, span, seriesData, units, cb_func, plot_type) {
+function addWindRoseOptions(options, span, seriesData, units, plot_type, cb_func) {
 /*****************************************************************************
 
 Function to add/set various plot options specific to the 'wind rose' plot.
@@ -877,7 +878,7 @@ spline barometric pressure plots
         },
     },
     obj.series = [{
-        color: '#8EC3D3',
+        color: 'rgba(255, 148, 82, 1)',
         name: 'Barometeric Pressure Range',
         type: 'columnrange',
         visible: true
@@ -900,13 +901,6 @@ Function to do small barometer chart
     obj.chart.marginBottom = 20;
     obj.chart.type = 'spline';
     obj.series = [
-    //{
-    //    color: 'rgba(255, 148, 82, 1)',
-    //    fillColor: 'rgba(255, 148, 82, 1)',
-      //  name: 'Average Barometric Pressure',
-      //  type: 'spline',
-        //visible: true
-    //}, 
     {
         color: 'rgba(255, 148, 82, 1)',
         fillColor: 'rgba(255, 148, 82, 1)',
@@ -925,22 +919,26 @@ Function to do small barometer chart
     return obj
 };
 
-function create_barometer_chart(options, span, seriesData, units){
+function create_barometer_chart(options, span, seriesData, units, plot_type){
 /*****************************************************************************
 
 Function to create barometer chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        var min = [];
-        var max = [];
-        for (i = 0; i < seriesData[0].barometerplot.barometeraverage.length; i++){
-            min[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][1]];
-            max[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][2]];
+        if (plot_type == 'barsmallplot'){
+            var min = [];
+            var max = [];
+            for (i = 0; i < seriesData[0].barometerplot.barometeraverage.length; i++){
+                min[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][1]];
+             max[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][2]];
+            }
+            options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, max);
+            options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, min);
+        } else {
+            options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
+            options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
         }
-        //options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
-        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, max);
-        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, min);
     }
     else if (span[0] == "weekly")
         options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
@@ -1518,7 +1516,7 @@ Function to create uv chart
     return options;
 }
 
-function setup_plots(seriesData, units, options, cb_func, plot_type, span){
+function setup_plots(seriesData, units, options, plot_type, cb_func, span){
 /*****************************************************************************
 
 Function to add/set various weekly plot options specific to the 'week' plot.
@@ -1526,7 +1524,7 @@ Function to add/set various weekly plot options specific to the 'week' plot.
 *****************************************************************************/
     Highcharts.setOptions({lang:{ rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
     for (i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
-       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, cb_func,plot_type) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, cb_func,plot_type));
+       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func));
     return options
 };
 
@@ -1540,7 +1538,7 @@ Function to display weekly or yearly charts
     console.log(units, plot_type, cb_func, span);
     // gather all fixed plot options for each plot
     $.getJSON((span[0] == "weekly" ? week_json : year_json), function(seriesData) {
-        var options = setup_plots(seriesData, units, clone(commonOptions), cb_func, plot_type, span);
+        var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
         // generate/display the actual plots
         var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (cb_func != null){
