@@ -361,6 +361,7 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
     // Handle Array
     if (obj instanceof Array) {
         copy = [];
+        var i;
         for (var i = 0, len = obj.length; i < len; i++) {
             copy[i] = clone(obj[i]);
         }
@@ -386,10 +387,13 @@ function getTranslation(term){
     if (translations.hasOwnProperty(term)) return translations[term];
     var parts = term.split(" ");
     var translation = "";
+    var i;
     for (i = 0; i < parts.length; i++)
         if (translations.hasOwnProperty(parts[i]))
-           translation += translations[parts[i]] + i < parts.length - 1 ? " " : "";
-    return translation.length ? translation : term;
+           translation += translations[parts[i]] + (i < parts.length - 1 ? " " : "");
+        else
+           translation += parts[i] + (i < parts.length - 1 ? " " : "");
+    return translation.length > 0 ? translation : term;
 }
 
 function addWindRoseOptions(options, span, seriesData, units, plot_type, cb_func) {
@@ -539,12 +543,12 @@ spline temperature plots
     },
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
-        name: 'Temperature Range',
+        name: getTranslation('Temperature Range'),
         type: 'columnrange',
         visible: true
     }, {
         color: '#4242B4',
-        name: 'Average Temperature',
+        name: getTranslation('Average Temperature'),
         type: 'spline',
         visible: true
     }];
@@ -569,12 +573,12 @@ spline temperature plots
     },
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
-        name: 'Temperature Range',
+        name: getTranslation('Temperature Range'),
         type: 'columnrange',
         visible: true
     }, {
         color: '#4242B4',
-        name: 'Average Temperature',
+        name: getTranslation('Average Temperature'),
         type: 'spline',
         visible: true
     }];
@@ -639,7 +643,7 @@ Function to add/set various plot options specific to dewpoint spline plots
         },
     },
     obj.title = {
-        text: 'Dewpoint'
+        text: getTranslation('Dewpoint')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
@@ -657,12 +661,12 @@ spline dewpoint plots
     obj.chart.type = 'columnrange';
     obj.series = [{
         color: '#F0B0B0',
-        name: 'Dewpoint Range',
+        name: getTranslation('Dewpoint Range'),
         type: 'columnrange',
         visible: true
     }, {
         color: '#B44242',
-        name: 'Average Dewpoint',
+        name: getTranslation('Average Dewpoint'),
         type: 'spline',
         visible: true
     }];
@@ -706,7 +710,7 @@ Function to add/set various plot options specific to windchill spline plots
         },
     },
     obj.title = {
-        text: 'Apparent Temperature/Wind Chill/Heat Index'
+        text: getTranslation('Apparent Temperature Wind Chill Heat Index')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
@@ -724,20 +728,20 @@ spline windchill plots
     obj.chart.type = 'columnrange';
     obj.series = [{
         color: '#A6D3A6',
-        name: 'Apparent Temperature Range',
+        name: getTranslation('Apparent Temperature Range'),
         type: 'columnrange',
         visible: true
     }, {
         color: '#047B04',
-        name: 'Average Apparent Temperature',
+        name: getTranslation('Average Apparent Temperature'),
         type: 'spline',
         visible: true
     }, {
-        name: 'Average Wind Chill',
+        name: getTranslation('Average Wind Chill'),
         type: 'spline',
         visible: true
     }, {
-        name: 'Average Heat Index',
+        name: getTranslation('Average Heat Index'),
         type: 'spline',
         visible: true
     }];
@@ -765,7 +769,7 @@ Function to create windchill chart
             options.series.shift();
         }
         if ((!("appTempminmax" in seriesData[0].windchillplot)) && (!("appTempaverage" in seriesData[0].windchillplot))) {
-            options.title.text = 'Wind Chill/Heat Index';
+            options.title.text = getTranslation('Wind Chill Heat Index');
         }
     }
     else {
@@ -800,7 +804,7 @@ Function to add/set various plot options specific to humidity spline plots
         color: '#4242B4'
     };
     obj.title = {
-        text: 'Humidity'
+        text: getTranslation('Humidity')
     };
     obj.tooltip.valueSuffix = '%';
     obj.xAxis.minRange = 900000;
@@ -829,12 +833,12 @@ humidity spline plots
     },
     obj.series = [{
         color: '#8EC3D3',
-        name: 'Humidity Range',
+        name: getTranslation('Humidity Range'),
         type: 'columnrange',
         visible: true
     }, {
         color: '#4242B4',
-        name: 'Average Humidity',
+        name: getTranslation('Average Humidity'),
         type: 'spline',
         visible: true
     }];
@@ -877,7 +881,7 @@ spline plots
         color: '#4242B4'
     };
     obj.title = {
-        text: 'Barometer'
+        text: getTranslation('Barometer')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
@@ -901,12 +905,12 @@ spline barometric pressure plots
     },
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
-        name: 'Barometeric Pressure Range',
+        name: getTranslation('Barometeric Pressure Range'),
         type: 'columnrange',
         visible: true
     }, {
         color: '#4242B4',
-        name: 'Average Barometric Pressure',
+        name: getTranslation('Average Barometric Pressure'),
         type: 'spline',
         visible: true
     }];
@@ -929,12 +933,12 @@ Function to do small barometer chart
     },
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
-        name: 'Barometeric Pressure Range',
+        name: getTranslation('Barometeric Pressure Range'),
         type: 'columnrange',
         visible: true
     }, {
         color: '#4242B4',
-        name: 'Average Barometric Pressure',
+        name: getTranslation('Average Barometric Pressure'),
         type: 'spline',
         visible: true
     }];
@@ -977,7 +981,7 @@ Function to add/set various plot options specific to wind speed spline plots
         },
     },
     obj.title = {
-        text: 'Wind/Gust Speed'
+        text: getTranslation('Wind Gust Speed')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
@@ -995,15 +999,15 @@ spline wind speed plots
 *****************************************************************************/
     obj.chart.type = 'spline';
     obj.series = [{
-        name: 'Max Gust Speed',
+        name: getTranslation('Max Gust Speed'),
         type: 'spline',
         color: '#B44242'
     },{
-        name: 'Max Average Wind Speed',
+        name: getTranslation('Max Average Wind Speed'),
         type: 'spline',
         color: '#4242B4'
     }, {
-        name: 'Average Wind Speed',
+        name: getTranslation('Average Wind Speed'),
         type: 'spline',
         color: '#439BB6'
     }];
@@ -1021,19 +1025,19 @@ Function to do wind small chart
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
         fillColor: 'rgba(255, 148, 82, 1)',
-        name: 'Max Gust Speed',
+        name: getTranslation('Max Gust Speed'),
         type: 'area',
         visible: true
     }, {
         color: 'rgba(0, 164, 180, 1)',
         fillColor: 'rgba(0, 164, 180, 1)',
-        name: 'Max Average Wind Speed',
+        name: getTranslation('Max Average Wind Speed'),
         type: 'area',
         visible: true
     }, {
         color: 'rgba(155, 255, 255, 1)',
         fillColor: 'rgba(155, 255, 255, 1)',
-        name: 'Average Wind Speed',
+        name: getTranslation('Average Wind Speed'),
         type: 'area',
         visible: true
     }];
@@ -1080,7 +1084,7 @@ plots
         },
     },
     obj.title = {
-        text: 'Wind Direction'
+        text: getTranslation('Wind Direction')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
@@ -1119,7 +1123,7 @@ spline wind direction plots
         },
     };
     obj.series = [{
-        name: 'Vector Average Wind Direction',
+        name: getTranslation('Vector Average Wind Direction'),
         color: '#439BB6'
     }];
     obj.tooltip.valueDecimals = 1;
@@ -1156,13 +1160,13 @@ Function to add/set various plot options specific to wind rose plots
         verticalAlign: 'top',
         y: 100,
         layout: 'vertical',
-        text: 'Wind Speed',
+        text: getTranslation('Wind Speed'),
         enabled: true
     };
     options.chart.polar = true;
     options.chart.type = 'column';
     options.chart.pane = {size: '100%'};
-    options.title = {text: 'Wind Rose'};
+    options.title = {text: getTranslation('Wind Rose')};
     options.tooltip.split = false; 
     options.tooltip.shared = false;
     options.tooltip.valueSuffix ='%';
@@ -1182,7 +1186,7 @@ Function to add/set various plot options specific to wind rose plots
         tickWidth: 1,
     };
     options.yAxis.endOnTick = false;
-    options.yAxis.title = {text: 'Frequency (%)'};
+    options.yAxis.title = {text: getTranslation('Frequency (%)')};
     options.yAxis.labels = {formatter: function () {return this.value + '%';}};
     options.yAxis.reversedStacks = false;
     options.plotOptions.series = {
@@ -1222,7 +1226,7 @@ Function to create wind rose chart
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     categories = options.xAxis.categories;
-    options.title = {text: "Wind Rose " + (span[1] == "Day" ? "24h" : span[1])};
+    options.title = {text: getTranslation("Wind Rose") + (span[1] == " Day" ? " 24h" : span[1])};
     return options;
 };
 
@@ -1232,6 +1236,7 @@ function convertlegend(series, units){
 Function to convert wind rose legend display units
 
 *****************************************************************************/
+    var i, j;
     for (i = 0; i < series.length; i++){
         var percent = 0;
         var newName = "";
@@ -1272,7 +1277,7 @@ Function to add/set various plot options specific to rainfall plots
     obj.chart.type = 'column';
     obj.plotOptions.column.dataGrouping.enabled = true;
     obj.title = {
-        text: 'Rainfall'
+        text: getTranslation('Rainfall')
     };
     obj.xAxis.minRange = 3600000;
     obj.xAxis.minTickInterval = 900000;
@@ -1308,12 +1313,12 @@ spline rainfall plots
     obj.plotOptions.column.dataGrouping.enabled = true;
     obj.plotOptions.column.dataGrouping.groupPixelWidth = 50;
     obj.series = [{
-        name: 'Rainfall',
+        name: getTranslation('Rainfall'),
         type: 'column',
         color: '#439BB6'
     }];
     obj.title = {
-        text: 'Rainfall'
+        text: getTranslation('Rainfall')
     };
     obj.tooltip.valueDecimals = 1;
     obj.tooltip.xDateFormat = '%e %B %Y';
@@ -1339,7 +1344,7 @@ Function to add small rain chart
     obj.series = [{
         color: '#439BB6',
         fillColor: '#439BB6',
-        name: 'Rainfall',
+        name: getTranslation('Rainfall'),
         type: 'column',
         visible: true
     }];
@@ -1364,7 +1369,7 @@ Function to create rain chart
     options.yAxis.min = 0;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.title.text = 'Rainfall';
+    options.title.text = getTranslation('Rainfall');
     options.yAxis.tickInterval = 1;
     return options;
 }
@@ -1383,7 +1388,7 @@ plots
         },
     },
     obj.title = {
-        text: 'Solar Radiation'
+        text: getTranslation('Solar Radiation')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
@@ -1425,11 +1430,11 @@ spline solar radiation plots
     obj = setRadiation(obj);
     obj.chart.type = 'column';
     obj.series = [{
-        name: 'Maximum Solar Radiation',
+        name: getTranslation('Maximum Solar Radiation'),
         type: 'column',
         color: '#F0B0B0',
     }, {
-        name: 'Average Solar Radiation',
+        name: getTranslation('Average Solar Radiation'),
         type: 'spline',
         color: '#B44242',
     }];
@@ -1475,7 +1480,7 @@ Function to add/set various plot options specific to UV index spline plots
     },
     obj.plotOptions.spline.color = '#9933FF';
     obj.title = {
-        text: 'UV Index'
+        text: getTranslation('UV Index')
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
@@ -1496,11 +1501,11 @@ spline UV index plots
     obj = setUv(obj);
     obj.chart.type = 'column';
     obj.series = [{
-        name: 'Maximum UV Index',
+        name: getTranslation('Maximum UV Index'),
         type: 'column',
         color: '#E0C2FF',
     }, {
-        name: 'Average UV Index',
+        name: getTranslation('Average UV Index'),
         type: 'spline',
         color: '#9933FF',
     }];
@@ -1539,6 +1544,7 @@ Function to add/set various weekly plot options specific to the 'week' plot.
 
 *****************************************************************************/
     Highcharts.setOptions({lang:{ rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
+    var i;
     for (i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
        options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func));
     return options
@@ -1552,12 +1558,11 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
-    // gather all fixed plot options for each plot
     $.getJSON((span[0] == "weekly" ? week_json : year_json), function(seriesData) {
         var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
-        // generate/display the actual plots
         var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (cb_func != null){
+            var i;
             for (i = 0; i < chart.series.length; i++){
                 chart.series[i].update({
                     cursor: 'pointer',
@@ -1567,8 +1572,10 @@ Function to display weekly or yearly charts
                 });
             }
         }
-        if (postcreatefunctions.hasOwnProperty(plot_type))
+        if (postcreatefunctions.hasOwnProperty(plot_type)){
+            var i;
             for (i = 0; i < postcreatefunctions[plot_type].length; i++)
                 postcreatefunctions[plot_type][i](chart);
+            }
     });
 };

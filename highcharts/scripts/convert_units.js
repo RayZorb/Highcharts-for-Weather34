@@ -3,6 +3,7 @@ function convert_temp(source, dest, fields, fixed = 2){
    dest = dest.replace(/[^\x00-\x7F]/g, "").trim();
    source = source.replace(/[^\x00-\x7F]/g, "").trim();
    if (source == dest) return fields;
+   var i, j;
    if (fields.hasOwnProperty('data')){
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
@@ -27,6 +28,7 @@ function convert_wind(source, dest, fields, fixed = 2){
    dest = dest.replace("hr","h").trim();
    source = source.replace("hr","h").trim();
    if (dest == source) return fields;
+   var i, j;
    if (fields.hasOwnProperty('data')){
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
@@ -54,8 +56,8 @@ function do_speed_conversion(source, dest, data, fixed){
 function convert_pressure(source, dest, fields, fixed = 2){
    dest = dest.trim();
    source = source.trim();
-   //console.log(fields);
    if (dest == source) return fields;
+   var i, j;
    if (fields.hasOwnProperty('data')){
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
@@ -84,6 +86,7 @@ function convert_rain(source, dest, fields, fixed = 2){
    dest = dest.replace("inch","in").trim();
    source = source.replace("inch","in").trim();
    if (source == dest) return fields;
+   var i, j;
    if (fields.hasOwnProperty('data')){
       for (i = 0; i < fields.data.length; i++)
          for (j = 1; j < fields.data[i].length; j++)
