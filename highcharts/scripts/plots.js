@@ -899,18 +899,21 @@ Function to do small barometer chart
 
 *****************************************************************************/
     obj.chart.marginBottom = 20;
-    obj.chart.type = 'spline';
-    obj.series = [
-    {
+    obj.chart.type = 'columnrange';
+    obj.navigator = {
+        series: {
+            color: '#C07777',
+            lineColor: '#B06060'
+        },
+    },
+    obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
-        fillColor: 'rgba(255, 148, 82, 1)',
-        name: 'Barometeric Pressure Max',
-        type: 'spline',
+        name: 'Barometeric Pressure Range',
+        type: 'columnrange',
         visible: true
     }, {
-        color: 'rgba(100, 164, 180, 1)',
-        fillColor: 'rgba(0, 164, 180, 1)',
-        name: 'Barometeric Pressure Min',
+        color: '#4242B4',
+        name: 'Average Barometric Pressure',
         type: 'spline',
         visible: true
     }];
@@ -926,19 +929,8 @@ Function to create barometer chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        if (plot_type == 'barsmallplot'){
-            var min = [];
-            var max = [];
-            for (i = 0; i < seriesData[0].barometerplot.barometeraverage.length; i++){
-                min[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][1]];
-             max[i] = [seriesData[0].barometerplot.barometeraverage[i][0], seriesData[0].barometerplot.barometerminmax[i][2]];
-            }
-            options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, max);
-            options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, min);
-        } else {
-            options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
-            options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
-        }
+        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
+        options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
     }
     else if (span[0] == "weekly")
         options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
