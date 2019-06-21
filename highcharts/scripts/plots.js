@@ -384,7 +384,12 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
 function getTranslation(term){
     if (typeof translations == 'undefined') return term;
     if (translations.hasOwnProperty(term)) return translations[term];
-    return term;
+    var parts = term.split(" ");
+    var translation = "";
+    for (i = 0; i < parts.length; i++)
+        if (translations.hasOwnProperty(parts[i]))
+           translation += translations[parts[i]] + i < parts.length - 1 ? " " : "";
+    return translation.length ? translation : term;
 }
 
 function addWindRoseOptions(options, span, seriesData, units, plot_type, cb_func) {
@@ -1547,7 +1552,10 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
+    // gather all fixed plot options for each plot
+    $.getJSON((span[0] == "weekly" ? week_json : year_json), function(seriesData) {
         var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
+        // generate/display the actual plots
         var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (cb_func != null){
             for (i = 0; i < chart.series.length; i++){
