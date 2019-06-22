@@ -112,8 +112,8 @@ Set paths/names of our week and year JSON data files
 Paths are relative to the web server root
 
 *****************************************************************************/
-var week_json = '../../weewx/json/week.json';
-var year_json = '../../weewx/json/year.json';
+var week_json = '../js/week.json';
+var year_json = '../js/year.json';
 
 /*****************************************************************************
 
@@ -1413,7 +1413,6 @@ plots
             temp.push(i);
             order = temp.concat(order);
         }
-        console.log(order);
         temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
         $(order).each(function(i,j){
             temp += '<span style="color: '+points[j].series.color+'">' +
@@ -1462,7 +1461,7 @@ Function to add small radition chart
         color: '#B44242',
     }];
     obj.tooltip.valueSuffix = 'W/m\u00B2';
-    obj.yAxis.height = "165";
+    obj.yAxis.height = "150";
     $("#plot_div").css("height", 225);
     return obj
 };
@@ -1554,7 +1553,7 @@ Function to add small uv chart
         color: '#9933FF',
     }];
     obj.tooltip.valueDecimals = 1;
-    obj.yAxis.height = "165";
+    obj.yAxis.height = "150";
     $("#plot_div").css("height", 225);
     return obj
 };
