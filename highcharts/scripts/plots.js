@@ -86,8 +86,10 @@ var createyearlyfunctions = {
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addYearOptions, setRain, setRainStock, create_rain_chart],
     rainsmallplot: [addYearOptions, setRain, setRainSmall, create_rain_chart],
-    radiationplot: [addYearOptions, setRadiationStock, create_radiation_chart],
-    uvplot: [addYearOptions, setUvStock, setUvStock, create_uv_chart]
+    radiationplot: [addYearOptions, setRadiation, setRadiationStock, create_radiation_chart],
+    radsmallplot: [addYearOptions, setRadiation, setRadSmall, create_radiation_chart],
+    uvplot: [addYearOptions, setUv, setUvStock, create_uv_chart],
+    uvsmallplot: [addYearOptions, setUv, setUvSmall, create_uv_chart]
 };
 
 var postcreatefunctions={
@@ -95,6 +97,8 @@ var postcreatefunctions={
     barsmallplot: [post_create_small_chart],
     windsmallplot: [post_create_small_chart],
     rainsmallplot: [post_create_small_chart],
+    radsmallplot: [post_create_small_chart],
+    uvsmallplot: [post_create_small_chart],
     windroseplot: [post_create_windrose_chart]
 };
 
@@ -1427,7 +1431,6 @@ Function to add/set various plot options specific to combined columnrange
 spline solar radiation plots
 
 *****************************************************************************/
-    obj = setRadiation(obj);
     obj.chart.type = 'column';
     obj.series = [{
         name: getTranslation('Maximum Solar Radiation'),
@@ -1439,6 +1442,28 @@ spline solar radiation plots
         color: '#B44242',
     }];
     obj.tooltip.valueSuffix = 'W/m\u00B2';
+    return obj
+};
+
+function setRadSmall(obj) {
+/*****************************************************************************
+
+Function to add small radition chart
+
+*****************************************************************************/
+    obj.chart.type = 'column';
+    obj.series = [{
+        name: getTranslation('Maximum Solar Radiation'),
+        type: 'column',
+        color: '#F0B0B0',
+    }, {
+        name: getTranslation('Average Solar Radiation'),
+        type: 'spline',
+        color: '#B44242',
+    }];
+    obj.tooltip.valueSuffix = 'W/m\u00B2';
+    obj.yAxis.height = "165";
+    $("#plot_div").css("height", 225);
     return obj
 };
 
@@ -1498,7 +1523,6 @@ Function to add/set various plot options specific to combined columnrange
 spline UV index plots
 
 *****************************************************************************/
-    obj = setUv(obj);
     obj.chart.type = 'column';
     obj.series = [{
         name: getTranslation('Maximum UV Index'),
@@ -1510,6 +1534,28 @@ spline UV index plots
         color: '#9933FF',
     }];
     obj.tooltip.valueDecimals = 1;
+    return obj
+};
+
+function setUvSmall(obj) {
+/*****************************************************************************
+
+Function to add small uv chart
+
+*****************************************************************************/
+    obj.chart.type = 'column';
+    obj.series = [{
+        name: getTranslation('Maximum UV Index'),
+        type: 'column',
+        color: '#E0C2FF',
+    }, {
+        name: getTranslation('Average UV Index'),
+        type: 'spline',
+        color: '#9933FF',
+    }];
+    obj.tooltip.valueDecimals = 1;
+    obj.yAxis.height = "165";
+    $("#plot_div").css("height", 225);
     return obj
 };
 
