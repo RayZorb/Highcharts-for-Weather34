@@ -112,8 +112,8 @@ Set paths/names of our week and year JSON data files
 Paths are relative to the web server root
 
 *****************************************************************************/
-var week_json = '../js/week.json';
-var year_json = '../js/year.json';
+var week_json = '../../weewx/js/week.json';
+var year_json = '../../weewx/js/year.json';
 
 /*****************************************************************************
 
@@ -1413,6 +1413,7 @@ plots
             temp.push(i);
             order = temp.concat(order);
         }
+        console.log(order);
         temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
         $(order).each(function(i,j){
             temp += '<span style="color: '+points[j].series.color+'">' +
