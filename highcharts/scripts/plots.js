@@ -60,6 +60,7 @@ Set names of div ids to which the various plots will be rendered
 *****************************************************************************/
 var createweeklyfunctions = {
     temperatureplot: [addWeekOptions, setTemp, create_temperature_chart],
+    tempallplot: [addWeekOptions, setTempAll, create_tempall_chart],
     humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
     barometerplot: [addWeekOptions, setBarometer, create_barometer_chart],
     dewpointplot: [addWeekOptions, setDewpoint, create_dewpoint_chart],
@@ -112,8 +113,8 @@ Set paths/names of our week and year JSON data files
 Paths are relative to the web server root
 
 *****************************************************************************/
-var week_json = '../../weewx/js/week.json';
-var year_json = '../../weewx/js/year.json';
+var week_json = '../../weewx/json/week.json';
+var year_json = '../../weewx/json/year.json';
 
 /*****************************************************************************
 
@@ -287,7 +288,9 @@ var commonOptions = {
             hour: '%e %B %Y %H:%M',
             day: '%A %e %B %Y'
         },
+        backgroundColor: null,
         shared: true,
+        split: false,
         //need to set valueSuffix so we can set it later if needed
         valueSuffix: ''
     },
@@ -315,7 +318,7 @@ var commonOptions = {
         },
         type: 'datetime',
     },
-    yAxis: {
+    yAxis: [{
         endOnTick: true,
         labels: {
             x: -4,
@@ -337,8 +340,31 @@ var commonOptions = {
         tickWidth: 1,
         title: {
             text: ''
+            }
+    }, {
+        endOnTick: true,
+        labels: {
+            x: -4,
+            y: 4,
         },
-    }
+        lineColor: '#555',
+        lineWidth: 1,
+        minorGridLineWidth: 0,
+        minorTickColor: '#555',
+        minorTickLength: 2,
+        minorTickPosition: 'outside',
+        minorTickWidth: 1,
+        opposite: false,
+        showLastLabel: true,
+        startOnTick: true,
+        tickColor: '#555',
+        tickLength: 4,
+        tickPosition: 'outside',
+        tickWidth: 1,
+        title: {
+            text: ''
+           }
+    }],
 };
 
 function clone(obj) {
@@ -616,6 +642,92 @@ Function to create temperature chart
     return options;
 };
 
+function setTempAll(obj) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to temperature spline plots
+
+*****************************************************************************/
+    obj.chart.type = 'spline';
+    obj.navigator = {
+        series: {
+            color: '#C07777',
+            lineColor: '#B06060'
+        },
+    },
+    obj.series = [{
+        color: 'rgba(255, 148, 82, 1)',
+        name: getTranslation('Temperature'),
+        type: 'spline',
+    }, {
+        color: '#4242B4',
+        name: getTranslation('Dewpoint'),
+        type: 'spline',
+    }, {
+        color: 'rgba(0, 164, 180, 1)',
+        name: getTranslation('Heatindex'),
+        type: 'spline',
+    }, {
+        color: '#B44242',
+        name: getTranslation('Windchill'),
+        type: 'spline',
+    }, {
+        color: '#FF00FF',
+        yAxis: 1,
+        tooltip: {valueSuffix: '%'},
+        name: getTranslation('Humidity'),
+        type: 'spline',
+    }, {
+        color: '#00FF00',
+        yAxis: 1,
+        tooltip: {valueSuffix: '%'},
+        name: getTranslation('Apparent'),
+        type: 'spline',
+        visible: false
+    }];
+    obj.title = {
+        text: getTranslation('Temperature Dewpoint HeatIndex Windchill Humidity Apparent')
+    };
+    obj.xAxis.minRange = 900000;
+    obj.xAxis.minTickInterval = 900000;
+    obj.tooltip.valueDecimals = 1;
+    return obj
+};
+
+function create_tempall_chart(options, span, seriesData, units){
+/*****************************************************************************
+
+Function to create temperature chart
+
+*****************************************************************************/
+
+    if (span[0] == "yearly"){
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
+    }
+    else if (span[0] == "weekly"){        
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp).data;
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
+        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
+        options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill).data;
+        options.series[4].data = seriesData[0].humidityplot.series.outHumidity.data;
+        if ("appTemp" in seriesData[0].temperatureplot.series) {
+           options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
+           options.series[5].visible = true;
+        }
+    }
+    options.tooltip.valueSuffix = units.temp;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    options.yAxis.minRange = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.minRange);
+    options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[1].title.text = "(%)";
+    options.yAxis[0].tickInterval = 10;
+    options.yAxis[1].tickInterval = 10;
+    options.yAxis[1].opposite = true;
+    return options;
+};
+
 function post_create_small_chart(chart, height){
 /*****************************************************************************
 
@@ -690,7 +802,6 @@ Function to create dewpoint chart
     }
     else if (span[0] == "weekly"){        
         options.series[0] = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointeplot.series.dewpoint);
-        options.series[1] = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.series.dewpoint);
     }
     options.yAxis.title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
