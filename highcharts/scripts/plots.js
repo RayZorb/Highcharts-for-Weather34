@@ -329,8 +329,7 @@ var commonOptions = {
         tickPosition: 'outside',
         tickWidth: 1,
         title: {
-            text: '',
-            rotation: 0
+            text: ''
             }
     }, {
         endOnTick: true,
@@ -353,8 +352,7 @@ var commonOptions = {
         tickPosition: 'outside',
         tickWidth: 1,
         title: {
-            text: '',
-            rotation: 0
+            text: ''
            }
     }],
 };
@@ -539,9 +537,6 @@ Function to add/set various plot options specific to temperature spline plots
             lineColor: 'rgba(255, 148, 82, 1)'
         },
     },
-    obj.title = {
-        text: getTranslation('Temperature')
-    };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
@@ -626,6 +621,7 @@ Function to create temperature chart
         }
     }
     options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.rotation = 0;
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
@@ -713,7 +709,9 @@ Function to create temperature chart
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis.minRange = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.minRange);
     options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.rotation = 0;
     options.yAxis[1].title.text = "(%)";
+    options.yAxis[1].title.rotation = 0;
     options.yAxis[0].tickInterval = 10;
     options.yAxis[1].tickInterval = 10;
     options.yAxis[1].opposite = true;
