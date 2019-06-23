@@ -405,14 +405,13 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
 function getTranslation(term){
     if (typeof translations == 'undefined') return term;
     if (translations.hasOwnProperty(term)) return translations[term];
-    var parts = term.split(" ");
+    var parts = term.split(/([" ", "/"])/);
     var translation = "";
-    var i;
-    for (i = 0; i < parts.length; i++)
-        if (translations.hasOwnProperty(parts[i]))
-           translation += translations[parts[i]] + (i < parts.length - 1 ? " " : "");
+    for (var i = 0; i < parts.length; i++)
+        if (i%2 == 0 && translations.hasOwnProperty(parts[i]))
+           translation += translations[parts[i]];
         else
-           translation += parts[i] + (i < parts.length - 1 ? " " : "");
+           translation += parts[i];
     return translation.length > 0 ? translation : term;
 }
 
@@ -672,7 +671,7 @@ Function to add/set various plot options specific to temperature spline plots
         visible: false
     }];
     obj.title = {
-        text: getTranslation('Temperature Dewpoint HeatIndex Windchill Humidity Feels')
+        text: getTranslation('Temperature Dewpoint HeatIndex/Windchill Humidity Feels')
     };
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
@@ -809,7 +808,7 @@ Function to add/set various plot options specific to windchill spline plots
         },
     },
     obj.title = {
-        text: getTranslation('Feels Temperature Wind Chill Heat Index')
+        text: getTranslation('Feels Temperature Wind Chill/Heat Index')
     };
     obj.xAxis.minTickInterval = 900000;
     return obj
@@ -867,7 +866,7 @@ Function to create windchill chart
             options.series.shift();
         }
         if ((!("appTempminmax" in seriesData[0].windchillplot)) && (!("appTempaverage" in seriesData[0].windchillplot))) {
-            options.title.text = getTranslation('Wind Chill Heat Index');
+            options.title.text = getTranslation('Wind Chill/Heat Index');
         }
     }
     else {
