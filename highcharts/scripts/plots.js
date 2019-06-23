@@ -108,16 +108,6 @@ var categories;
 
 /*****************************************************************************
 
-Set paths/names of our week and year JSON data files
-
-Paths are relative to the web server root
-
-*****************************************************************************/
-var week_json = '../../weewx/json/week.json';
-var year_json = '../../weewx/json/year.json';
-
-/*****************************************************************************
-
 Set default plot options
 
 These are common plot options across all plots. Change them by all means but
@@ -582,7 +572,7 @@ spline temperature plots
         type: 'spline',
         visible: true
     }];
-    obj.yAxis.height = "90";
+    obj.yAxis[0].height = "90";
     $("#plot_div").css("height", 150);
     return obj
 };
@@ -633,12 +623,12 @@ Function to create temperature chart
            options.series[2] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp);
         }
     }
-    options.yAxis.title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis.minRange = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.minRange);
-    options.yAxis.tickInterval = 10;
+    options.yAxis[0].tickInterval = 10;
     return options;
 };
 
@@ -803,7 +793,7 @@ Function to create dewpoint chart
     else if (span[0] == "weekly"){        
         options.series[0] = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointeplot.series.dewpoint);
     }
-    options.yAxis.title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
@@ -894,12 +884,12 @@ Function to create windchill chart
             options.series[2] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.appTemp);
         }
     }
-    options.yAxis.title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
     options.yAxis.minRange = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis.tickInterval = 10;
+    options.yAxis[0].tickInterval = 10;
     return options;
 }
         
@@ -924,10 +914,10 @@ Function to add/set various plot options specific to humidity spline plots
     obj.tooltip.valueSuffix = '%';
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
-    obj.yAxis.max = 100;
-    obj.yAxis.min = 0;
-    obj.yAxis.minorTickInterval = 5;
-    obj.yAxis.tickInterval = 25;
+    //obj.yAxis.max = 100;
+    //obj.yAxis.min = 0;
+    obj.yAxis[0].minorTickInterval = 5;
+    obj.yAxis[0].tickInterval = 25;
     return obj
 };
 
@@ -973,7 +963,7 @@ Function to create humidity chart
     }
     else if (span[0] == "weekly")
         options.series[0] = seriesData[0].humidityplot.series.outHumidity;
-    options.yAxis.title.text = "(" + seriesData[0].humidityplot.units + ")";
+    options.yAxis[0].title.text = "(" + seriesData[0].humidityplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -1057,7 +1047,7 @@ Function to do small barometer chart
         type: 'spline',
         visible: true
     }];
-    obj.yAxis.height = "150";
+    obj.yAxis[0].height = "150";
     $("#plot_div").css("height", 210);
     return obj
 };
@@ -1074,7 +1064,7 @@ Function to create barometer chart
     }
     else if (span[0] == "weekly")
         options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
-    options.yAxis.title.text = "(" + units.pressure + ")";
+    options.yAxis[0].title.text = "(" + units.pressure + ")";
     options.tooltip.valueSuffix = units.pressure;
     options.yAxis.minRange = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
@@ -1100,7 +1090,7 @@ Function to add/set various plot options specific to wind speed spline plots
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
-    obj.yAxis.min = 0;
+    obj.yAxis[0].min = 0;
     obj.tooltip.valueDecimals = 1;
     return obj
 };
@@ -1156,7 +1146,7 @@ Function to do wind small chart
         type: 'area',
         visible: true
     }];
-    obj.yAxis.height = "150";
+    obj.yAxis[0].height = "150";
     $("#plot_div").css("height", 205);
     return obj
 };
@@ -1176,12 +1166,12 @@ Function to create wind chart
         options.series[0] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed);
         options.series[1] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust);
     }
-    options.yAxis.title.text = "(" + units.wind + ")";
+    options.yAxis[0].title.text = "(" + units.wind + ")";
     options.tooltip.valueSuffix = units.wind;
     options.yAxis.minRange = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis.tickInterval = 10;
+    options.yAxis[0].tickInterval = 10;
     return options;
 }
 
@@ -1203,9 +1193,9 @@ plots
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
-    obj.yAxis.max = 360;
-    obj.yAxis.min = 0;
-    obj.yAxis.tickInterval = 90;
+    obj.yAxis[0].max = 360;
+    obj.yAxis[0].min = 0;
+    obj.yAxis[0].tickInterval = 90;
     obj.plotOptions.series = {
         marker: {
             radius: 2
@@ -1257,7 +1247,7 @@ Function to create wind direction chart
     else if (span[0] == "weekly")
         options.series[0] = seriesData[0].winddirplot.series.windDir;
     options.yAxis.minRange = seriesData[0].winddirplot.minRange;
-    options.yAxis.title.text = "(" + units.wind + ")";
+    options.yAxis[0].title.text = "(" + units.wind + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -1300,10 +1290,10 @@ Function to add/set various plot options specific to wind rose plots
         tickLength: 4,
         tickWidth: 1,
     };
-    options.yAxis.endOnTick = false;
-    options.yAxis.title = {text: getTranslation('Frequency (%)')};
-    options.yAxis.labels = {formatter: function () {return this.value + '%';}};
-    options.yAxis.reversedStacks = false;
+    options.yAxis[0].endOnTick = false;
+    options.yAxis[0].title = {text: getTranslation('Frequency (%)')};
+    options.yAxis[0].labels = {formatter: function () {return this.value + '%';}};
+    options.yAxis[0].reversedStacks = false;
     options.plotOptions.series = {
             stacking: 'normal',
             shadow: false,
@@ -1396,7 +1386,7 @@ Function to add/set various plot options specific to rainfall plots
     };
     obj.xAxis.minRange = 3600000;
     obj.xAxis.minTickInterval = 900000;
-    obj.yAxis.min = 0;
+    obj.yAxis[0].min = 0;
     obj.plotOptions.column.color = '#72B2C4';
     obj.plotOptions.column.borderWidth = 0;
     obj.plotOptions.column.marker = {
@@ -1441,8 +1431,8 @@ spline rainfall plots
     obj.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>';
     obj.tooltip.pointFormat = '<span style="color: {series.color}">●</span> {series.name}: <b>{point.y}</b>'
     obj.tooltip.crosshairs = false;
-    obj.yAxis.allowDecimals = true;
-    obj.yAxis.labels = {
+    obj.yAxis[0].allowDecimals = true;
+    obj.yAxis[0].labels = {
         format: '{value:.0f}',
     };
     return obj
@@ -1463,7 +1453,7 @@ Function to add small rain chart
         type: 'column',
         visible: true
     }];
-    obj.yAxis.height = "165";
+    obj.yAxis[0].height = "165";
     $("#plot_div").css("height", 225);
     return obj
 };
@@ -1478,14 +1468,14 @@ Function to create rain chart
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rainsum);
     if (span[0] == "weekly")
         options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
-    options.yAxis.title.text = "(" + units.rain + ")";
+    options.yAxis[0].title.text = "(" + units.rain + ")";
     options.tooltip.valueSuffix = units.rain;
     options.yAxis.minRange = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.minRange);
-    options.yAxis.min = 0;
+    options.yAxis[0].min = 0;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.title.text = getTranslation('Rainfall');
-    options.yAxis.tickInterval = 1;
+    options.yAxis[0].tickInterval = 1;
     return options;
 }
 
@@ -1507,7 +1497,7 @@ plots
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
-    obj.yAxis.min = 0;
+    obj.yAxis[0].min = 0;
     obj.tooltip.formatter = function() {
         var order = [], i, j, temp = [],
             points = this.points;
@@ -1573,7 +1563,7 @@ Function to add small radition chart
         color: '#B44242',
     }];
     obj.tooltip.valueSuffix = 'W/m\u00B2';
-    obj.yAxis.height = "150";
+    obj.yAxis[0].height = "150";
     $("#plot_div").css("height", 225);
     return obj
 };
@@ -1596,7 +1586,7 @@ Function to create radiation chart
         }
     }    
     options.yAxis.minRange = seriesData[0].radiationplot.minRange;
-    options.yAxis.title.text = "(" + seriesData[0].radiationplot.units + ")";
+    options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -1620,10 +1610,10 @@ Function to add/set various plot options specific to UV index spline plots
     };
     obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
-    obj.yAxis.max = 20;
-    obj.yAxis.min = 0;
-    obj.yAxis.minorTickInterval = 1;
-    obj.yAxis.tickInterval = 4;
+    obj.yAxis[0].max = 20;
+    obj.yAxis[0].min = 0;
+    obj.yAxis[0].minorTickInterval = 1;
+    obj.yAxis[0].tickInterval = 4;
     return obj
 };
 
@@ -1665,7 +1655,7 @@ Function to add small uv chart
         color: '#9933FF',
     }];
     obj.tooltip.valueDecimals = 1;
-    obj.yAxis.height = "150";
+    obj.yAxis[0].height = "150";
     $("#plot_div").css("height", 225);
     return obj
 };
@@ -1683,7 +1673,7 @@ Function to create uv chart
     else if (span[0] == "weekly")
         options.series[0] = seriesData[0].uvplot.series.uv;
     options.yAxis.minRange = seriesData[0].uvplot.minRange;
-    options.yAxis.title.text = "(" + seriesData[0].uvplot.units + ")";
+    options.yAxis[0].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     Highcharts.setOptions({
@@ -1715,24 +1705,22 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
-    $.getJSON((span[0] == "weekly" ? week_json : year_json), function(seriesData) {
-        var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
-        var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
-        if (cb_func != null){
-            var i;
-            for (i = 0; i < chart.series.length; i++){
-                chart.series[i].update({
-                    cursor: 'pointer',
-                    point: {
-                       events: {click: function(e){cb_func(e);}}
-                    }
-                });
-            }
+    var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
+    var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
+    if (cb_func != null){
+        var i;
+        for (i = 0; i < chart.series.length; i++){
+            chart.series[i].update({
+                cursor: 'pointer',
+                point: {
+                   events: {click: function(e){cb_func(e);}}
+                }
+            });
         }
-        if (postcreatefunctions.hasOwnProperty(plot_type)){
-            var i;
-            for (i = 0; i < postcreatefunctions[plot_type].length; i++)
-                postcreatefunctions[plot_type][i](chart);
-            }
-    });
+    }
+    if (postcreatefunctions.hasOwnProperty(plot_type)){
+        var i;
+        for (i = 0; i < postcreatefunctions[plot_type].length; i++)
+            postcreatefunctions[plot_type][i](chart);
+        }
 };
