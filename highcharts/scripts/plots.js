@@ -329,12 +329,13 @@ var commonOptions = {
         tickPosition: 'outside',
         tickWidth: 1,
         title: {
-            text: ''
+            text: '',
+            rotation: 0
             }
     }, {
         endOnTick: true,
         labels: {
-            x: -4,
+            x: 4,
             y: 4,
         },
         lineColor: '#555',
@@ -352,7 +353,8 @@ var commonOptions = {
         tickPosition: 'outside',
         tickWidth: 1,
         title: {
-            text: ''
+            text: '',
+            rotation: 0
            }
     }],
 };
