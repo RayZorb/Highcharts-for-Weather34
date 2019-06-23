@@ -284,9 +284,9 @@ var commonOptions = {
         crosshairs: true,
         enabled: true,
         dateTimeLabelFormats: {
-            minute: '%e %B %Y %H:%M',
-            hour: '%e %B %Y %H:%M',
-            day: '%A %e %B %Y'
+            minute: '%H:%M',
+            hour: '%H:%M',
+            day: ''
         },
         backgroundColor: null,
         shared: true,
