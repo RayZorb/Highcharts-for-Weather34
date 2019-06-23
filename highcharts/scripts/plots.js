@@ -537,7 +537,6 @@ Function to add/set various plot options specific to temperature spline plots
             lineColor: 'rgba(255, 148, 82, 1)'
         },
     },
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
     return obj
@@ -625,7 +624,6 @@ Function to create temperature chart
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis.minRange = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.minRange);
     options.yAxis[0].tickInterval = 10;
     return options;
 };
@@ -669,14 +667,13 @@ Function to add/set various plot options specific to temperature spline plots
         color: '#00FF00',
         yAxis: 1,
         tooltip: {valueSuffix: '%'},
-        name: getTranslation('Apparent'),
+        name: getTranslation('Feels'),
         type: 'spline',
         visible: false
     }];
     obj.title = {
-        text: getTranslation('Temperature Dewpoint HeatIndex Windchill Humidity Apparent')
+        text: getTranslation('Temperature Dewpoint HeatIndex Windchill Humidity Feels')
     };
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
     return obj
@@ -707,7 +704,6 @@ Function to create temperature chart
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis.minRange = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.minRange);
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.yAxis[0].title.rotation = 0;
     options.yAxis[1].title.text = "(%)";
@@ -751,7 +747,6 @@ Function to add/set various plot options specific to dewpoint spline plots
     obj.title = {
         text: getTranslation('Dewpoint')
     };
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     return obj
 };
@@ -797,7 +792,6 @@ Function to create dewpoint chart
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis.minRange = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.minRange);
     return options;
 }
 
@@ -815,9 +809,8 @@ Function to add/set various plot options specific to windchill spline plots
         },
     },
     obj.title = {
-        text: getTranslation('Apparent Temperature Wind Chill Heat Index')
+        text: getTranslation('Feels Temperature Wind Chill Heat Index')
     };
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     return obj
 };
@@ -833,12 +826,12 @@ spline windchill plots
     obj.chart.type = 'columnrange';
     obj.series = [{
         color: '#A6D3A6',
-        name: getTranslation('Apparent Temperature Range'),
+        name: getTranslation('Feels Temperature Range'),
         type: 'columnrange',
         visible: true
     }, {
         color: '#047B04',
-        name: getTranslation('Average Apparent Temperature'),
+        name: getTranslation('Average Feels Temperature'),
         type: 'spline',
         visible: true
     }, {
@@ -886,7 +879,6 @@ Function to create windchill chart
     }
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
-    options.yAxis.minRange = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis[0].tickInterval = 10;
@@ -912,10 +904,9 @@ Function to add/set various plot options specific to humidity spline plots
         text: getTranslation('Humidity')
     };
     obj.tooltip.valueSuffix = '%';
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
-    //obj.yAxis.max = 100;
-    //obj.yAxis.min = 0;
+    obj.yAxis.max = 100;
+    obj.yAxis.min = 0;
     obj.yAxis[0].minorTickInterval = 5;
     obj.yAxis[0].tickInterval = 25;
     return obj
@@ -988,7 +979,6 @@ spline plots
     obj.title = {
         text: getTranslation('Barometer')
     };
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
     return obj
@@ -1066,7 +1056,6 @@ Function to create barometer chart
         options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
     options.yAxis[0].title.text = "(" + units.pressure + ")";
     options.tooltip.valueSuffix = units.pressure;
-    options.yAxis.minRange = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options
@@ -1088,7 +1077,6 @@ Function to add/set various plot options specific to wind speed spline plots
     obj.title = {
         text: getTranslation('Wind Gust Speed')
     };
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.yAxis[0].min = 0;
     obj.tooltip.valueDecimals = 1;
@@ -1168,7 +1156,6 @@ Function to create wind chart
     }
     options.yAxis[0].title.text = "(" + units.wind + ")";
     options.tooltip.valueSuffix = units.wind;
-    options.yAxis.minRange = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.minRange);
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis[0].tickInterval = 10;
@@ -1191,7 +1178,6 @@ plots
     obj.title = {
         text: getTranslation('Wind Direction')
     };
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.yAxis[0].max = 360;
     obj.yAxis[0].min = 0;
@@ -1246,7 +1232,6 @@ Function to create wind direction chart
         options.series[0].data = seriesData[0].winddirplot.windDir;
     else if (span[0] == "weekly")
         options.series[0] = seriesData[0].winddirplot.series.windDir;
-    options.yAxis.minRange = seriesData[0].winddirplot.minRange;
     options.yAxis[0].title.text = "(" + units.wind + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
@@ -1384,7 +1369,6 @@ Function to add/set various plot options specific to rainfall plots
     obj.title = {
         text: getTranslation('Rainfall')
     };
-    obj.xAxis.minRange = 3600000;
     obj.xAxis.minTickInterval = 900000;
     obj.yAxis[0].min = 0;
     obj.plotOptions.column.color = '#72B2C4';
@@ -1470,7 +1454,6 @@ Function to create rain chart
         options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
     options.yAxis[0].title.text = "(" + units.rain + ")";
     options.tooltip.valueSuffix = units.rain;
-    options.yAxis.minRange = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.minRange);
     options.yAxis[0].min = 0;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
@@ -1495,7 +1478,6 @@ plots
     obj.title = {
         text: getTranslation('Solar Radiation')
     };
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.yAxis[0].min = 0;
     obj.tooltip.formatter = function() {
@@ -1585,7 +1567,6 @@ Function to create radiation chart
             options.series[1].type = 'area';
         }
     }    
-    options.yAxis.minRange = seriesData[0].radiationplot.minRange;
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
@@ -1608,7 +1589,6 @@ Function to add/set various plot options specific to UV index spline plots
     obj.title = {
         text: getTranslation('UV Index')
     };
-    obj.xAxis.minRange = 900000;
     obj.xAxis.minTickInterval = 900000;
     obj.yAxis[0].max = 20;
     obj.yAxis[0].min = 0;
@@ -1672,7 +1652,6 @@ Function to create uv chart
     }
     else if (span[0] == "weekly")
         options.series[0] = seriesData[0].uvplot.series.uv;
-    options.yAxis.minRange = seriesData[0].uvplot.minRange;
     options.yAxis[0].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
