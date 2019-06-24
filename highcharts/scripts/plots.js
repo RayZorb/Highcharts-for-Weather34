@@ -1,12 +1,8 @@
 /*****************************************************************************
 
-v0.2.2                                          Last Update: 4 September 2018
+Javascript to setup, configure and display Highcharts plots of weewx weather data.
 
-Javascript to setup, configure and display Highcharts plots of weewx weather
-data.
-
-Based on Highcharts documentation and examples, and a lot of Stackoverflow
-Q&As.
+Based on Highcharts documentation and examples, and a lot of Stackoverflow Q&As.
 
 Key points:
     -   displays week and year plots
@@ -21,29 +17,9 @@ Key points:
     -   units of measure are set in Highcharts for weewx supplied through the
         JSON data files
 
-To install/setup:
-    -   install Highcharts for weewx extension and confirm proper generation
-        of week and year JSON data files
-    -   arrange for JSON data files to be transferred to your web server
-        either by weewx or some other arrangement
-    -   copy saratogaplots.js and weewxtheme.js to a suitable directory on your
-        web server (the default directory used throughout is
-        saratoga/scripts/js - remember this is relative to the root directory
-        of your webserver so it could be /var/www/html/saratoga/scripts/js)
-    -   if using the supplied wxgraphs2.php with the Saratoga templates then
-        copy the file to the Saratoga templates folder on your web server
-    -   if using the demo file, graphs.html, then copy the file to a suitable
-        directory on your web server
-    -   irrespective of what file you are using to display the plots make sure
-        that any paths to the scripts in any <SCRIPT> tags reflect you setup
-    -   check/set the paths to the JSON data files using the week_json and
-        year_json variable below - remember the path is relative to your web
-        server root
-    -   open the wxgraphs2.php or graphs.html in your web browser
-    -   once the default setup is working you may customise the display by
-        changing the plot settings in this file and weewxtheme.js
-
 History
+    v1.0.0      June 2019
+        -  large rewrite to support w34 type charts
     v0.2.2      4 September 2018
         - version number change only
     v0.2.0      4 May 2017
@@ -381,7 +357,6 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
     // Handle Array
     if (obj instanceof Array) {
         copy = [];
-        var i;
         for (var i = 0, len = obj.length; i < len; i++) {
             copy[i] = clone(obj[i]);
         }
@@ -719,7 +694,6 @@ function post_create_small_chart(chart, height){
 Function to update chart after creation
 
 *****************************************************************************/
-console.log(chart);
     chart.update({
         exporting: { enabled: false },
         rangeSelector: {enabled: false},
@@ -1325,16 +1299,15 @@ function convertlegend(series, units){
 Function to convert wind rose legend display units
 
 *****************************************************************************/
-    var i, j;
-    for (i = 0; i < series.length; i++){
+    for (var i = 0; i < series.length; i++){
         var percent = 0;
         var newName = "";
         var parts = series[i].name.split("-");
-        for (j = 0; j < parts.length; j++){
+        for (var j = 0; j < parts.length; j++){
             newName += convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 1);
             if (j + 1 < parts.length) newName += "-";
         }
-        for (j = 0; j < series[i].data.length; j++)
+        for (var j = 0; j < series[i].data.length; j++)
             percent += series[i].data[j];
         series[i].name = newName + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
     }
@@ -1495,7 +1468,6 @@ plots
             temp.push(i);
             order = temp.concat(order);
         }
-        console.log(order);
         temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
         $(order).each(function(i,j){
             temp += '<span style="color: '+points[j].series.color+'">' +
@@ -1669,8 +1641,7 @@ Function to add/set various weekly plot options specific to the 'week' plot.
 
 *****************************************************************************/
     Highcharts.setOptions({lang:{ rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
-    var i;
-    for (i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
+    for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
        options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func));
     return options
 };
@@ -1686,8 +1657,7 @@ Function to display weekly or yearly charts
     var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
     var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
     if (cb_func != null){
-        var i;
-        for (i = 0; i < chart.series.length; i++){
+        for (var i = 0; i < chart.series.length; i++){
             chart.series[i].update({
                 cursor: 'pointer',
                 point: {
@@ -1697,8 +1667,7 @@ Function to display weekly or yearly charts
         }
     }
     if (postcreatefunctions.hasOwnProperty(plot_type)){
-        var i;
-        for (i = 0; i < postcreatefunctions[plot_type].length; i++)
+        for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
             postcreatefunctions[plot_type][i](chart);
         }
 };
