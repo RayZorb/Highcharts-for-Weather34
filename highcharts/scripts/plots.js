@@ -83,7 +83,7 @@ var postcreatefunctions={
 var windrosespans = ["24h","Week","Month","Year"];
 var categories;
 var seriesData;
-
+var chart;
 /*****************************************************************************
 
 Set default plot options
@@ -95,13 +95,6 @@ your reference.
 *****************************************************************************/
 var commonOptions = {
     chart: {
-        plotBackgroundColor: {
-            linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
-            stops: [
-                [0, '#FCFFC5'],
-                [1, '#E0E0FF']
-            ]
-        },
         renderTo: "plot_div",
         spacing: [10, 10, 0, 5],
         zoomType: 'xy',
@@ -384,7 +377,6 @@ function getTranslation(term){
     var translation = "";
     for (var i = 0; i < parts.length; i++)
        translation += translations.hasOwnProperty(parts[i]) ? translations[parts[i]] : parts[i];
-    console.log(translation, term);
     return translation.length > 0 ? translation : term;
 }
 
@@ -397,16 +389,16 @@ Function to add/set various plot options specific to the 'wind rose' plot.
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[0]])}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[0]]);return false;}}
     }, {
         text: windrosespans[1],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[1]])}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[1]]);return false;}}
     }, {
         text: windrosespans[2],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[2]])}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[2]]);return false;}}
     }, {
         text: windrosespans[3],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[3]])}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[3]]);return false;}}
     }];
     options.plotOptions.column.dataGrouping.enabled = false;
     return options
@@ -507,7 +499,7 @@ Function to add/set various plot options specific to temperature spline plots
             lineColor: 'rgba(255, 148, 82, 1)'
         },
     },
-    obj.title = {text: getTranslation('Temperature Average Temperature')};
+    obj.title = {text: getTranslation('Temperature Dewpoint')};
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
     return obj
@@ -1654,7 +1646,7 @@ Function to display weekly or yearly charts
     console.log(units, plot_type, cb_func, span);
     seriesData = (span[0] == "weekly" ? json_week: json_year);
     var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
-    var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
+    chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
     if (cb_func != null){
         for (var i = 0; i < chart.series.length; i++){
             chart.series[i].update({
