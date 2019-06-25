@@ -80,8 +80,9 @@ var postcreatefunctions={
     windroseplot: [post_create_windrose_chart]
 };
 
-var windrosespans = ["Day","Week","Month","Year"];
+var windrosespans = ["24h","Week","Month","Year"];
 var categories;
+var seriesData;
 
 /*****************************************************************************
 
@@ -396,16 +397,16 @@ Function to add/set various plot options specific to the 'wind rose' plot.
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[0]]); return false;}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[0]])}}
     }, {
         text: windrosespans[1],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[1]]); return false;}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[1]])}}
     }, {
         text: windrosespans[2],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[2]]); return false;}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[2]])}}
     }, {
         text: windrosespans[3],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[3]]); return false;}}
+        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[3]])}}
     }];
     options.plotOptions.column.dataGrouping.enabled = false;
     return options
@@ -1264,7 +1265,7 @@ function create_windrose_chart(options, span, seriesData, units){
 Function to create wind rose chart
 
 *****************************************************************************/
-    if (!windrosespans.includes(span[1])) span[1] = 'Day';
+    if (!windrosespans.includes(span[1])) span[1] = windrosespans[0];
     if (span[1] == windrosespans[0]){
         convertlegend(seriesData[0].windroseDay.series, units);
         options.series = seriesData[0].windroseDay.series;
@@ -1286,7 +1287,7 @@ Function to create wind rose chart
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     categories = options.xAxis.categories;
-    options.title = {text: getTranslation("Wind Rose") + (span[1] == " Day" ? " 24h" : span[1])};
+    options.title = {text: getTranslation("Wind Rose ") + span[1]};
     return options;
 };
 
@@ -1637,7 +1638,7 @@ function setup_plots(seriesData, units, options, plot_type, cb_func, span){
 Function to add/set various weekly plot options specific to the 'week' plot.
 
 *****************************************************************************/
-    Highcharts.setOptions({lang:{ rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
+    Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
     for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
        options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func));
     return options
@@ -1651,6 +1652,7 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
+    seriesData = (span[0] == "weekly" ? json_week: json_year);
     var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
     var chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
     if (cb_func != null){
