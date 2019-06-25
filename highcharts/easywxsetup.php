@@ -104,7 +104,7 @@ $fn = FOPEN('languages/lang.'.$defaultlanguage.'.php', 'r') or die("Cannot read 
 $rWrite = FOPEN('languages/translations.js', 'w') or die("Cannot write output file ".'languages/translations.js');
 FWRITE( $rWrite, "var translations = {" . PHP_EOL);
 while($row = fgets($fn)) {
-    if ((strpos($row, "#") == 0) && (strpos($row, "=") > 0)){
+    if ((strpos($row, "#") == 0) && (strpos($row, "span") == 0) && (strpos($row, "=") > 0)){
       $row = str_replace(array("'", "]", ";", "\$lang["), "", $row);
       $row = str_replace("'", '"', $row);
       if (strpos($row, "//") > 0) $row = substr($row, 0, strpos($row, "//")); 
