@@ -1240,10 +1240,10 @@ Function to add/set various plot options specific to wind rose plots
         tickLength: 4,
         tickWidth: 1,
     };
-    options.yAxis[0].endOnTick = false;
-    options.yAxis[0].title = {text: getTranslation('Frequency (%)')};
-    options.yAxis[0].labels = {formatter: function () {return this.value + '%';}};
-    options.yAxis[0].reversedStacks = false;
+    options.yAxis.endOnTick = false;
+    options.yAxis.title = {text: getTranslation('Frequency (%)')};
+    options.yAxis.labels = {formatter: function () {return this.value + '%';}};
+    options.yAxis.reversedStacks = false;
     options.plotOptions.series = {
             stacking: 'normal',
             shadow: false,
