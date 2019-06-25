@@ -52,6 +52,7 @@ var createweeklyfunctions = {
 var createyearlyfunctions = {
     temperatureplot: [addYearOptions, setTemp, setTempStock,create_temperature_chart],
     tempsmallplot: [addYearOptions, setTemp, setTempSmall,create_temperature_chart],
+    tempallplot: [addYearOptions, setTempAll, create_tempall_chart],
     humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
     barometerplot: [addYearOptions, setBarometer, setBarometerStock, create_barometer_chart],
     barsmallplot: [addYearOptions, setBarometer, setBarSmall, create_barometer_chart],
@@ -101,7 +102,7 @@ var commonOptions = {
             ]
         },
         renderTo: "plot_div",
-        spacing: [15, 10, 10, 0],
+        spacing: [10, 10, 0, 5],
         zoomType: 'xy',
     },
     legend: {
@@ -381,8 +382,8 @@ function getTranslation(term){
     var parts = term.split(/([" ", "/"])/);
     var translation = "";
     for (var i = 0; i < parts.length; i++)
-        if (translations.hasOwnProperty(parts[i]))
-           translation += translations.hasOwnProperty(parts[i]) ? translations[parts[i]] : translation += parts[i];
+       translation += translations.hasOwnProperty(parts[i]) ? translations[parts[i]] : parts[i];
+    console.log(translation, term);
     return translation.length > 0 ? translation : term;
 }
 
@@ -596,13 +597,13 @@ Function to create temperature chart
     return options;
 };
 
-function setTempAll(obj) {
+function setTempAll(obj, span, seriesData, units) {
 /*****************************************************************************
 
 Function to add/set various plot options specific to temperature spline plots
 
 *****************************************************************************/
-    obj.chart.type = 'spline';
+    obj.chart.type = (span == 'yearly' ? 'columnrange' : 'spline');
     obj.navigator = {
         series: {
             color: '#C07777',
@@ -611,36 +612,35 @@ Function to add/set various plot options specific to temperature spline plots
     },
     obj.series = [{
         color: 'rgba(255, 148, 82, 1)',
-        name: getTranslation('Temperature'),
-        type: 'spline',
+        name: getTranslation((span == 'yearly' ? 'Temp Range' : 'Temperature')),
+        type: (span == 'yearly' ? 'columnrange' : 'spline'),
     }, {
         color: '#4242B4',
-        name: getTranslation('Dewpoint'),
+        name: getTranslation((span == 'yearly' ? 'Temp Avg' : 'Dewpoint')),
         type: 'spline',
     }, {
         color: 'rgba(0, 164, 180, 1)',
-        name: getTranslation('Heatindex'),
-        type: 'spline',
+        name: getTranslation((span == 'yearly' ? 'Dewpoint Range' : 'WindChill')),
+        type: (span == 'yearly' ? 'columnrange' : 'spline'),
     }, {
         color: '#B44242',
-        name: getTranslation('Windchill'),
+        name: getTranslation((span == 'yearly' ? 'Dewpoint Avg' : 'Heatindex')),
         type: 'spline',
     }, {
         color: '#FF00FF',
         yAxis: 1,
         tooltip: {valueSuffix: '%'},
-        name: getTranslation('Humidity'),
-        type: 'spline',
+        name: getTranslation((span == 'yearly' ? 'Humidity Range' : 'Humidity')),
+        type: (span == 'yearly' ? 'columnrange' : 'spline'),
     }, {
         color: '#00FF00',
-        yAxis: 1,
-        tooltip: {valueSuffix: '%'},
-        name: getTranslation('Feels'),
+        yAxis: (span == 'yearly' ? 1 : 0),
+        tooltip: {valueSuffix: (span == 'yearly' ? '%' : units.temp)},
+        name: getTranslation((span == 'yearly' ? 'Humdity Avg' : 'Feels')),
         type: 'spline',
-        visible: false
     }];
     obj.title = {
-        text: getTranslation('Temperature Dewpoint HeatIndex/Windchill Humidity Feels')
+        text: getTranslation((span == 'yearly' ? 'Temperature Dewpoint Humidity Ranges & Averages' : 'Temperature Dewpoint HeatIndex/Windchill Humidity Feels'))
     };
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
@@ -656,6 +656,12 @@ Function to create temperature chart
     if (span[0] == "yearly"){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
+        options.series[2].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
+        options.series[3].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
+        options.series[4].data = seriesData[0].humidityplot.outHumidityminmax;
+        options.series[5].data = seriesData[0].humidityplot.outHumidityaverage;
+        options.yAxis[0].height = "180";
+        options.yAxis[1].labels = {x: 16, y: 4};
     }
     else if (span[0] == "weekly"){        
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp).data;
@@ -663,6 +669,7 @@ Function to create temperature chart
         options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
         options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill).data;
         options.series[4].data = seriesData[0].humidityplot.series.outHumidity.data;
+        options.series[5].visible = false;
         if ("appTemp" in seriesData[0].temperatureplot.series) {
            options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
            options.series[5].visible = true;
@@ -672,9 +679,7 @@ Function to create temperature chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis[0].title.text = "(" + units.temp + ")";
-    options.yAxis[0].title.rotation = 0;
     options.yAxis[1].title.text = "(%)";
-    options.yAxis[1].title.rotation = 0;
     options.yAxis[0].tickInterval = 10;
     options.yAxis[1].tickInterval = 10;
     options.yAxis[1].opposite = true;
