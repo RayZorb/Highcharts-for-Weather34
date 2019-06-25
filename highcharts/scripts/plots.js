@@ -242,10 +242,8 @@ var commonOptions = {
             }
         },
     },
-    rangeSelector: {
-    },
-    series: [{
-    }],
+    rangeSelector: {},
+    series: [{}],
     tooltip: {
         crosshairs: true,
         enabled: true,
@@ -257,7 +255,6 @@ var commonOptions = {
         backgroundColor: null,
         shared: true,
         split: false,
-        //need to set valueSuffix so we can set it later if needed
         valueSuffix: ''
     },
     xAxis: {
@@ -300,6 +297,7 @@ var commonOptions = {
         opposite: false,
         showLastLabel: true,
         startOnTick: true,
+        endOnTick: true,
         tickColor: '#555',
         tickLength: 4,
         tickPosition: 'outside',
@@ -308,7 +306,6 @@ var commonOptions = {
             text: ''
             }
     }, {
-        endOnTick: true,
         labels: {
             x: 4,
             y: 4,
@@ -320,9 +317,10 @@ var commonOptions = {
         minorTickLength: 2,
         minorTickPosition: 'outside',
         minorTickWidth: 1,
-        opposite: false,
         showLastLabel: true,
+        opposite: false,
         startOnTick: true,
+        endOnTick: true,
         tickColor: '#555',
         tickLength: 4,
         tickPosition: 'outside',
@@ -383,10 +381,8 @@ function getTranslation(term){
     var parts = term.split(/([" ", "/"])/);
     var translation = "";
     for (var i = 0; i < parts.length; i++)
-        if (i%2 == 0 && translations.hasOwnProperty(parts[i]))
-           translation += translations[parts[i]];
-        else
-           translation += parts[i];
+        if (translations.hasOwnProperty(parts[i]))
+           translation += translations.hasOwnProperty(parts[i]) ? translations[parts[i]] : translation += parts[i];
     return translation.length > 0 ? translation : term;
 }
 
@@ -396,7 +392,6 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type, cb_func
 Function to add/set various plot options specific to the 'wind rose' plot.
 
 *****************************************************************************/
-    // set range selector buttons
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
@@ -411,7 +406,6 @@ Function to add/set various plot options specific to the 'wind rose' plot.
         text: windrosespans[3],
         events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[3]]); return false;}}
     }];
-    // set default range selector button
     options.plotOptions.column.dataGrouping.enabled = false;
     return options
 };
@@ -511,6 +505,7 @@ Function to add/set various plot options specific to temperature spline plots
             lineColor: 'rgba(255, 148, 82, 1)'
         },
     },
+    obj.title = {text: getTranslation('Temperature Average Temperature')};
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
     return obj
@@ -581,7 +576,6 @@ function create_temperature_chart(options, span, seriesData, units){
 Function to create temperature chart
 
 *****************************************************************************/
-
     if (span[0] == "yearly"){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
@@ -659,7 +653,6 @@ function create_tempall_chart(options, span, seriesData, units){
 Function to create temperature chart
 
 *****************************************************************************/
-
     if (span[0] == "yearly"){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
@@ -1211,8 +1204,7 @@ Function to create wind direction chart
     return options;
 }
 
-function setWindRose(options)
- {
+function setWindRose(options){
 /*****************************************************************************
 
 Function to add/set various plot options specific to wind rose plots
@@ -1666,8 +1658,7 @@ Function to display weekly or yearly charts
             });
         }
     }
-    if (postcreatefunctions.hasOwnProperty(plot_type)){
+    if (postcreatefunctions.hasOwnProperty(plot_type))
         for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
             postcreatefunctions[plot_type][i](chart);
-        }
 };
