@@ -37,6 +37,7 @@ Set names of div ids to which the various plots will be rendered
 var createweeklyfunctions = {
     temperatureplot: [addWeekOptions, setTemp, create_temperature_chart],
     tempallplot: [addWeekOptions, setTempAll, create_tempall_chart],
+    tempderivedplot: [addWeekOptions, setTempDerived, create_tempderived_chart],
     humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
     barometerplot: [addWeekOptions, setBarometer, create_barometer_chart],
     dewpointplot: [addWeekOptions, setDewpoint, create_dewpoint_chart],
@@ -53,6 +54,7 @@ var createyearlyfunctions = {
     temperatureplot: [addYearOptions, setTemp, setTempStock,create_temperature_chart],
     tempsmallplot: [addYearOptions, setTemp, setTempSmall,create_temperature_chart],
     tempallplot: [addYearOptions, setTempAll, create_tempall_chart],
+    tempderivedplot: [addYearOptions, setTempDerived, create_tempderived_chart],
     humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
     barometerplot: [addYearOptions, setBarometer, setBarometerStock, create_barometer_chart],
     barsmallplot: [addYearOptions, setBarometer, setBarSmall, create_barometer_chart],
@@ -561,28 +563,104 @@ Function to add/set various plot options specific to temperature spline plots
         name: getTranslation((span == 'yearly' ? 'Temp Avg' : 'Dewpoint')),
         type: 'spline',
     }, {
-        name: getTranslation((span == 'yearly' ? 'Dewpoint Range' : 'WindChill')),
+        yAxis: (span == 'yearly' ? 0 : 1),
+        name: getTranslation((span == 'yearly' ? 'Dewpoint Range' : 'Humidity')),
         type: (span == 'yearly' ? 'columnrange' : 'spline'),
+        tooltip: {valueSuffix: (span == 'yearly' ? units.temp : '%')},
     }, {
-        name: getTranslation((span == 'yearly' ? 'Dewpoint Avg' : 'Heatindex')),
+        name: getTranslation((span == 'yearly' ? 'Dewpoint Avg' : '')),
+        showInLegend: (span == 'yearly' ? true : false),
+        visible: (span == 'yearly' ? true : false),
         type: 'spline',
     }, {
         yAxis: 1,
         tooltip: {valueSuffix: '%'},
-        name: getTranslation((span == 'yearly' ? 'Humidity Range' : 'Humidity')),
-        type: (span == 'yearly' ? 'columnrange' : 'spline'),
+        name: getTranslation((span == 'yearly' ? 'Hum Range' : '"')),
+        visible: (span == 'yearly' ? true : false),
+        showInLegend: (span == 'yearly' ? true : false),
+        type: 'columnrange',
     }, {
-        yAxis: (span == 'yearly' ? 1 : 0),
-        tooltip: {valueSuffix: (span == 'yearly' ? '%' : units.temp)},
-        name: getTranslation((span == 'yearly' ? 'Humdity Avg' : 'Feels')),
-        type: 'spline',
+        yAxis: 1,
+        tooltip: {valueSuffix: '%'},
+        name: getTranslation((span == 'yearly' ? 'Hum Avg' : '')),
+        visible: (span == 'yearly' ? true : false),
+        showInLegend: (span == 'yearly' ? true : false),
+        type: 'spline'
     }];
     obj.title = {
-        text: getTranslation((span == 'yearly' ? 'Temperature Dewpoint Humidity Ranges & Averages' : 'Temperature Dewpoint HeatIndex/Windchill Humidity Feels'))
+        text: getTranslation((span == 'yearly' ? 'Temperature Dewpoint Humidity Ranges & Averages' : 'Temperature Dewpoint Humidity'))
     };
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
     return obj
+};
+
+function setTempDerived(obj, span) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to temperature spline plots
+
+*****************************************************************************/
+    obj.chart.type = (span == 'yearly' ? 'columnrange' : 'spline');
+    obj.series = [{
+        name: getTranslation((span == 'yearly' ? 'Windchill Range' : 'Windchill')),
+        type: (span == 'yearly' ? 'columnrange' : 'spline'),
+    }, {
+        name: getTranslation((span == 'yearly' ? 'Windchill Avg' : '')),
+        visible: (span == 'yearly' ? true : false),
+        showInLegend: (span == 'yearly' ? true : false),
+        type: 'spline',
+    }, {
+        name: getTranslation((span == 'yearly' ? 'Heat inx Range' : 'Heatindex')),
+        type: (span == 'yearly' ? 'columnrange' : 'spline'),
+    }, {
+        name: getTranslation((span == 'yearly' ? 'Heat inx Avg' : '')),
+        visible: (span == 'yearly' ? true : false),
+        showInLegend: (span == 'yearly' ? true : false),
+        type: 'spline',
+    }, {
+        name: getTranslation((span == 'yearly' ? 'Feels Range' : 'Feels')),
+        type: (span == 'yearly' ? 'columnrange' : 'spline'),
+    }, {
+        name: getTranslation((span == 'yearly' ? 'Feels Avg' : '')),
+        visible: (span == 'yearly' ? true : false),
+        showInLegend: (span == 'yearly' ? true : false),
+        type: 'spline',
+    }];
+    obj.title = {
+        text: getTranslation((span == 'yearly' ? 'Windchill Heatindex Feels Ranges & Averages' : 'Windchill HeatIndex Feels'))
+    };
+    obj.xAxis.minTickInterval = 900000;
+    obj.tooltip.valueDecimals = 1;
+    return obj
+};
+
+function create_tempderived_chart(options, span, seriesData, units){
+/*****************************************************************************
+
+Function to create temperature chart
+
+*****************************************************************************/
+    if (span[0] == "yearly"){
+        //options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillminmax);
+        options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillaverage);
+        //options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindexminmax);
+        options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexaverage)
+        //options.series[4].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempminmax);
+        //options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempaverage);
+        options.yAxis[0].height = "150";
+    }
+    else if (span[0] == "weekly"){        
+        options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill).data;
+        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
+        //options.series[4].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
+    }
+    options.tooltip.valueSuffix = units.temp;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[0].tickInterval = 10;
+    return options;
 };
 
 function create_tempall_chart(options, span, seriesData, units){
@@ -598,20 +676,14 @@ Function to create temperature chart
         options.series[3].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
         options.series[4].data = seriesData[0].humidityplot.outHumidityminmax;
         options.series[5].data = seriesData[0].humidityplot.outHumidityaverage;
-        options.yAxis[0].height = "180";
+        options.yAxis[0].height = "150";
         options.yAxis[1].labels = {x: 16, y: 4};
     }
     else if (span[0] == "weekly"){        
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp).data;
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
-        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
-        options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill).data;
-        options.series[4].data = seriesData[0].humidityplot.series.outHumidity.data;
-        options.series[5].visible = false;
-        if ("appTemp" in seriesData[0].temperatureplot.series) {
-           options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
-           options.series[5].visible = true;
-        }
+        options.series[2].data = seriesData[0].humidityplot.series.outHumidity.data;
+
     }
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
