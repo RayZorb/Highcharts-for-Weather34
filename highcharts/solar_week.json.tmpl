@@ -1,0 +1,51 @@
+##errorCatcher Echo
+##
+##This program is free software; you can redistribute it and/or modify it
+##under the terms of the GNU General Public License as published by the Free
+##Software Foundation; either version 2 of the License, or (at your option)
+##any later version.
+##
+##This program is distributed in the hope that it will be useful, but WITHOUT
+##ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+##FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+##more details.
+##
+##############################################################################
+##                                                                           #
+## Highcharts for weewx Extension                                            #
+##                                                                           #
+## Week observation plots JSON data file template                            #
+##                                                                           #
+## Version: 0.2.1                                     Date: 16 May 2017      #
+##                                                                           #
+##############################################################################
+[{
+"_version": "week.json.tmpl version 0.2.0",
+"utcoffset": $utcOffset,
+"timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
+##
+"radiationplot": {"series":
+#if $insolationWeekjson is not None
+{"radiation": {"name": "Solar Radiation", "data": $radiationWeekjson},
+"insolation": {"name": "Theoretical Max Solar Radiation", "data": $insolationWeekjson}},
+#else
+{"radiation": {"name": "Solar Radiation", "data": $radiationWeekjson}},
+#end if
+"units": "$unit.label.radiation"#slurp
+#if $varExists('$radiation_min_range')
+, 
+"minRange": $radiation_min_range},
+#else
+},
+#end if
+##
+"uvplot": {"series":
+{"uv": {"name": "UV Index", "data": $uvWeekjson}},
+"units": "$unit.label.UV"#slurp
+#if $varExists('$UV_min_range')
+, 
+"minRange": $UV_min_range}
+#else
+}
+#end if
+}]

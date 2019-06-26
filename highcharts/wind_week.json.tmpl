@@ -1,0 +1,67 @@
+##errorCatcher Echo
+##
+##This program is free software; you can redistribute it and/or modify it
+##under the terms of the GNU General Public License as published by the Free
+##Software Foundation; either version 2 of the License, or (at your option)
+##any later version.
+##
+##This program is distributed in the hope that it will be useful, but WITHOUT
+##ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+##FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+##more details.
+##
+##############################################################################
+##                                                                           #
+## Highcharts for weewx Extension                                            #
+##                                                                           #
+## Wind Week observation plots JSON data file template                       #
+##                                                                           #
+## Version: 0.2.1                                     Date: June 2017        #
+##                                                                           #
+##############################################################################
+[{
+"_version": "wind_week.json.tmpl version 0.2.0",
+"utcoffset": $utcOffset,
+"timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
+##
+"windplot": {"series":
+{"windSpeed": {"name": "Wind Speed", "data": $windSpeedWeekjson},
+"windGust": {"name": "Wind Gust", "data": $windGustWeekjson}},
+"units": "$unit.label.windSpeed"#slurp
+#if $varExists('$windSpeed_min_range')
+, 
+"minRange": $windSpeed_min_range},
+#else
+},
+#end if
+##
+"winddirplot": {"series":
+{"windDir": {"name": "Wind Direction", "data": $windDirWeekjson}},
+"units": "$unit.label.windDir"#slurp
+#if $varExists('$windDir_min_range')
+, 
+"minRange": $windDir_min_range},
+#else
+},
+#end if
+##
+"windroseDay": {#slurp
+"series": $wr86400['windrosejson'],
+"xAxis": {"categories": $wr86400['xAxisCategoriesjson']},
+"yAxis": $wr86400['yAxisjson'],
+"colors": $wr86400['coloursjson'],
+"title": {"text": $wr86400['titlejson']},
+"legend": {"title": {"text": $wr86400['legendTitlejson']}},
+"bullseye": $wr86400['bullseyejson']
+},
+##
+"windroseWeek": {#slurp
+"series": $wr604800['windrosejson'],
+"xAxis": {"categories": $wr604800['xAxisCategoriesjson']},
+"yAxis": $wr604800['yAxisjson'],
+"colors": $wr604800['coloursjson'],
+"title": {"text": $wr604800['titlejson']},
+"legend": {"title": {"text": $wr604800['legendTitlejson']}},
+"bullseye": $wr604800['bullseyejson']
+}
+}]
