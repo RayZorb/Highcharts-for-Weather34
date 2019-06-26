@@ -247,7 +247,6 @@ var commonOptions = {
             hour: '%H:%M',
             day: ''
         },
-        backgroundColor: null,
         shared: true,
         split: false,
         valueSuffix: ''
@@ -258,14 +257,11 @@ var commonOptions = {
             week: '%e %b',
             month: '%b %y',
         },
-        lineColor: '#555',
         lineWidth: 1,
         minorGridLineWidth: 0,
-        minorTickColor: '#555',
         minorTickLength: 2,
         minorTickPosition: 'outside',
         minorTickWidth: 1,
-        tickColor: '#555',
         tickLength: 4,
         tickPosition: 'outside',
         tickWidth: 1,
@@ -282,10 +278,8 @@ var commonOptions = {
             x: -4,
             y: 4,
         },
-        lineColor: '#555',
         lineWidth: 1,
         minorGridLineWidth: 0,
-        minorTickColor: '#555',
         minorTickLength: 2,
         minorTickPosition: 'outside',
         minorTickWidth: 1,
@@ -293,7 +287,6 @@ var commonOptions = {
         showLastLabel: true,
         startOnTick: true,
         endOnTick: true,
-        tickColor: '#555',
         tickLength: 4,
         tickPosition: 'outside',
         tickWidth: 1,
@@ -305,10 +298,8 @@ var commonOptions = {
             x: 4,
             y: 4,
         },
-        lineColor: '#555',
         lineWidth: 1,
         minorGridLineWidth: 0,
-        minorTickColor: '#555',
         minorTickLength: 2,
         minorTickPosition: 'outside',
         minorTickWidth: 1,
@@ -316,7 +307,6 @@ var commonOptions = {
         opposite: false,
         startOnTick: true,
         endOnTick: true,
-        tickColor: '#555',
         tickLength: 4,
         tickPosition: 'outside',
         tickWidth: 1,
@@ -410,7 +400,6 @@ function addWeekOptions(obj) {
 Function to add/set various plot options specific to the 'week' plot.
 
 *****************************************************************************/
-    // set range selector buttons
     obj.rangeSelector.buttons = [{
         type: 'hour',
         count: 1,
@@ -435,9 +424,7 @@ Function to add/set various plot options specific to the 'week' plot.
         type: 'all',
         text: '7d'
     }],
-    // set default range selector button
     obj.rangeSelector.selected = 3;
-    // turn off data grouping for each plot type
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.spline.dataGrouping.enabled = false;
     obj.plotOptions.scatter.dataGrouping.enabled = false;
@@ -451,7 +438,6 @@ function addYearOptions(obj) {
 Function to add/set various plot options specific to the 'year' plot.
 
 *****************************************************************************/
-    // set range selector buttons
     obj.rangeSelector.buttons = [{
         type: 'day',
         count: 1,
@@ -472,9 +458,7 @@ Function to add/set various plot options specific to the 'year' plot.
         type: 'all',
         text: '1y'
     }],
-    // set default range selector button
     obj.rangeSelector.selected = 2;
-    // turn off data grouping for each plot type
     obj.plotOptions.spline.dataGrouping.enabled = false;
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.columnrange.dataGrouping.enabled = false;
@@ -488,17 +472,6 @@ Function to add/set various plot options specific to temperature spline plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.navigator = {
-        series: {
-            lineColor: '#B44242'
-        },
-        series: {
-            lineColor: 'rgba(0, 164, 180, 1)'
-        },  
-        series: {
-            lineColor: 'rgba(255, 148, 82, 1)'
-        },
-    },
     obj.title = {text: getTranslation('Temperature Dewpoint')};
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
@@ -514,19 +487,11 @@ spline temperature plots
 *****************************************************************************/
     obj.chart.marginBottom = 20;
     obj.chart.type = 'columnrange';
-    obj.navigator = {
-        series: {
-            color: '#C07777',
-            lineColor: '#B06060'
-        },
-    },
     obj.series = [{
-        color: 'rgba(255, 148, 82, 1)',
         name: getTranslation('Temperature Range'),
         type: 'columnrange',
         visible: true
     }, {
-        color: '#4242B4',
         name: getTranslation('Average Temperature'),
         type: 'spline',
         visible: true
@@ -544,19 +509,11 @@ spline temperature plots
 
 *****************************************************************************/
     obj.chart.type = 'columnrange';
-    obj.navigator = {
-        series: {
-            color: '#C07777',
-            lineColor: '#B06060'
-        },
-    },
     obj.series = [{
-        color: 'rgba(255, 148, 82, 1)',
         name: getTranslation('Temperature Range'),
         type: 'columnrange',
         visible: true
     }, {
-        color: '#4242B4',
         name: getTranslation('Average Temperature'),
         type: 'spline',
         visible: true
@@ -597,36 +554,24 @@ Function to add/set various plot options specific to temperature spline plots
 
 *****************************************************************************/
     obj.chart.type = (span == 'yearly' ? 'columnrange' : 'spline');
-    obj.navigator = {
-        series: {
-            color: '#C07777',
-            lineColor: '#B06060'
-        },
-    },
     obj.series = [{
-        color: 'rgba(255, 148, 82, 1)',
         name: getTranslation((span == 'yearly' ? 'Temp Range' : 'Temperature')),
         type: (span == 'yearly' ? 'columnrange' : 'spline'),
     }, {
-        color: '#4242B4',
         name: getTranslation((span == 'yearly' ? 'Temp Avg' : 'Dewpoint')),
         type: 'spline',
     }, {
-        color: 'rgba(0, 164, 180, 1)',
         name: getTranslation((span == 'yearly' ? 'Dewpoint Range' : 'WindChill')),
         type: (span == 'yearly' ? 'columnrange' : 'spline'),
     }, {
-        color: '#B44242',
         name: getTranslation((span == 'yearly' ? 'Dewpoint Avg' : 'Heatindex')),
         type: 'spline',
     }, {
-        color: '#FF00FF',
         yAxis: 1,
         tooltip: {valueSuffix: '%'},
         name: getTranslation((span == 'yearly' ? 'Humidity Range' : 'Humidity')),
         type: (span == 'yearly' ? 'columnrange' : 'spline'),
     }, {
-        color: '#00FF00',
         yAxis: (span == 'yearly' ? 1 : 0),
         tooltip: {valueSuffix: (span == 'yearly' ? '%' : units.temp)},
         name: getTranslation((span == 'yearly' ? 'Humdity Avg' : 'Feels')),
@@ -703,11 +648,6 @@ Function to add/set various plot options specific to dewpoint spline plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.navigator = {
-        series: {
-            lineColor: '#B44242'
-        },
-    },
     obj.title = {
         text: getTranslation('Dewpoint')
     };
@@ -725,12 +665,10 @@ spline dewpoint plots
     obj = setDewpoint(obj);
     obj.chart.type = 'columnrange';
     obj.series = [{
-        color: '#F0B0B0',
         name: getTranslation('Dewpoint Range'),
         type: 'columnrange',
         visible: true
     }, {
-        color: '#B44242',
         name: getTranslation('Average Dewpoint'),
         type: 'spline',
         visible: true
@@ -766,12 +704,6 @@ Function to add/set various plot options specific to windchill spline plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.navigator = {
-        series: {
-            color: '#C07777',
-            lineColor: '#047B04'
-        },
-    },
     obj.title = {
         text: getTranslation('Feels Temperature Wind Chill/Heat Index')
     };
@@ -789,12 +721,10 @@ spline windchill plots
     obj = setWindchill(obj);
     obj.chart.type = 'columnrange';
     obj.series = [{
-        color: '#A6D3A6',
         name: getTranslation('Feels Temperature Range'),
         type: 'columnrange',
         visible: true
     }, {
-        color: '#047B04',
         name: getTranslation('Average Feels Temperature'),
         type: 'spline',
         visible: true
@@ -856,14 +786,6 @@ Function to add/set various plot options specific to humidity spline plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.navigator = {
-        series: {
-            lineColor: '#4242B4'
-        },
-    },
-    obj.plotOptions.series = {
-        color: '#4242B4'
-    };
     obj.title = {
         text: getTranslation('Humidity')
     };
@@ -885,19 +807,11 @@ humidity spline plots
 *****************************************************************************/
     obj = setHumidity(obj);
     obj.chart.type = 'columnrange';
-    obj.navigator = {
-        series: {
-            color: '#C07777',
-            lineColor: '#B06060'
-        },
-    },
     obj.series = [{
-        color: '#8EC3D3',
         name: getTranslation('Humidity Range'),
         type: 'columnrange',
         visible: true
     }, {
-        color: '#4242B4',
         name: getTranslation('Average Humidity'),
         type: 'spline',
         visible: true
@@ -932,14 +846,6 @@ spline plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.navigator = {
-        series: {
-            lineColor: '#4242B4',
-        },
-    },
-    obj.plotOptions.series = {
-        color: '#4242B4'
-    };
     obj.title = {
         text: getTranslation('Barometer')
     };
@@ -956,19 +862,11 @@ spline barometric pressure plots
 
 *****************************************************************************/
     obj.chart.type = 'columnrange';
-    obj.navigator = {
-        series: {
-            color: '#C07777',
-            lineColor: '#B06060'
-        },
-    },
     obj.series = [{
-        color: 'rgba(255, 148, 82, 1)',
         name: getTranslation('Barometeric Pressure Range'),
         type: 'columnrange',
         visible: true
     }, {
-        color: '#4242B4',
         name: getTranslation('Average Barometric Pressure'),
         type: 'spline',
         visible: true
@@ -984,19 +882,11 @@ Function to do small barometer chart
 *****************************************************************************/
     obj.chart.marginBottom = 20;
     obj.chart.type = 'columnrange';
-    obj.navigator = {
-        series: {
-            color: '#C07777',
-            lineColor: '#B06060'
-        },
-    },
     obj.series = [{
-        color: 'rgba(255, 148, 82, 1)',
         name: getTranslation('Barometeric Pressure Range'),
         type: 'columnrange',
         visible: true
     }, {
-        color: '#4242B4',
         name: getTranslation('Average Barometric Pressure'),
         type: 'spline',
         visible: true
@@ -1033,11 +923,6 @@ Function to add/set various plot options specific to wind speed spline plots
 *****************************************************************************/
     obj.chart.type = 'spline';
     obj.legend.reversed = true;
-    obj.navigator = {
-        series: {
-            lineColor: '#439BB6'
-        },
-    },
     obj.title = {
         text: getTranslation('Wind Gust Speed')
     };
@@ -1058,15 +943,12 @@ spline wind speed plots
     obj.series = [{
         name: getTranslation('Max Gust Speed'),
         type: 'spline',
-        color: '#B44242'
     },{
         name: getTranslation('Max Average Wind Speed'),
         type: 'spline',
-        color: '#4242B4'
     }, {
         name: getTranslation('Average Wind Speed'),
         type: 'spline',
-        color: '#439BB6'
     }];
     return obj
 };
@@ -1080,20 +962,14 @@ Function to do wind small chart
     obj.chart.marginBottom = 20;
     obj.chart.type = 'spline';
     obj.series = [{
-        color: 'rgba(255, 148, 82, 1)',
-        fillColor: 'rgba(255, 148, 82, 1)',
         name: getTranslation('Max Gust Speed'),
         type: 'area',
         visible: true
     }, {
-        color: 'rgba(0, 164, 180, 1)',
-        fillColor: 'rgba(0, 164, 180, 1)',
         name: getTranslation('Max Average Wind Speed'),
         type: 'area',
         visible: true
     }, {
-        color: 'rgba(155, 255, 255, 1)',
-        fillColor: 'rgba(155, 255, 255, 1)',
         name: getTranslation('Average Wind Speed'),
         type: 'area',
         visible: true
@@ -1134,11 +1010,6 @@ plots
 
 *****************************************************************************/
     obj.chart.type = 'scatter';
-    obj.navigator = {
-        series: {
-            lineColor: '#439BB6'
-        },
-    },
     obj.title = {
         text: getTranslation('Wind Direction')
     };
@@ -1150,11 +1021,9 @@ plots
         marker: {
             radius: 2
         },
-        color: '#4242B4'
     };
     obj.series.marker = {
         lineWidth: 0,
-        lineColor: null,
         radius: 10
     };
     obj.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>'
@@ -1172,14 +1041,8 @@ spline wind direction plots
 
 *****************************************************************************/
     obj = setWindDir(obj);
-    obj.navigator = {
-        series: {
-            lineColor: '#439BB6'
-        },
-    };
     obj.series = [{
         name: getTranslation('Vector Average Wind Direction'),
-        color: '#439BB6'
     }];
     obj.tooltip.valueDecimals = 1;
     obj.tooltip.xDateFormat = '%e %B %Y';
@@ -1225,16 +1088,13 @@ Function to add/set various plot options specific to wind rose plots
     options.tooltip.valueSuffix ='%';
     options.xAxis.tickmarkPlacement = "on";
     options.yAxis= {
-        lineColor: '#555',
         lineWidth: 1,
         minorGridLineWidth: 0,
-        minorTickColor: '#555',
         minorTickLength: 2,
         minorTickWidth: 1,
         opposite: false,
         showLastLabel: true,
         startOnTick: true,
-        tickColor: '#555',
         tickLength: 4,
         tickWidth: 1,
     };
@@ -1333,8 +1193,6 @@ Function to add/set various plot options specific to rainfall plots
     };
     obj.xAxis.minTickInterval = 900000;
     obj.yAxis[0].min = 0;
-    obj.plotOptions.column.color = '#72B2C4';
-    obj.plotOptions.column.borderWidth = 0;
     obj.plotOptions.column.marker = {
         enabled: false,
     };
@@ -1366,7 +1224,6 @@ spline rainfall plots
     obj.series = [{
         name: getTranslation('Rainfall'),
         type: 'column',
-        color: '#439BB6'
     }];
     obj.title = {
         text: getTranslation('Rainfall')
@@ -1393,8 +1250,6 @@ Function to add small rain chart
     obj.chart.marginBottom = 20;
     obj.chart.type = 'column';
     obj.series = [{
-        color: '#439BB6',
-        fillColor: '#439BB6',
         name: getTranslation('Rainfall'),
         type: 'column',
         visible: true
@@ -1432,11 +1287,6 @@ plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.navigator = {
-        series: {
-            lineColor: '#B44242'
-        },
-    },
     obj.title = {
         text: getTranslation('Solar Radiation')
     };
@@ -1479,11 +1329,9 @@ spline solar radiation plots
     obj.series = [{
         name: getTranslation('Maximum Solar Radiation'),
         type: 'column',
-        color: '#F0B0B0',
     }, {
         name: getTranslation('Average Solar Radiation'),
         type: 'spline',
-        color: '#B44242',
     }];
     obj.tooltip.valueSuffix = 'W/m\u00B2';
     return obj
@@ -1499,11 +1347,9 @@ Function to add small radition chart
     obj.series = [{
         name: getTranslation('Maximum Solar Radiation'),
         type: 'column',
-        color: '#F0B0B0',
     }, {
         name: getTranslation('Average Solar Radiation'),
         type: 'spline',
-        color: '#B44242',
     }];
     obj.tooltip.valueSuffix = 'W/m\u00B2';
     obj.yAxis[0].height = "150";
@@ -1541,12 +1387,6 @@ Function to add/set various plot options specific to UV index spline plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.navigator = {
-        series: {
-            lineColor: '#9933FF'
-        },
-    },
-    obj.plotOptions.spline.color = '#9933FF';
     obj.title = {
         text: getTranslation('UV Index')
     };
@@ -1569,11 +1409,9 @@ spline UV index plots
     obj.series = [{
         name: getTranslation('Maximum UV Index'),
         type: 'column',
-        color: '#E0C2FF',
     }, {
         name: getTranslation('Average UV Index'),
         type: 'spline',
-        color: '#9933FF',
     }];
     obj.tooltip.valueDecimals = 1;
     return obj
@@ -1589,11 +1427,9 @@ Function to add small uv chart
     obj.series = [{
         name: getTranslation('Maximum UV Index'),
         type: 'column',
-        color: '#E0C2FF',
     }, {
         name: getTranslation('Average UV Index'),
         type: 'spline',
-        color: '#9933FF',
     }];
     obj.tooltip.valueDecimals = 1;
     obj.yAxis[0].height = "150";

@@ -114,7 +114,6 @@
                 lineColor: '#707073',
                 minorGridLineColor: 'RGBA(64, 65, 66, 0.8)',
                 tickColor: '#707073',
-                tickWidth: 1,
                 title: {
                     style: {
                         color: '#ccc'
@@ -122,7 +121,6 @@
                 }
             },
             tooltip: {
-              split: true,  
               backgroundColor: 'rgba(0, 0, 0, 0.85)',
                 style: {
                     color: '#F0F0F0'
