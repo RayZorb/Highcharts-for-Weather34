@@ -642,9 +642,9 @@ Function to create temperature chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        //options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillminmax);
+        options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillminmax);
         options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillaverage);
-        //options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindexminmax);
+        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexminmax);
         options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexaverage)
         //options.series[4].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempminmax);
         //options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempaverage);
