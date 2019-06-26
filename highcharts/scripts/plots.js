@@ -102,7 +102,8 @@ var commonOptions = {
         zoomType: 'xy',
     },
     legend: {
-        enabled: true
+        enabled: true,
+        itemDistance:15,
     },
     plotOptions: {
         area: {
@@ -268,9 +269,6 @@ var commonOptions = {
         tickPosition: 'outside',
         tickWidth: 1,
         title: {
-            style: {
-                font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
-            }
         },
         type: 'datetime',
     },
@@ -381,16 +379,16 @@ Function to add/set various plot options specific to the 'wind rose' plot.
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[0]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, cb_func, ["weekly", windrosespans[0]]);return false;}}
     }, {
         text: windrosespans[1],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["weekly", windrosespans[1]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, cb_func, ["weekly", windrosespans[1]]);return false;}}
     }, {
         text: windrosespans[2],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[2]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, cb_func, ["yearly", windrosespans[2]]);return false;}}
     }, {
         text: windrosespans[3],
-        events: {click: function (e) {display_chart(units, plot_type, cb_func, ["yearly", windrosespans[3]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, cb_func, ["yearly", windrosespans[3]]);return false;}}
     }];
     options.plotOptions.column.dataGrouping.enabled = false;
     return options
@@ -611,10 +609,10 @@ Function to add/set various plot options specific to temperature spline plots
         showInLegend: (span == 'yearly' ? true : false),
         type: 'spline',
     }, {
-        name: getTranslation((span == 'yearly' ? 'Heat inx Range' : 'Heatindex')),
+        name: getTranslation((span == 'yearly' ? 'Heatindex Range' : 'Heatindex')),
         type: (span == 'yearly' ? 'columnrange' : 'spline'),
     }, {
-        name: getTranslation((span == 'yearly' ? 'Heat inx Avg' : '')),
+        name: getTranslation((span == 'yearly' ? 'Heatindex Avg' : '')),
         visible: (span == 'yearly' ? true : false),
         showInLegend: (span == 'yearly' ? true : false),
         type: 'spline',
@@ -1564,7 +1562,7 @@ Function to display weekly or yearly charts
                 }
             });
         }
-    }
+    }       
     if (postcreatefunctions.hasOwnProperty(plot_type))
         for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
             postcreatefunctions[plot_type][i](chart);
