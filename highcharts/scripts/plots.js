@@ -519,8 +519,8 @@ spline temperature plots
         type: 'spline',
         visible: true
     }];
-    obj.yAxis[0].height = "90";
-    $("#plot_div").css("height", 150);
+    obj.yAxis[0].height = "100";
+    $("#plot_div").css("height", 140);
     return obj
 };
 
@@ -596,14 +596,14 @@ Function to add/set various plot options specific to temperature spline plots
     }, {
         yAxis: 1,
         tooltip: {valueSuffix: '%'},
-        name: getTranslation((span == 'yearly' ? 'Hum Range' : '"')),
+        name: getTranslation((span == 'yearly' ? 'Humidity Range' : '"')),
         visible: (span == 'yearly' ? true : false),
         showInLegend: (span == 'yearly' ? true : false),
         type: 'columnrange',
     }, {
         yAxis: 1,
         tooltip: {valueSuffix: '%'},
-        name: getTranslation((span == 'yearly' ? 'Hum Avg' : '')),
+        name: getTranslation((span == 'yearly' ? 'Humidity Avg' : '')),
         visible: (span == 'yearly' ? true : false),
         showInLegend: (span == 'yearly' ? true : false),
         type: 'spline'
