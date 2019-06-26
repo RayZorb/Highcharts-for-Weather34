@@ -82,6 +82,29 @@ var postcreatefunctions={
     windroseplot: [post_create_windrose_chart]
 };
 
+var jsonfileforplot={
+    temperatureplot: ['temp_week.json','year.json'],
+    tempsmallplot: ['temp_week.json','year.json'],
+    tempallplot: ['temp_week.json','year.json'],
+    tempderivedplot: ['temp_week.json','year.json'],
+    humidityplot: ['temp_week.json','year.json'],
+    barometerplot: ['week.json','year.json'],
+    barsmallplot: ['week.json','year.json'],
+    dewpointplot: ['week.json','year.json'],
+    windchillplot: ['week.json','year.json'],
+    windplot: ['week.json','year.json'],
+    windsmallplot: ['week.json','year.json'],
+    winddirplot: ['week.json','year.json'],
+    windroseplot: ['week.json','year.json'],
+    rainplot: ['week.json','year.json'],
+    rainsmallplot: ['week.json','year.json'],
+    radiationplot: ['week.json','year.json'],
+    radsmallplot: ['week.json','year.json'],
+    uvplot: ['week.json','year.json'],
+    uvsmallplot: ['week.json','year.json']
+};
+
+var pathjsonfiles = '../../weewx/json/'
 var windrosespans = ["24h","Week","Month","Year"];
 var categories;
 var seriesData;
@@ -98,7 +121,7 @@ your reference.
 var commonOptions = {
     chart: {
         renderTo: "plot_div",
-        spacing: [10, 10, 0, 5],
+        spacing: [10, 10, 0, -1],
         zoomType: 'xy',
     },
     legend: {
@@ -472,7 +495,7 @@ Function to add/set various plot options specific to temperature spline plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.title = {text: getTranslation('Temperature Dewpoint')};
+    obj.title = {text: getTranslation('Temperature')};
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
     return obj
@@ -1550,20 +1573,21 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
-    seriesData = (span[0] == "weekly" ? json_week: json_year);
-    var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
-    chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
-    if (cb_func != null){
-        for (var i = 0; i < chart.series.length; i++){
-            chart.series[i].update({
-                cursor: 'pointer',
-                point: {
-                   events: {click: function(e){cb_func(e);}}
-                }
-            });
-        }
-    }       
-    if (postcreatefunctions.hasOwnProperty(plot_type))
-        for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
-            postcreatefunctions[plot_type][i](chart);
+    $.getJSON(pathjsonfiles + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1], function(seriesData) { 
+        var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
+        chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
+        if (cb_func != null){
+            for (var i = 0; i < chart.series.length; i++){
+                chart.series[i].update({
+                    cursor: 'pointer',
+                    point: {
+                       events: {click: function(e){cb_func(e);}}
+                    }
+                });
+            }
+        }       
+        if (postcreatefunctions.hasOwnProperty(plot_type))
+            for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
+                postcreatefunctions[plot_type][i](chart);
+    });
 };
