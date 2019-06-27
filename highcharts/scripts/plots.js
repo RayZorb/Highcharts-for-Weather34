@@ -549,7 +549,7 @@ spline temperature plots
         type: 'spline',
         visible: true
     }];
-    obj.yAxis[0].height = "100";
+    obj.yAxis[0].height = "110";
     $("#plot_div").css("height", 140);
     return obj
 };
@@ -1044,8 +1044,8 @@ Function to do small barometer chart
         type: 'spline',
         visible: true
     }];
-    obj.yAxis[0].height = "150";
-    $("#plot_div").css("height", 210);
+    obj.yAxis[0].height = "160";
+    $("#plot_div").css("height", 190);
     return obj
 };
 
@@ -1127,8 +1127,8 @@ Function to do wind small chart
         type: 'area',
         visible: true
     }];
-    obj.yAxis[0].height = "150";
-    $("#plot_div").css("height", 205);
+    obj.yAxis[0].height = "160";
+    $("#plot_div").css("height", 190);
     return obj
 };
 
@@ -1407,8 +1407,8 @@ Function to add small rain chart
         type: 'column',
         visible: true
     }];
-    obj.yAxis[0].height = "165";
-    $("#plot_div").css("height", 225);
+    obj.yAxis[0].height = "170";
+    $("#plot_div").css("height", 200);
     return obj
 };
 
@@ -1506,7 +1506,7 @@ Function to add small radition chart
     }];
     obj.tooltip.valueSuffix = 'W/m\u00B2';
     obj.yAxis[0].height = "150";
-    $("#plot_div").css("height", 225);
+    $("#plot_div").css("height", 190);
     return obj
 };
 
@@ -1586,7 +1586,7 @@ Function to add small uv chart
     }];
     obj.tooltip.valueDecimals = 1;
     obj.yAxis[0].height = "150";
-    $("#plot_div").css("height", 225);
+    $("#plot_div").css("height", 190);
     return obj
 };
 
