@@ -217,22 +217,24 @@ class highchartsWeek(SearchList):
         _start_ts = time.mktime(_start_dt.timetuple())
 
         # Get our temperature vector
-        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                              'outTemp')
+        (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'outTemp')
+        (time_start_vt, time_stop_vt, inTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'inTemp')
         # Convert our temperature vector
         outTemp_vt = self.generator.converter.convert(outTemp_vt)
+        inTemp_vt = self.generator.converter.convert(inTemp_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         tempRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outTemp_vt[1], "1f")[-2])
         # Do the rounding
         outTempRound_vt =  [roundNone(x,tempRound) for x in outTemp_vt[0]]
+        inTempRound_vt =  [roundNone(x,tempRound) for x in inTemp_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         outTemp_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+        inTemp_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
 
         # Get our dewpoint vector
-        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                               'dewpoint')
+        (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'dewpoint')
         dewpoint_vt = self.generator.converter.convert(dewpoint_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -266,8 +268,7 @@ class highchartsWeek(SearchList):
             appTempRound_vt = None
 
         # Get our wind chill vector
-        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                                'windchill')
+        (time_start_vt, time_stop_vt, windchill_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'windchill')
         windchill_vt = self.generator.converter.convert(windchill_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
@@ -292,17 +293,19 @@ class highchartsWeek(SearchList):
         heatindex_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
 
         # Get our humidity vector
-        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                                  'outHumidity')
+        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'outHumidity')
+        (time_start_vt, time_stop_vt, inHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'inHumidity')
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         outHumidityRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_vt[1], "1f")[-2])
+        inHumidityRound = int(self.generator.skin_dict['Units']['StringFormats'].get(inHumidity_vt[1], "1f")[-2])
         # Do the rounding
         outHumidityRound_vt =  [roundNone(x,outHumidityRound) for x in outHumidity_vt[0]]
+        inHumidityRound_vt =  [roundNone(x,inHumidityRound) for x in inHumidity_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         outHumidity_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-
+        inHumidity_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         # Get our barometer vector
         (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
                                                                                 'barometer')
@@ -422,6 +425,7 @@ class highchartsWeek(SearchList):
         # Format our vectors in json format. Need the zip() to get time/value pairs
         # Assumes all vectors have the same number of elements
         outTemp_json = json.dumps(zip(outTemp_time_ms, outTempRound_vt))
+        inTemp_json = json.dumps(zip(inTemp_time_ms, inTempRound_vt))
         dewpoint_json = json.dumps(zip(dewpoint_time_ms, dewpointRound_vt))
         # convert our appTemp vector to JSON, if we don't have one then set
         # it to None
@@ -432,6 +436,7 @@ class highchartsWeek(SearchList):
         windchill_json = json.dumps(zip(windchill_time_ms, windchillRound_vt))
         heatindex_json = json.dumps(zip(heatindex_time_ms, heatindexRound_vt))
         outHumidity_json = json.dumps(zip(outHumidity_time_ms, outHumidityRound_vt))
+        inHumidity_json = json.dumps(zip(inHumidity_time_ms, inHumidityRound_vt))
         barometer_json = json.dumps(zip(barometer_time_ms, barometerRound_vt))
         windSpeed_json = json.dumps(zip(windSpeed_time_ms, windSpeedRound_vt))
         windGust_json = json.dumps(zip(windGust_time_ms, windGustRound_vt))
@@ -448,11 +453,13 @@ class highchartsWeek(SearchList):
 
         # Put into a dictionary to return
         search_list_extension = {'outTempWeekjson' : outTemp_json,
+                                 'inTempWeekjson' : inTemp_json,
                                  'dewpointWeekjson' : dewpoint_json,
                                  'appTempWeekjson' : appTemp_json,
                                  'windchillWeekjson' : windchill_json,
                                  'heatindexWeekjson' : heatindex_json,
                                  'outHumidityWeekjson' : outHumidity_json,
+                                 'inHumidityWeekjson' : inHumidity_json,
                                  'barometerWeekjson' : barometer_json,
                                  'windSpeedWeekjson' : windSpeed_json,
                                  'windGustWeekjson' : windGust_json,
@@ -569,17 +576,21 @@ class highchartsYear(SearchList):
         (windchill_time_vt, windchill_dict) = getDaySummaryVectors(db_lookup(),
                                                                    'windchill',
                                                                    _timespan,
-                                                                   ['avg'])
+                                                                   ['min', 'max', 'avg'])
         # Get our vector ValueTuple out of the dictionary and convert it
         windchillAvg_vt = self.generator.converter.convert(windchill_dict['avg'])
+        windchillMin_vt = self.generator.converter.convert(windchill_dict['min'])
+        windchillMax_vt = self.generator.converter.convert(windchill_dict['max'])
 
         # Get our heatindex vector
         (heatindex_time_vt, heatindex_dict) = getDaySummaryVectors(db_lookup(),
                                                                    'heatindex',
                                                                    _timespan,
-                                                                   ['avg'])
+                                                                   ['min', 'max', 'avg'])
         # Get our vector ValueTuple out of the dictionary and convert it
         heatindexAvg_vt = self.generator.converter.convert(heatindex_dict['avg'])
+        heatindexMin_vt = self.generator.converter.convert(heatindex_dict['min'])
+        heatindexMax_vt = self.generator.converter.convert(heatindex_dict['max'])
         # Get our humidity vectors
         (outHumidity_time_vt, outHumidity_dict) = getDaySummaryVectors(db_lookup(),
                                                                        'outHumidity',
@@ -670,7 +681,11 @@ class highchartsYear(SearchList):
         dewpointMinRound = [roundNone(x,tempPlaces) for x in dewpointMin_vt[0]]
         dewpointMaxRound = [roundNone(x,tempPlaces) for x in dewpointMax_vt[0]]
         dewpointAvgRound = [roundNone(x,tempPlaces) for x in dewpointAvg_vt[0]]
+        windchillMinRound = [roundNone(x,tempPlaces) for x in windchillMin_vt[0]]
+        windchillMaxRound = [roundNone(x,tempPlaces) for x in windchillMax_vt[0]]
         windchillAvgRound = [roundNone(x,tempPlaces) for x in windchillAvg_vt[0]]
+        heatindexMinRound = [roundNone(x,tempPlaces) for x in heatindexMin_vt[0]]
+        heatindexMaxRound = [roundNone(x,tempPlaces) for x in heatindexMax_vt[0]]
         heatindexAvgRound = [roundNone(x,tempPlaces) for x in heatindexAvg_vt[0]]
         outHumidityMinRound = [roundNone(x,outHumidityPlaces) for x in outHumidity_dict['min'][0]]
         outHumidityMaxRound = [roundNone(x,outHumidityPlaces) for x in outHumidity_dict['max'][0]]
@@ -718,7 +733,13 @@ class highchartsYear(SearchList):
         dewpointMin_json = json.dumps(zip(time_ms, dewpointMinRound))
         dewpointMax_json = json.dumps(zip(time_ms, dewpointMaxRound))
         dewpointAvg_json = json.dumps(zip(time_ms, dewpointAvgRound))
+        windchillMinMax_json = json.dumps(zip(time_ms, windchillMinRound, windchillMaxRound))
+        windchillMin_json = json.dumps(zip(time_ms, windchillMinRound))
+        windchillMax_json = json.dumps(zip(time_ms, windchillMaxRound))
         windchillAvg_json = json.dumps(zip(time_ms, windchillAvgRound))
+        heatindexMinMax_json = json.dumps(zip(time_ms, heatindexMinRound, heatindexMaxRound))
+        heatindexMin_json = json.dumps(zip(time_ms, heatindexMinRound))
+        heatindexMax_json = json.dumps(zip(time_ms, heatindexMaxRound))
         heatindexAvg_json = json.dumps(zip(time_ms, heatindexAvgRound))
         outHumidityMinMax_json = json.dumps(zip(time_ms, outHumidityMinRound, outHumidityMaxRound))
         outHumidityMin_json = json.dumps(zip(time_ms, outHumidityMinRound))
@@ -748,7 +769,9 @@ class highchartsYear(SearchList):
                                  'appTempAvg_json' : appTempAvg_json,
                                  'dewpointMinMax_json' : dewpointMinMax_json,
                                  'dewpointAvg_json' : dewpointAvg_json,
+                                 'windchillMinMax_json' : windchillMinMax_json,
                                  'windchillAvg_json' : windchillAvg_json,
+                                 'heatindexMinMax_json' : heatindexMinMax_json,
                                  'heatindexAvg_json' : heatindexAvg_json,
                                  'outHumidityMinMax_json' : outHumidityMinMax_json,
                                  'outHumidityMin_json' : outHumidityMin_json,
