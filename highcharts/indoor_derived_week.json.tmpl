@@ -14,35 +14,33 @@
 ##                                                                           #
 ## Highcharts for weewx Extension                                            #
 ##                                                                           #
-## Temperature Week observation plots JSON data file template                #
+## Indoor & derived Temps Week observation plots JSON data file template     #
 ##                                                                           #
 ## Version: 0.2.1                                     Date: June 2019        #
 ##                                                                           #
 ##############################################################################
 [{
-"_version": "temp_week.json.tmpl version 0.2.0",
+"_version": "indoor_derived_week.json.tmpl version 0.2.0",
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
 "temperatureplot": {"series":
-{"outTemp": {"name": "Temperature", "data": $outTempWeekjson},
-"dewpoint": {"name": "Dew Point", "data": $dewpointWeekjson}},
+{"inTemp": {"name": "Indoor Temperature", "data": $inTempWeekjson}},
 "units": "$unit.label.outTemp"#slurp
-#if $varExists('$outTemp_min_range')
-, 
-"minRange": $outTemp_min_range},
-#else
 },
-#end if
 ##
 "humidityplot": {"series":
-{"outHumidity": {"name": "Humidity", "data": $outHumidityWeekjson}},
+{"inHumidity": {"name": "Indoor Humidity", "data": $inHumidityWeekjson}},
 "units": "$unit.label.outHumidity"#slurp
-#if $varExists('$outHumidity_min_range')
-, 
-"minRange": $outHumidity_min_range}
-#else
-}
-#end if
+},
 ##
+"windchillplot": {"series":
+{#slurp
+#if $appTempWeekjson is not None
+"appTemp": {"name": "Apparent Temperature", "data": $appTempWeekjson},
+#end if
+"windchill": {"name": "Wind Chill", "data": $windchillWeekjson},
+"heatindex": {"name": "Heat Index", "data": $heatindexWeekjson}},
+"units": "$unit.label.windchill"
+}
 }]
