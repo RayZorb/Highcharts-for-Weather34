@@ -85,10 +85,10 @@ var postcreatefunctions={
 
 var jsonfileforplot={
     temperatureplot: [['temp_week.json'],['year.json']],
-    indoorplot: [['temp_week.json'],['year.json']],
+    indoorplot: [['indoor_derived_week.json'],['year.json']],
     tempsmallplot: [['temp_week.json'],['year.json']],
     tempallplot: [['temp_week.json'],['year.json']],
-    tempderivedplot: [['temp_week.json'],['year.json']],
+    tempderivedplot: [['indoor_derived_week.json'],['year.json']],
     dewpointplot: [['temp_week.json'],['year.json']],
     windchillplot: [['temp_week.json'],['year.json']],
     humidityplot: [['temp_week.json'],['year.json']],
