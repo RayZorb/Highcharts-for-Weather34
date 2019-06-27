@@ -36,6 +36,7 @@ Set names of div ids to which the various plots will be rendered
 *****************************************************************************/
 var createweeklyfunctions = {
     temperatureplot: [addWeekOptions, setTemp, create_temperature_chart],
+    indoorplot: [addWeekOptions, setTemp, create_indoor_chart],
     tempallplot: [addWeekOptions, setTempAll, create_tempall_chart],
     tempderivedplot: [addWeekOptions, setTempDerived, create_tempderived_chart],
     humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
@@ -84,6 +85,7 @@ var postcreatefunctions={
 
 var jsonfileforplot={
     temperatureplot: ['temp_week.json','year.json'],
+    indoorplot: ['temp_week.json','year.json'],
     tempsmallplot: ['temp_week.json','year.json'],
     tempallplot: ['temp_week.json','year.json'],
     tempderivedplot: ['temp_week.json','year.json'],
@@ -495,7 +497,19 @@ Function to add/set various plot options specific to temperature spline plots
 
 *****************************************************************************/
     obj.chart.type = 'spline';
-    obj.title = {text: getTranslation('Temperature')};
+    obj.series = [{
+        name: getTranslation('Temperature'),
+        type: 'spline',
+        visible: true
+    }, {
+        yAxis:1,
+        name: getTranslation('Humidity'),
+        tooltip: {valueSuffix: '%'},
+        showInLegend: false,
+        type: 'spline',
+        visible: false
+    }];
+    obj.title = {text: getTranslation('Temperature Dewpoint')};
     obj.xAxis.minTickInterval = 900000;
     obj.tooltip.valueDecimals = 1;
     return obj
@@ -567,6 +581,36 @@ Function to create temperature chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis[0].tickInterval = 10;
+    return options;
+};
+
+function create_indoor_chart(options, span, seriesData, units){
+/*****************************************************************************
+
+Function to create indoor temperature chart
+
+*****************************************************************************/
+    if (span[0] == "yearly"){
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempminmax);
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempaverage);
+        options.series[2].data = seriesData[0].humidityplot.inHumidityminmax;
+        options.series[3].data = seriesData[0].humidityplot.inHumidityaverage;
+    }
+    else if (span[0] == "weekly"){        
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.inTemp).data;
+        options.series[1].visible = true;
+        options.series[1].showInLegend = true;
+        options.series[1].data = seriesData[0].humidityplot.series.inHumidity.data;
+    }
+    options.title = {text: getTranslation('Indoor Temperature Humidity')};
+    options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[1].title.text = "(%)";
+    options.yAxis[0].title.rotation = 0;
+    options.yAxis[1].title.rotation = 0;
+    options.yAxis[1].opposite = true;
+    options.tooltip.valueSuffix = units.temp;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
     return options;
 };
 
