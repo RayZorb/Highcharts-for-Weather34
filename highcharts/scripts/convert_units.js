@@ -4,12 +4,12 @@ function convert_temp(source, dest, fields, fixed = 2){
    source = source.replace(/[^\x00-\x7F]/g, "").trim();
    if (source == dest) return fields;
    if (fields.hasOwnProperty('data')){
-      for (i = 0; i < fields.data.length; i++)
-         for (j = 1; j < fields.data[i].length; j++)
+      for (var i = 0; i < fields.data.length; i++)
+         for (var j = 1; j < fields.data[i].length; j++)
             fields.data[i][j] = do_temp_conversion(source, dest, fields.data[i][j], fixed);
    }else if (Array.isArray(fields)){
-      for (i = 0; i < fields.length -1; i++)
-         for (j = 1; j < fields[i].length; j++)
+      for (var i = 0; i < fields.length; i++)
+         for (var j = 1; j < fields[i].length; j++)
             fields[i][j] = do_temp_conversion(source, dest, fields[i][j], fixed);
    }else
       return do_temp_conversion(source, dest, fields, fixed);
@@ -28,12 +28,12 @@ function convert_wind(source, dest, fields, fixed = 2){
    source = source.replace("hr","h").trim();
    if (dest == source) return fields;
    if (fields.hasOwnProperty('data')){
-      for (i = 0; i < fields.data.length; i++)
-         for (j = 1; j < fields.data[i].length; j++)
+      for (var i = 0; i < fields.data.length; i++)
+         for (var j = 1; j < fields.data[i].length; j++)
            fields.data[i][j] = do_speed_conversion(source, dest, fields.data[i][j], fixed);
    }else if (Array.isArray(fields)){
-      for (i = 0; i < fields.length; i++)
-         for (j = 1; j < fields[i].length; j++)
+      for (var i = 0; i < fields.length; i++)
+         for (var j = 1; j < fields[i].length; j++)
             fields[i][j] = do_speed_conversion(source, dest, fields[i][j], fixed);
    }else
       return do_speed_conversion(source, dest, fields, fixed);
@@ -56,13 +56,12 @@ function convert_pressure(source, dest, fields, fixed = 2){
    source = source.trim();
    if (dest == source) return fields;
    if (fields.hasOwnProperty('data')){
-      for (i = 0; i < fields.data.length; i++)
-         var i;
-         for (j = 1; j < fields.data[i].length; j++)
+      for (var i = 0; i < fields.data.length; i++)
+         for (var j = 1; j < fields.data[i].length; j++)
             fields.data[i][j] = do_pressure_conversion(source, dest, fields.data[i][j], fixed);
    }else if (Array.isArray(fields)){
-      for (i = 0; i < fields.length; i++)
-         for (j = 1; j < fields[i].length; j++)
+      for (var i = 0; i < fields.length; i++)
+         for (var j = 1; j < fields[i].length; j++)
             fields[i][j] = do_pressure_conversion(source, dest, fields[i][j], fixed);
    }else
       return do_pressure_conversion(source, dest, fields, fixed);
@@ -85,12 +84,12 @@ function convert_rain(source, dest, fields, fixed = 2){
    source = source.replace("inch","in").trim();
    if (source == dest) return fields;
    if (fields.hasOwnProperty('data')){
-      for (i = 0; i < fields.data.length; i++)
-         for (j = 1; j < fields.data[i].length; j++)
+      for (var i = 0; i < fields.data.length; i++)
+         for (var j = 1; j < fields.data[i].length; j++)
             fields.data[i][j] = do_distance_conversion(source, dest, fields.data[i][j], fixed);
    }else if (Array.isArray(fields)){
-      for (i = 0; i < fields.length -1; i++)
-         for (j = 1; j < fields[i].length; j++)
+      for (var i = 0; i < fields.length; i++)
+         for (var j = 1; j < fields[i].length; j++)
             fields[i][j] = do_distance_conversion(source, dest, fields[i][j], fixed);
    }else
       return do_distance_conversion(source, dest, fields, fixed);
