@@ -9,14 +9,15 @@ This repository contains the instructions and code to enable Highcharts to be us
 2. Download the .zip file to the root folder of WX-HWS template installation.
 3. Unzip the file which will result in a new folder, highcharts.
 4. Included in this folder is and alternative version of index.php with the links to the new charts. Rename your existing WX-HWS index.php file to index.php.cjs and replace it with the alternative version.
-5. Find and rename your Highcharts skin.conf file. Replace it with the skin.conf file found in the skin folder of this repository.         
-6. Go to the [CheetahGenerator] stanza and change [YOUR_PATH] to reflect your own path. For example it might be '/var/www/html/pws/highcharts'
-7. Go to your WeeWX installation and find the /bin/user folder. Rename the highchartsSearchX.py to say highchartsSearchX.py.backup and copy the highchartsSearchX.py in the user folder of this repository into /bin/user folder in its place. 
-8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
-9. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
-10. Open your website page and click on any of the chart links and a new chart will be displayed.
-11. You will find additional controls which allows you change the time frame and zoom-in on data etc.
-12. The charts that are set up to be generated are as follows: -
+5. Go to the languages folder in this repository. Copy the two files contained within to the languages folder of your WX-HWS installation.
+6. Go to your skins/Highcharts folder and rename your Highcharts skin.conf file and json folder. Replace it with the skin.conf file and json folder found in the skin/Highcharts folder in this repository.         
+7. Go to the [CheetahGenerator] stanza and change [YOUR_PATH] to reflect your own path. For example it might be '/var/www/html/pws/highcharts'
+8. Go to your WeeWX installation and find the /bin/user folder. Rename the highchartsSearchX.py to say highchartsSearchX.py.backup and copy the highchartsSearchX.py in the user folder of this repository into /bin/user folder in its place. 
+9. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
+10. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
+11. Open your website page and click on any of the chart links and a new chart will be displayed.
+12. You will find additional controls which allows you change the time frame and zoom-in on data etc.
+13. The charts that are set up to be generated are as follows: -
 
             Temperature/Dewpoint = 'temperatureplot'
             
