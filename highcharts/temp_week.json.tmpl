@@ -26,6 +26,7 @@
 ##
 "temperatureplot": {"series":
 {"outTemp": {"name": "Temperature", "data": $outTempWeekjson},
+"inTemp": {"name": "Indoor Temperature", "data": $inTempWeekjson},
 #if $appTempWeekjson is not None
 "dewpoint": {"name": "Dew Point", "data": $dewpointWeekjson},
 "appTemp": {"name": "Apparent Temperature", "data": $appTempWeekjson}},
@@ -56,7 +57,8 @@
 #end if
 ##
 "humidityplot": {"series":
-{"outHumidity": {"name": "Humidity", "data": $outHumidityWeekjson}},
+{"outHumidity": {"name": "Humidity", "data": $outHumidityWeekjson},
+"inHumidity": {"name": "Indoor Humidity", "data": $inHumidityWeekjson}},
 "units": "$unit.label.outHumidity"#slurp
 #if $varExists('$outHumidity_min_range')
 , 
