@@ -1,0 +1,46 @@
+##errorCatcher Echo
+##
+##This program is free software; you can redistribute it and/or modify it
+##under the terms of the GNU General Public License as published by the Free
+##Software Foundation; either version 2 of the License, or (at your option)
+##any later version.
+##
+##This program is distributed in the hope that it will be useful, but WITHOUT
+##ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+##FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+##more details.
+##
+##############################################################################
+##                                                                           #
+## Highcharts for weewx Extension                                            #
+##                                                                           #
+## Indoor & derived Temps Week observation plots JSON data file template     #
+##                                                                           #
+## Version: 0.2.1                                     Date: June 2019        #
+##                                                                           #
+##############################################################################
+[{
+"_version": "indoor_derived_week.json.tmpl version 0.2.0",
+"utcoffset": $utcOffset,
+"timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
+##
+"temperatureplot": {"series":
+{"inTemp": {"name": "Indoor Temperature", "data": $inTempWeekjson}},
+"units": "$unit.label.outTemp"#slurp
+},
+##
+"humidityplot": {"series":
+{"inHumidity": {"name": "Indoor Humidity", "data": $inHumidityWeekjson}},
+"units": "$unit.label.outHumidity"#slurp
+},
+##
+"windchillplot": {"series":
+{#slurp
+#if $appTempWeekjson is not None
+"appTemp": {"name": "Apparent Temperature", "data": $appTempWeekjson},
+#end if
+"windchill": {"name": "Wind Chill", "data": $windchillWeekjson},
+"heatindex": {"name": "Heat Index", "data": $heatindexWeekjson}},
+"units": "$unit.label.windchill"
+}
+}]
