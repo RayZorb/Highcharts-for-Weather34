@@ -84,33 +84,49 @@ var postcreatefunctions={
 };
 
 var jsonfileforplot={
-    temperatureplot: ['temp_week.json','year.json'],
-    indoorplot: ['temp_week.json','year.json'],
-    tempsmallplot: ['temp_week.json','year.json'],
-    tempallplot: ['temp_week.json','year.json'],
-    tempderivedplot: ['temp_week.json','year.json'],
-    dewpointplot: ['temp_week.json','year.json'],
-    windchillplot: ['temp_week.json','year.json'],
-    humidityplot: ['temp_week.json','year.json'],
-    barometerplot: ['bar_rain_week.json','year.json'],
-    barsmallplot: ['bar_rain_week.json','year.json'],
-    windplot: ['wind_week.json','year.json'],
-    windsmallplot: ['wind_week.json','year.json'],
-    winddirplot: ['wind_week.json','year.json'],
-    windroseplot: ['wind_week.json','year.json'],
-    rainplot: ['bar_rain_week.json','year.json'],
-    rainsmallplot: ['bar_rain_week.json','year.json'],
-    radiationplot: ['solar_week.json','year.json'],
-    radsmallplot: ['solar_week.json','year.json'],
-    uvplot: ['solar_week.json','year.json'],
-    uvsmallplot: ['solar_week.json','year.json']
+    temperatureplot: [['temp_week.json'],['year.json']],
+    indoorplot: [['temp_week.json'],['year.json']],
+    tempsmallplot: [['temp_week.json'],['year.json']],
+    tempallplot: [['temp_week.json'],['year.json']],
+    tempderivedplot: [['temp_week.json'],['year.json']],
+    dewpointplot: [['temp_week.json'],['year.json']],
+    windchillplot: [['temp_week.json'],['year.json']],
+    humidityplot: [['temp_week.json'],['year.json']],
+    barometerplot: [['bar_rain_week.json'],['year.json']],
+    barsmallplot: [['bar_rain_week.json'],['year.json']],
+    windplot: [['wind_week.json'],['year.json']],
+    windsmallplot: [['wind_week.json'],['year.json']],
+    winddirplot: [['wind_week.json'],['year.json']],
+    windroseplot: [['wind_week.json'],['year.json']],
+    rainplot: [['bar_rain_week.json'],['year.json']],
+    rainsmallplot: [['bar_rain_week.json'],['year.json']],
+    radiationplot: [['solar_week.json'],['year.json']],
+    radsmallplot: [['solar_week.json'],['year.json']],
+    uvplot: [['solar_week.json'],['year.json']],
+    uvsmallplot: [['solar_week.json'],['year.json']]
 };
 
-var pathjsonfiles = '../../weewx/json/'
+var pathjsonfiles = '../../weewx/json/';
 var windrosespans = ["24h","Week","Month","Year"];
 var categories;
-var seriesData;
 var chart;
+
+/*****************************************************************************
+
+Read multiple json files at the same time found at this URL
+https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-one-getjson-request
+
+*****************************************************************************/
+jQuery.getMultipleJSON = function(){
+  return jQuery.when.apply(jQuery, jQuery.map(arguments, function(jsonfile){
+    return jQuery.getJSON(jsonfile);
+  })).then(function(){
+    var def = jQuery.Deferred();
+    return def.resolve.apply(def, jQuery.map(arguments, function(response){
+      return response[0];}));
+    });
+};
+
 /*****************************************************************************
 
 Set default plot options
@@ -1617,8 +1633,12 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
-    $.getJSON(pathjsonfiles + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1], function(seriesData) { 
-        var options = setup_plots(seriesData, units, clone(commonOptions), plot_type, cb_func, span);
+    var results, files = [];
+    for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
+        files[i] = pathjsonfiles + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
+    jQuery.getMultipleJSON(...files)
+    .done(function(...results){
+        var options = setup_plots(results.flat(), units, clone(commonOptions), plot_type, cb_func, span);
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (cb_func != null){
             for (var i = 0; i < chart.series.length; i++){
