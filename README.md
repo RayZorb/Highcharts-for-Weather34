@@ -9,23 +9,9 @@ This repository contains the instructions and code to enable Highcharts to be us
 2. Download the .zip file to the root folder of WX-HWS template installation.
 3. Unzip the file which will result in a new folder, highcharts.
 4. Included in this folder is and alternative version of index.php with the links to the new charts. Rename your existing WX-HWS index.php file to index.php.cjs and replace it with the alternative version.
-5. Find and edit your Highcharts skin.conf file. Towards the end of the code you will find in the [CheetahGenerator] stanza something like: -
-
-
-    	[[ToDate]]
-
-        	# Highcharts week json data
-        	[[[WeekJSON]]]
-            		template = json/week.json.tmpl
-	    		HTML_ROOT = [YOUR_PATH]/highcharts
-            
-        	# Highcharts week json data
-        	[[[YearJSON]]]
-            		template = json/year.json.tmpl	
-            		HTML_ROOT = [YOUR_PATH]/highcharts
-            
-6. You must change this to reflect your own path. For example it might be '/var/www/html/pws/highcharts'
-7. Go to your WeeWX installation and find the /bin/user folder. Rename the highchartsSearchX.py to say highchartsSearchX.py.backup and copy the highchartsSearchX.py in this repository into /bin/user folder in its place. 
+5. Find and rename your Highcharts skin.conf file. Replace it with the skin.conf file found in the skin folder of this repository.         
+6. Go to the [CheetahGenerator] stanza and change [YOUR_PATH] to reflect your own path. For example it might be '/var/www/html/pws/highcharts'
+7. Go to your WeeWX installation and find the /bin/user folder. Rename the highchartsSearchX.py to say highchartsSearchX.py.backup and copy the highchartsSearchX.py in the user folder of this repository into /bin/user folder in its place. 
 8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
 9. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
 10. Open your website page and click on any of the chart links and a new chart will be displayed.
