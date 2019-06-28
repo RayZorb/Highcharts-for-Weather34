@@ -36,7 +36,8 @@ var createweeklyfunctions = {
     humidityplot: [addWeekOptions, create_humidity_chart],
     barometerplot: [addWeekOptions, create_barometer_chart],
     dewpointplot: [addWeekOptions, create_dewpoint_chart],
-    winddirplot: [addWeekOptions, setWindDir, create_winddir_chart],
+    windplot: [addWeekOptions, create_wind_chart],
+    winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addWeekOptions, setRain, create_rain_chart],
     radiationplot: [addWeekOptions, setRadiation, create_radiation_chart],
@@ -54,8 +55,9 @@ var createyearlyfunctions = {
     barometerplot: [addYearOptions, create_barometer_chart],
     barsmallplot: [addYearOptions, setBarSmall, create_barometer_chart],
     dewpointplot: [addYearOptions, create_dewpoint_chart],
-    windsmallplot: [addYearOptions, setWind, setWindSmall, create_wind_chart],
-    winddirplot: [addYearOptions, setWindDirStock, create_winddir_chart],
+    windsmallplot: [addYearOptions, setWindSmall, create_wind_chart],
+    winddirplot: [addYearOptions, create_winddir_chart],
+    windplot: [addYearOptions, create_wind_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addYearOptions, setRain, setRainStock, create_rain_chart],
     rainsmallplot: [addYearOptions, setRain, setRainSmall, create_rain_chart],
@@ -754,71 +756,19 @@ Function to create barometer chart
     options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    return options
+    return options;
 }
 
-function setWind(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to wind speed spline plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.legend.reversed = true;
-    obj.title = {
-        text: getTranslation('Wind Gust Speed')
-    };
-    obj.xAxis.minTickInterval = 900000;
-    obj.yAxis[0].min = 0;
-    obj.tooltip.valueDecimals = 1;
-    return obj
-};
-
-function setWindStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline wind speed plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.series = [{
-        name: getTranslation('Max Gust Speed'),
-        type: 'spline',
-    },{
-        name: getTranslation('Max Average Wind Speed'),
-        type: 'spline',
-    }, {
-        name: getTranslation('Average Wind Speed'),
-        type: 'spline',
-    }];
-    return obj
-};
-
-function setWindSmall(obj) {
+function setWindSmall(options) {
 /*****************************************************************************
 
 Function to do wind small chart
 
 *****************************************************************************/
-    obj.chart.marginBottom = 20;
-    obj.chart.type = 'spline';
-    obj.series = [{
-        name: getTranslation('Max Gust Speed'),
-        type: 'area',
-        visible: true
-    }, {
-        name: getTranslation('Max Average Wind Speed'),
-        type: 'area',
-        visible: true
-    }, {
-        name: getTranslation('Average Wind Speed'),
-        type: 'area',
-        visible: true
-    }];
-    obj.yAxis[0].height = "160";
+    options.chart.marginBottom = 20;
+    options.yAxis[0].height = "160";
     $("#plot_div").css("height", 190);
-    return obj
+    return options;
 };
 
 function create_wind_chart(options, span, seriesData, units){
@@ -828,68 +778,26 @@ Function to create wind chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'area', 'Wind Speed Gust Max & Averages', [['Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area']]);
         options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windmax);
         options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windAvmax);
         options.series[2].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windaverage);
     }
     else if (span[0] == "weekly"){
-        options.series[0] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed);
-        options.series[1] = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust);
+        options = create_chart_options(options, 'spline', 'Wind Speed Gust', [['Wind Speed', 'spline'],['Wind Gust', 'spline']]);
+        options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed).data;
+        options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust).data;
     }
-    options.yAxis[0].title.text = "(" + units.wind + ")";
+    options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.wind;
+    options.yAxis[0].min = 0;
+    options.yAxis[0].title.text = "(" + units.wind + ")";
+    options.yAxis[0].tickInterval = 10;
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis[0].tickInterval = 10;
     return options;
 }
-
-function setWindDir(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to wind direction spline
-plots
-
-*****************************************************************************/
-    obj.chart.type = 'scatter';
-    obj.title = {
-        text: getTranslation('Wind Direction')
-    };
-    obj.xAxis.minTickInterval = 900000;
-    obj.yAxis[0].max = 360;
-    obj.yAxis[0].min = 0;
-    obj.yAxis[0].tickInterval = 90;
-    obj.plotOptions.series = {
-        marker: {
-            radius: 2
-        },
-    };
-    obj.series.marker = {
-        lineWidth: 0,
-        radius: 10
-    };
-    obj.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>'
-    obj.tooltip.pointFormat = '<span style="color: {series.color}">●</span> {series.name}: <b>{point.y}</b>'
-    obj.tooltip.valueSuffix = '\u00B0'
-    obj.tooltip.xDateFormat = '%e %B %Y %H:%M';
-    return obj
-};
-
-function setWindDirStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline wind direction plots
-
-*****************************************************************************/
-    obj = setWindDir(obj);
-    obj.series = [{
-        name: getTranslation('Vector Average Wind Direction'),
-    }];
-    obj.tooltip.valueDecimals = 1;
-    obj.tooltip.xDateFormat = '%e %B %Y';
-    return obj
-};
 
 function create_winddir_chart(options, span, seriesData, units){
 /*****************************************************************************
@@ -897,11 +805,27 @@ function create_winddir_chart(options, span, seriesData, units){
 Function to create wind direction chart
 
 *****************************************************************************/
-    if (span[0] == "yearly")
+    if (span[0] == "yearly"){
+        options = create_chart_options(options, 'scatter', 'Wind Direction Average', [['Wind Direction Average', 'scatter']]);
         options.series[0].data = seriesData[0].winddirplot.windDir;
-    else if (span[0] == "weekly")
-        options.series[0] = seriesData[0].winddirplot.series.windDir;
+    }
+    else if (span[0] == "weekly"){
+        options = create_chart_options(options, 'scatter', 'Wind Direction', [['Wind Direction', 'scatter']]);
+        options.series[0].data = seriesData[0].winddirplot.series.windDir.data;
+    }
+    options.plotOptions.series = { marker: { radius: 2}};
+    options.series.marker = { lineWidth: 0, radius: 10 };
+    options.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>'
+    options.tooltip.pointFormat = '<span style="color: {series.color}">●</span> {series.name}: <b>{point.y}</b>'
+    options.tooltip.valueSuffix = '\u00B0'
+    options.tooltip.xDateFormat = '%e %B %Y %H:%M';
+    options.tooltip.valueDecimals = 1;
+    options.tooltip.xDateFormat = '%e %B %Y';
+    options.yAxis[0].min = 0;
+    options.yAxis[0].max = 360;
+    options.yAxis[0].tickInterval = 90;
     options.yAxis[0].title.text = "(" + units.wind + ")";
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
