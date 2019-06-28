@@ -26,6 +26,8 @@
 "temperatureplot": {
 "outTempminmax": $outTempMinMax_json, 
 "outTempaverage": $outTempAvg_json, 
+"inTempminmax": $inTempMinMax_json, 
+"inTempaverage": $inTempAvg_json, 
 "units": "$unit.label.outTemp"#slurp
 #if $varExists('$outTemp_min_range')
 , 
@@ -64,6 +66,8 @@
 "humidityplot": {
 "outHumidityminmax": $outHumidityMinMax_json, 
 "outHumidityaverage": $outHumidityAvg_json, 
+"inHumidityminmax": $inHumidityMinMax_json, 
+"inHumidityaverage": $inHumidityAvg_json, 
 "units": "$unit.label.outHumidity"#slurp
 #if $varExists('$outHumidity_min_range')
 , 
@@ -123,7 +127,7 @@
 "uvplot": {
 "uvmax": $uvMax_json, 
 "uvaverage": $uvAvg_json, 
-"units": "$unit.label.uv"#slurp
+"units": "$unit.label.UV"#slurp
 #if $varExists('$UV_min_range')
 , 
 "minRange": $UV_min_range},
