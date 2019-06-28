@@ -35,9 +35,7 @@ var createweeklyfunctions = {
     tempderivedplot: [addWeekOptions, create_tempderived_chart],
     humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
     barometerplot: [addWeekOptions, setBarometer, create_barometer_chart],
-    dewpointplot: [addWeekOptions, setDewpoint, create_dewpoint_chart],
-    windchillplot: [addWeekOptions, setWindchill, create_windchill_chart],
-    windplot: [addWeekOptions, setWind, create_wind_chart],
+    dewpointplot: [addWeekOptions, create_dewpoint_chart],
     winddirplot: [addWeekOptions, setWindDir, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addWeekOptions, setRain, create_rain_chart],
@@ -55,9 +53,7 @@ var createyearlyfunctions = {
     humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
     barometerplot: [addYearOptions, setBarometer, setBarometerStock, create_barometer_chart],
     barsmallplot: [addYearOptions, setBarometer, setBarSmall, create_barometer_chart],
-    dewpointplot: [addYearOptions, setDewpointStock, create_dewpoint_chart],
-    windchillplot: [addYearOptions, setWindchillStock, create_windchill_chart],
-    windplot: [addYearOptions, setWind, setWindStock, create_wind_chart],
+    dewpointplot: [addYearOptions, create_dewpoint_chart],
     windsmallplot: [addYearOptions, setWind, setWindSmall, create_wind_chart],
     winddirplot: [addYearOptions, setWindDirStock, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
@@ -87,8 +83,6 @@ var jsonfileforplot={
     tempallplot: [['temp_week.json'],['year.json']],
     tempderivedplot: [['indoor_derived_week.json'],['year.json']],
     dewpointplot: [['temp_week.json'],['year.json']],
-    windchillplot: [['temp_week.json'],['year.json']],
-    humidityplot: [['temp_week.json'],['year.json']],
     barometerplot: [['bar_rain_week.json'],['year.json']],
     barsmallplot: [['bar_rain_week.json'],['year.json']],
     windplot: [['wind_week.json'],['year.json']],
@@ -675,40 +669,6 @@ Function to create temperature chart
     return options;
 };
 
-function setDewpoint(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to dewpoint spline plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.title = {
-        text: getTranslation('Dewpoint')
-    };
-    return obj
-};
-
-function setDewpointStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline dewpoint plots
-
-*****************************************************************************/
-    obj = setDewpoint(obj);
-    obj.chart.type = 'columnrange';
-    obj.series = [{
-        name: getTranslation('Dewpoint Range'),
-        type: 'columnrange',
-        visible: true
-    }, {
-        name: getTranslation('Average Dewpoint'),
-        type: 'spline',
-        visible: true
-    }];
-    return obj
-};
-
 function create_dewpoint_chart(options, span, seriesData, units){
 /*****************************************************************************
 
@@ -716,11 +676,13 @@ Function to create dewpoint chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'columnrange', 'Dewpoint Ranges & Averages', [['Dewpoint Range', 'columnrange'],['Average Dewpoint','spline']]);
         options.series[0].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
         options.series[1].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
     }
-    else if (span[0] == "weekly"){        
-        options.series[0] = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointeplot.series.dewpoint);
+    else if (span[0] == "weekly"){                
+        options = create_chart_options(options, 'spline', 'Dewpoint', [['Dewpoint', 'spline']]);
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
     }
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
@@ -731,84 +693,6 @@ Function to create dewpoint chart
     return options;
 }
 
-function setWindchill(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to windchill spline plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.title = {
-        text: getTranslation('Feels Temperature Wind Chill/Heat Index')
-    };
-    obj.xAxis.minTickInterval = 900000;
-    return obj
-};
-
-function setWindchillStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline windchill plots
-
-*****************************************************************************/
-    obj = setWindchill(obj);
-    obj.chart.type = 'columnrange';
-    obj.series = [{
-        name: getTranslation('Feels Temperature Range'),
-        type: 'columnrange'
-    }, {
-        name: getTranslation('Average Feels Temperature'),
-        type: 'spline'
-    }, {
-        name: getTranslation('Average Wind Chill'),
-        type: 'spline'
-    }, {
-        name: getTranslation('Average Heat Index'),
-        type: 'spline'
-    }];
-    obj.tooltip.valueDecimals = 1;
-    return obj
-};
-
-function create_windchill_chart(options, span, seriesData, units){
-/*****************************************************************************
-
-Function to create windchill chart
-
-*****************************************************************************/
-    if (span[0] == "yearly"){
-        options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexaverage);
-        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillaverage);
-        if ("appTempminmax" in seriesData[0].windchillplot) {
-            options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.appTempminmax);
-        } else {
-            options.series.shift();
-        }
-        if ("appTempaverage" in seriesData[0].windchillplot) {
-            options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.appTempaverage);
-        } else {
-            options.series.shift();
-        }
-        if ((!("appTempminmax" in seriesData[0].windchillplot)) && (!("appTempaverage" in seriesData[0].windchillplot))) {
-            options.title.text = getTranslation('Wind Chill/Heat Index');
-        }
-    }
-    else {
-        options.series[1] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill);
-        options.series[0] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex);
-        if ("appTemp" in seriesData[0].temperatureplot.series) {
-            options.series[2] = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.appTemp);
-        }
-    }
-    options.yAxis[0].title.text = "(" + units.temp + ")";
-    options.tooltip.valueSuffix = units.temp;
-    options.xAxis.min = seriesData[0].timespan.start;
-    options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis[0].tickInterval = 10;
-    return options;
-}
-        
 function setHumidity(obj) {
 /*****************************************************************************
 
