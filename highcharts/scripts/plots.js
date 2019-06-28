@@ -29,10 +29,10 @@ History
 
 *****************************************************************************/
 var createweeklyfunctions = {
-    temperatureplot: [addWeekOptions, setTemp, create_temperature_chart],
-    indoorplot: [addWeekOptions, setTempIndoor, create_indoor_chart],
-    tempallplot: [addWeekOptions, setTempAll, create_tempall_chart],
-    tempderivedplot: [addWeekOptions, setTempDerived, create_tempderived_chart],
+    temperatureplot: [addWeekOptions, create_temperature_chart],
+    indoorplot: [addWeekOptions, create_indoor_chart],
+    tempallplot: [addWeekOptions, create_tempall_chart],
+    tempderivedplot: [addWeekOptions, create_tempderived_chart],
     humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
     barometerplot: [addWeekOptions, setBarometer, create_barometer_chart],
     dewpointplot: [addWeekOptions, setDewpoint, create_dewpoint_chart],
@@ -47,11 +47,11 @@ var createweeklyfunctions = {
 };
 
 var createyearlyfunctions = {
-    temperatureplot: [addYearOptions, setTempStock,create_temperature_chart],
-    indoorplot: [addYearOptions, setTempIndoor, create_indoor_chart],
+    temperatureplot: [addYearOptions,create_temperature_chart],
+    indoorplot: [addYearOptions, create_indoor_chart],
     tempsmallplot: [addYearOptions, setTempSmall, create_temperature_chart],
-    tempallplot: [addYearOptions, setTempAll, create_tempall_chart],
-    tempderivedplot: [addYearOptions, setTempDerived, create_tempderived_chart],
+    tempallplot: [addYearOptions, create_tempall_chart],
+    tempderivedplot: [addYearOptions, create_tempderived_chart],
     humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
     barometerplot: [addYearOptions, setBarometer, setBarometerStock, create_barometer_chart],
     barsmallplot: [addYearOptions, setBarometer, setBarSmall, create_barometer_chart],
@@ -395,19 +395,8 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
         }
         return copy;
     }
-
     throw new Error('Unable to copy obj! Its type isn\'t supported.');
 };
-
-function getTranslation(term){
-    if (typeof translations == 'undefined') return term;
-    if (translations.hasOwnProperty(term)) return translations[term];
-    var parts = term.split(/([" ", "/"])/);
-    var translation = "";
-    for (var i = 0; i < parts.length; i++)
-       translation += translations.hasOwnProperty(parts[i]) ? translations[parts[i]] : parts[i];
-    return translation.length > 0 ? translation : term;
-}
 
 function addWindRoseOptions(options, span, seriesData, units, plot_type, cb_func) {
 /*****************************************************************************
@@ -504,118 +493,52 @@ Function to add/set various plot options specific to the 'year' plot.
     return obj
 };
 
-function setTemp(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to temperature spline plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.series = [{
-        name: getTranslation('Temperature'),
-        type: 'spline',
-    }, {
-        name: getTranslation('Dewpoint'),
-        type: 'spline',
-    }, {
-        name: getTranslation('Feels'),
-        type: 'spline',
-        visible: false,
-        showInLegend: false,
-    }];
-    obj.title = {text: getTranslation('Temperature Dewpoint')};
-    obj.xAxis.minTickInterval = 900000;
-    obj.tooltip.valueDecimals = 1;
-    return obj
+function getTranslation(term){
+    if (typeof translations == 'undefined') return term;
+    if (translations.hasOwnProperty(term)) return translations[term];
+    var parts = term.split(/([" ", "/"])/);
+    var translation = "";
+    for (var i = 0; i < parts.length; i++)
+       translation += translations.hasOwnProperty(parts[i]) ? translations[parts[i]] : parts[i];
+    return translation.length > 0 ? translation : term;
 };
 
-function setTempSmall(obj) {
+function create_chart_options(options, type, title, values){
+    var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
+    options.series = [];
+    options.chart.type = type;
+    options.title = {text: getTranslation(title)};
+    for (var i = 0; i < values.length; i++){
+        options.series[i] = [];
+        for (field in fields) options.series[i].push(field);
+        for (var j = 0; j < fields.length; j++)
+            if (values[i][j] != null)
+                options.series[i][fields[j]] = (fields[j] == 'name' ? getTranslation(values[i][j]) : values[i][j]);   
+    }
+    return options;
+};
+
+function post_create_small_chart(chart, height){
+    chart.update({
+        exporting: { enabled: false },
+        rangeSelector: {enabled: false},
+        navigator: {enabled: false},
+        scrollbar: {enabled: false},
+        legend:{ enabled:false },
+        title: {text: ''}
+    });
+};
+
+function setTempSmall(options) {
 /*****************************************************************************
 
 Function to add/set various plot options specific to combined columnrange
 spline temperature plots
 
 *****************************************************************************/
-    obj.chart.marginBottom = 20;
-    obj.chart.type = 'columnrange';
-    obj.series = [{
-        name: getTranslation('Temperature Range'),
-        type: 'columnrange',
-    }, {
-        name: getTranslation('Average Temperature'),
-        type: 'spline',
-    }, {
-        name: getTranslation('Dewpoint Range'),
-        type: 'columnrange',
-    }, {
-        name: getTranslation('Average Dewpoint'),
-        type: 'spline',
-    }];
-    obj.xAxis.minTickInterval = 900000;
-    obj.tooltip.valueDecimals = 1;
-    obj.yAxis[0].height = "110";
+    options.chart.marginBottom = 20;
+    options.yAxis[0].height = "110";
     $("#plot_div").css("height", 140);
-    return obj
-};
-
-function setTempStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline temperature plots
-
-*****************************************************************************/
-    obj.chart.type = 'columnrange';
-    obj.series = [{
-        name: getTranslation('Temperature Range'),
-        type: 'columnrange',
-    }, {
-        name: getTranslation('Average Temperature'),
-        type: 'spline',
-    }, {
-        name: getTranslation('Dewpoint Range'),
-        type: 'columnrange',
-    }, {
-        name: getTranslation('Average Dewpoint'),
-        type: 'spline',
-    }];
-    obj.title = {text: getTranslation('Temperature Dewpoint')};
-    return obj
-};
-
-function setTempIndoor(obj, span, seriesData, units) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to temperature spline plots
-
-*****************************************************************************/
-    obj.chart.type = (span == 'yearly' ? 'columnrange' : 'spline');
-    obj.series = [{
-        name: getTranslation((span == 'yearly' ? 'Temperature Range' : 'Temperature')),
-        type: (span == 'yearly' ? 'columnrange' : 'spline'),
-    }, {
-        yAxis: (span == 'yearly' ? 0 : 1),
-        name: getTranslation((span == 'yearly' ? 'Temperature Average' : 'Humidity')),
-        tooltip: {valueSuffix: (span == 'yearly' ? units.temp : '%')},
-        type: 'spline',
-    }, {
-        yAxis: 1,
-        name: getTranslation((span == 'yearly' ? 'Humidity Range' : 'Humidity')),
-        type: (span == 'yearly' ? 'columnrange' : 'spline'),
-        tooltip: {valueSuffix: '%'},
-        showInLegend: (span == 'yearly' ? true : false),
-        visible: (span == 'yearly' ? true : false),
-    }, {
-        yAxis:1,
-        type: 'spline',
-        name: getTranslation('Humidity Average'),
-        tooltip: {valueSuffix: '%'},
-        showInLegend: (span == 'yearly' ? true : false),
-        visible: (span == 'yearly' ? true : false),
-    }];
-    obj.title = {text: getTranslation('Greenhouse Temperature Humidity')};
-    obj.xAxis.minTickInterval = 900000;
-    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -625,13 +548,15 @@ function create_temperature_chart(options, span, seriesData, units){
 Function to create temperature chart
 
 *****************************************************************************/
-    if (span[0] == "yearly"){
+     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint', [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint', 'spline']]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
         options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
         options.series[3].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
     }
     else if (span[0] == "weekly"){        
+        options = create_chart_options(options, 'spline', 'Temperature Dewpoint', [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp).data;
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
         if ("appTemp" in seriesData[0].temperatureplot.series) {
@@ -640,9 +565,11 @@ Function to create temperature chart
            options.series[2].showInLegend = true;
         }
     }
+    options.tooltip.valueDecimals = 1;
+    options.tooltip.valueSuffix = units.temp;
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.yAxis[0].title.rotation = 0;
-    options.tooltip.valueSuffix = units.temp;
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis[0].tickInterval = 10;
@@ -656,137 +583,27 @@ Function to create indoor temperature chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'columnrange', 'Greenhouse Temperature Humidity', [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempaverage)
         options.series[2].data = seriesData[0].humidityplot.inHumidityminmax;
         options.series[3].data = seriesData[0].humidityplot.inHumidityaverage;
     }
     else if (span[0] == "weekly"){        
+        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', [['Temperature', 'spline'],['Humidity','spline', 1,,, "%"]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.inTemp).data;
         options.series[1].data = seriesData[0].humidityplot.series.inHumidity.data;
     }
+    options.tooltip.valueDecimals = 1;
+    options.tooltip.valueSuffix = units.temp;
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.yAxis[1].title.text = "(%)";
     options.yAxis[0].title.rotation = 0;
     options.yAxis[1].title.rotation = 0;
     options.yAxis[1].opposite = true;
-    options.tooltip.valueSuffix = units.temp;
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    return options;
-};
-
-function setTempAll(obj, span, seriesData, units) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to temperature spline plots
-
-*****************************************************************************/
-    obj.chart.type = (span == 'yearly' ? 'columnrange' : 'spline');
-    obj.series = [{
-        name: getTranslation((span == 'yearly' ? 'Temp Range' : 'Temperature')),
-        type: (span == 'yearly' ? 'columnrange' : 'spline'),
-    }, {
-        name: getTranslation((span == 'yearly' ? 'Temp Avg' : 'Dewpoint')),
-        type: 'spline',
-    }, {
-        yAxis: (span == 'yearly' ? 0 : 1),
-        name: getTranslation((span == 'yearly' ? 'Dewpoint Range' : 'Humidity')),
-        type: (span == 'yearly' ? 'columnrange' : 'spline'),
-        tooltip: {valueSuffix: (span == 'yearly' ? units.temp : '%')},
-    }, {
-        name: getTranslation((span == 'yearly' ? 'Dewpoint Avg' : '')),
-        showInLegend: (span == 'yearly' ? true : false),
-        visible: (span == 'yearly' ? true : false),
-        type: 'spline',
-    }, {
-        yAxis: 1,
-        tooltip: {valueSuffix: '%'},
-        name: getTranslation((span == 'yearly' ? 'Humidity Range' : '"')),
-        visible: (span == 'yearly' ? true : false),
-        showInLegend: (span == 'yearly' ? true : false),
-        type: 'columnrange',
-    }, {
-        yAxis: 1,
-        tooltip: {valueSuffix: '%'},
-        name: getTranslation((span == 'yearly' ? 'Humidity Avg' : '')),
-        visible: (span == 'yearly' ? true : false),
-        showInLegend: (span == 'yearly' ? true : false),
-        type: 'spline'
-    }];
-    obj.title = {
-        text: getTranslation((span == 'yearly' ? 'Temperature Dewpoint Humidity Ranges & Averages' : 'Temperature Dewpoint Humidity'))
-    };
-    obj.xAxis.minTickInterval = 900000;
-    obj.tooltip.valueDecimals = 1;
-    return obj
-};
-
-function setTempDerived(obj, span) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to temperature spline plots
-
-*****************************************************************************/
-    obj.chart.type = (span == 'yearly' ? 'columnrange' : 'spline');
-    obj.series = [{
-        name: getTranslation((span == 'yearly' ? 'Windchill Range' : 'Windchill')),
-        type: (span == 'yearly' ? 'columnrange' : 'spline'),
-    }, {
-        name: getTranslation((span == 'yearly' ? 'Windchill Avg' : '')),
-        visible: (span == 'yearly' ? true : false),
-        showInLegend: (span == 'yearly' ? true : false),
-        type: 'spline',
-    }, {
-        name: getTranslation((span == 'yearly' ? 'Heatindex Range' : 'Heatindex')),
-        type: (span == 'yearly' ? 'columnrange' : 'spline'),
-    }, {
-        name: getTranslation((span == 'yearly' ? 'Heatindex Avg' : '')),
-        visible: (span == 'yearly' ? true : false),
-        showInLegend: (span == 'yearly' ? true : false),
-        type: 'spline',
-    }, {
-        name: getTranslation((span == 'yearly' ? 'Feels Range' : 'Feels')),
-        type: (span == 'yearly' ? 'columnrange' : 'spline'),
-    }, {
-        name: getTranslation((span == 'yearly' ? 'Feels Avg' : '')),
-        visible: (span == 'yearly' ? true : false),
-        showInLegend: (span == 'yearly' ? true : false),
-        type: 'spline',
-    }];
-    obj.title = {
-        text: getTranslation((span == 'yearly' ? 'Windchill Heatindex Feels Ranges & Averages' : 'Windchill HeatIndex Feels'))
-    };
-    obj.xAxis.minTickInterval = 900000;
-    obj.tooltip.valueDecimals = 1;
-    return obj
-};
-
-function create_tempderived_chart(options, span, seriesData, units){
-/*****************************************************************************
-
-Function to create temperature chart
-
-*****************************************************************************/
-    if (span[0] == "yearly"){
-        options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillminmax);
-        options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillaverage);
-        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexminmax);
-        options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexaverage)
-        //options.series[4].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempminmax);
-        //options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempaverage);
-        options.yAxis[0].height = "150";
-    }
-    else if (span[0] == "weekly"){        
-        options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill).data;
-        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
-        //options.series[4].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
-    }
-    options.tooltip.valueSuffix = units.temp;
-    options.xAxis.min = seriesData[0].timespan.start;
-    options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis[0].title.text = "(" + units.temp + ")";
-    options.yAxis[0].tickInterval = 10;
     return options;
 };
 
@@ -797,6 +614,7 @@ Function to create temperature chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint Humidity Ranges & Averages', [['Temp Range', 'columnrange'],['Average Temp','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity Avg', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
         options.series[2].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
@@ -807,12 +625,14 @@ Function to create temperature chart
         options.yAxis[1].labels = {x: 16, y: 4};
     }
     else if (span[0] == "weekly"){        
+        options = create_chart_options(options, 'spline', 'Temperature Dewpoint Humidity', [['Temperature', 'spline'],['Dewpoint','spline'],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp).data;
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
         options.series[2].data = seriesData[0].humidityplot.series.outHumidity.data;
-
     }
+    options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis[0].title.text = "(" + units.temp + ")";
@@ -823,21 +643,36 @@ Function to create temperature chart
     return options;
 };
 
-function post_create_small_chart(chart, height){
+function create_tempderived_chart(options, span, seriesData, units){
 /*****************************************************************************
 
-Function to update chart after creation
+Function to create temperature chart
 
 *****************************************************************************/
-    chart.update({
-        exporting: { enabled: false },
-        rangeSelector: {enabled: false},
-        navigator: {enabled: false},
-        scrollbar: {enabled: false},
-        legend:{ enabled:false },
-        title: {text: ''},
-        credits:{ enabled:false }    
-    });
+    if (span[0] == "yearly"){
+        options = create_chart_options(options, 'columnrange', 'Windchill Heatindex Apparent Ranges & Averages', [['Windchill Range', 'columnrange'],['Average Windchill','spline'],['Heatindex Range', 'columnrange'],['Average Heatindex','spline'],['Apparent Range', 'columnrange',, false,false],['Apparent Avg', 'spline',, false,false]]);
+        options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillminmax);
+        options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillaverage);
+        options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexminmax);
+        options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexaverage)
+        //options.series[4].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempminmax);
+        //options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempaverage);
+        options.yAxis[0].height = "150";
+    }
+    else if (span[0] == "weekly"){        
+        options = create_chart_options(options, 'spline', 'Windchill HeatIndex Apparent', [['Windchill', 'spline'],['Heatindex','spline'],['Apparent', 'spline',,false,false]]);
+        options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill).data;
+        options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
+        //options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
+    }
+    options.tooltip.valueDecimals = 1;
+    options.tooltip.valueSuffix = units.temp;
+    options.xAxis.minTickInterval = 900000;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[0].tickInterval = 10;
+    return options;
 };
 
 function setDewpoint(obj) {
@@ -850,7 +685,6 @@ Function to add/set various plot options specific to dewpoint spline plots
     obj.title = {
         text: getTranslation('Dewpoint')
     };
-    obj.xAxis.minTickInterval = 900000;
     return obj
 };
 
@@ -872,7 +706,6 @@ spline dewpoint plots
         type: 'spline',
         visible: true
     }];
-    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -891,8 +724,10 @@ Function to create dewpoint chart
     }
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
+    options.tooltip.valueDecimals = 1;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
+    options.xAxis.minTickInterval = 900000;
     return options;
 }
 
@@ -1370,8 +1205,7 @@ Function to post create for wind rose chart
             categories: categories 
         },
         navigator: {enabled: false},
-        scrollbar: {enabled: false},
-        credits:{ enabled:false },
+        scrollbar: {enabled: false}
     });
 };
 
