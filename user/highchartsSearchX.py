@@ -539,11 +539,16 @@ class highchartsYear(SearchList):
 
          # Get our outTemp vectors
         (outTemp_time_vt, outTemp_dict) = getDaySummaryVectors(db_lookup(), 'outTemp', _timespan, ['min', 'max', 'avg'])
+        (inTemp_time_vt, inTemp_dict) = getDaySummaryVectors(db_lookup(), 'inTemp', _timespan, ['min', 'max', 'avg'])
         # Get our vector ValueTuple out of the dictionary and convert it
         outTempMin_vt = self.generator.converter.convert(outTemp_dict['min'])
         outTempMax_vt = self.generator.converter.convert(outTemp_dict['max'])
         outTempAvg_vt = self.generator.converter.convert(outTemp_dict['avg'])
 
+        inTempMin_vt = self.generator.converter.convert(inTemp_dict['min'])
+        inTempMax_vt = self.generator.converter.convert(inTemp_dict['max'])
+        inTempAvg_vt = self.generator.converter.convert(inTemp_dict['avg'])
+        
          # Get our dewpoint vectors
         (dewpoint_time_vt, dewpoint_dict) = getDaySummaryVectors(db_lookup(), 'dewpoint', _timespan, ['min', 'max', 'avg'])
         # Get our vector ValueTuple out of the dictionary and convert it
@@ -592,10 +597,8 @@ class highchartsYear(SearchList):
         heatindexMin_vt = self.generator.converter.convert(heatindex_dict['min'])
         heatindexMax_vt = self.generator.converter.convert(heatindex_dict['max'])
         # Get our humidity vectors
-        (outHumidity_time_vt, outHumidity_dict) = getDaySummaryVectors(db_lookup(),
-                                                                       'outHumidity',
-                                                                       _timespan,
-                                                                       ['min', 'max', 'avg'])
+        (outHumidity_time_vt, outHumidity_dict) = getDaySummaryVectors(db_lookup(),'outHumidity',_timespan,['min', 'max', 'avg'])
+        (inHumidity_time_vt, inHumidity_dict) = getDaySummaryVectors(db_lookup(),'inHumidity',_timespan,['min', 'max', 'avg'])
 
         # Get our barometer vectors
         (barometer_time_vt, barometer_dict) = getDaySummaryVectors(db_lookup(),
@@ -654,6 +657,7 @@ class highchartsYear(SearchList):
         # Get no of decimal places to use when formatting results
         tempPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(outTempMin_vt[1], "1f")[-2])
         outHumidityPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_dict['min'][1], "1f")[-2])
+        inHumidityPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(inHumidity_dict['min'][1], "1f")[-2])
         barometerPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(barometerMin_vt[1], "1f")[-2])
         windPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(windMax_vt[1], "1f")[-2])
         windSpeedPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(windSpeedMax_vt[1], "1f")[-2])
@@ -669,6 +673,9 @@ class highchartsYear(SearchList):
         outTempMinRound = [roundNone(x,tempPlaces) for x in outTempMin_vt[0]]
         outTempMaxRound = [roundNone(x,tempPlaces) for x in outTempMax_vt[0]]
         outTempAvgRound = [roundNone(x,tempPlaces) for x in outTempAvg_vt[0]]
+        inTempMinRound = [roundNone(x,tempPlaces) for x in inTempMin_vt[0]]
+        inTempMaxRound = [roundNone(x,tempPlaces) for x in inTempMax_vt[0]]
+        inTempAvgRound = [roundNone(x,tempPlaces) for x in inTempAvg_vt[0]]
         # round our appTemp values, if we don't have any then set it to None
         try:
             appTempMinRound = [roundNone(x,tempPlaces) for x in appTempMin_vt[0]]
@@ -690,6 +697,9 @@ class highchartsYear(SearchList):
         outHumidityMinRound = [roundNone(x,outHumidityPlaces) for x in outHumidity_dict['min'][0]]
         outHumidityMaxRound = [roundNone(x,outHumidityPlaces) for x in outHumidity_dict['max'][0]]
         outHumidityAvgRound = [roundNone(x,outHumidityPlaces) for x in outHumidity_dict['avg'][0]]
+        inHumidityMinRound = [roundNone(x,inHumidityPlaces) for x in inHumidity_dict['min'][0]]
+        inHumidityMaxRound = [roundNone(x,inHumidityPlaces) for x in inHumidity_dict['max'][0]]
+        inHumidityAvgRound = [roundNone(x,inHumidityPlaces) for x in inHumidity_dict['avg'][0]]
         barometerMinRound = [roundNone(x,tempPlaces) for x in barometerMin_vt[0]]
         barometerMaxRound = [roundNone(x,tempPlaces) for x in barometerMax_vt[0]]
         barometerAvgRound = [roundNone(x,tempPlaces) for x in barometerAvg_vt[0]]
@@ -711,6 +721,10 @@ class highchartsYear(SearchList):
         outTempMin_json = json.dumps(zip(time_ms, outTempMinRound))
         outTempMax_json = json.dumps(zip(time_ms, outTempMaxRound))
         outTempAvg_json = json.dumps(zip(time_ms, outTempAvgRound))
+        inTempMinMax_json = json.dumps(zip(time_ms, inTempMinRound, inTempMaxRound))
+        inTempMin_json = json.dumps(zip(time_ms, inTempMinRound))
+        inTempMax_json = json.dumps(zip(time_ms, inTempMaxRound))
+        inTempAvg_json = json.dumps(zip(time_ms, inTempAvgRound))
         # appTemp. If we don't have any source data then set our JSON string to
         # None
         if appTempMinRound is not None and appTempMaxRound is not None:
@@ -745,6 +759,10 @@ class highchartsYear(SearchList):
         outHumidityMin_json = json.dumps(zip(time_ms, outHumidityMinRound))
         outHumidityMax_json = json.dumps(zip(time_ms, outHumidityMaxRound))
         outHumidityAvg_json = json.dumps(zip(time_ms, outHumidityAvgRound))
+        inHumidityMinMax_json = json.dumps(zip(time_ms, inHumidityMinRound, inHumidityMaxRound))
+        inHumidityMin_json = json.dumps(zip(time_ms, inHumidityMinRound))
+        inHumidityMax_json = json.dumps(zip(time_ms, inHumidityMaxRound))
+        inHumidityAvg_json = json.dumps(zip(time_ms, inHumidityAvgRound))
         barometerMinMax_json = json.dumps(zip(time_ms, barometerMinRound, barometerMaxRound))
         barometerMin_json = json.dumps(zip(time_ms, barometerMinRound))
         barometerMax_json = json.dumps(zip(time_ms, barometerMaxRound))
@@ -763,6 +781,8 @@ class highchartsYear(SearchList):
         # Put into a dictionary to return
         search_list_extension = {'outTempMinMax_json' : outTempMinMax_json,
                                  'outTempAvg_json' : outTempAvg_json,
+                                 'inTempMinMax_json' : inTempMinMax_json,
+                                 'inTempAvg_json' : inTempAvg_json,
                                  'appTempMinMax_json' : appTempMinMax_json,
                                  'appTempMin_json' : appTempMin_json,
                                  'appTempMax_json' : appTempMax_json,
@@ -777,6 +797,10 @@ class highchartsYear(SearchList):
                                  'outHumidityMin_json' : outHumidityMin_json,
                                  'outHumidityMax_json' : outHumidityMax_json,
                                  'outHumidityAvg_json' : outHumidityAvg_json,
+                                 'inHumidityMinMax_json' : inHumidityMinMax_json,
+                                 'inHumidityMin_json' : inHumidityMin_json,
+                                 'inHumidityMax_json' : inHumidityMax_json,
+                                 'inHumidityAvg_json' : inHumidityAvg_json,
                                  'barometerMinMax_json' : barometerMinMax_json,
                                  'barometerMin_json' : barometerMin_json,
                                  'barometerMax_json' : barometerMax_json,
