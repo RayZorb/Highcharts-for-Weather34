@@ -33,7 +33,7 @@ var createweeklyfunctions = {
     indoorplot: [addWeekOptions, create_indoor_chart],
     tempallplot: [addWeekOptions, create_tempall_chart],
     tempderivedplot: [addWeekOptions, create_tempderived_chart],
-    humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
+    humidityplot: [addWeekOptions, create_humidity_chart],
     barometerplot: [addWeekOptions, setBarometer, create_barometer_chart],
     dewpointplot: [addWeekOptions, create_dewpoint_chart],
     winddirplot: [addWeekOptions, setWindDir, create_winddir_chart],
@@ -50,7 +50,7 @@ var createyearlyfunctions = {
     tempsmallplot: [addYearOptions, setTempSmall, create_temperature_chart],
     tempallplot: [addYearOptions, create_tempall_chart],
     tempderivedplot: [addYearOptions, create_tempderived_chart],
-    humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
+    humidityplot: [addYearOptions, create_humidity_chart],
     barometerplot: [addYearOptions, setBarometer, setBarometerStock, create_barometer_chart],
     barsmallplot: [addYearOptions, setBarometer, setBarSmall, create_barometer_chart],
     dewpointplot: [addYearOptions, create_dewpoint_chart],
@@ -83,6 +83,7 @@ var jsonfileforplot={
     tempallplot: [['temp_week.json'],['year.json']],
     tempderivedplot: [['indoor_derived_week.json'],['year.json']],
     dewpointplot: [['temp_week.json'],['year.json']],
+    humidityplot: [['temp_week.json'],['year.json']],
     barometerplot: [['bar_rain_week.json'],['year.json']],
     barsmallplot: [['bar_rain_week.json'],['year.json']],
     windplot: [['wind_week.json'],['year.json']],
@@ -676,7 +677,6 @@ Function to create dewpoint chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Dewpoint Ranges & Averages', [['Dewpoint Range', 'columnrange'],['Average Dewpoint','spline']]);
         options.series[0].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
         options.series[1].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
     }
@@ -693,47 +693,6 @@ Function to create dewpoint chart
     return options;
 }
 
-function setHumidity(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to humidity spline plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.title = {
-        text: getTranslation('Humidity')
-    };
-    obj.tooltip.valueSuffix = '%';
-    obj.xAxis.minTickInterval = 900000;
-    obj.yAxis.max = 100;
-    obj.yAxis.min = 0;
-    obj.yAxis[0].minorTickInterval = 5;
-    obj.yAxis[0].tickInterval = 25;
-    return obj
-};
-
-function setHumidityStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-humidity spline plots
-
-*****************************************************************************/
-    obj = setHumidity(obj);
-    obj.chart.type = 'columnrange';
-    obj.series = [{
-        name: getTranslation('Humidity Range'),
-        type: 'columnrange',
-        visible: true
-    }, {
-        name: getTranslation('Average Humidity'),
-        type: 'spline',
-        visible: true
-    }];
-    obj.tooltip.valueDecimals = 1;
-    return obj
-};
-
 function create_humidity_chart(options, span, seriesData, units){
 /*****************************************************************************
 
@@ -741,12 +700,21 @@ Function to create humidity chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'columnrange', 'Humidity Ranges & Averages', [['Humidity Range', 'columnrange',,,,{valueSuffix: '%'}],['Average Humidity','spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = seriesData[0].humidityplot.outHumidityminmax;
         options.series[1].data = seriesData[0].humidityplot.outHumidityaverage;
     }
-    else if (span[0] == "weekly")
-        options.series[0] = seriesData[0].humidityplot.series.outHumidity;
+    else if (span[0] == "weekly"){
+        options = create_chart_options(options, 'spline', 'Humidity', [['Humidity', 'spline',,,,{valueSuffix: '%'}]]);
+        options.series[0].data = seriesData[0].humidityplot.series.outHumidity.data;
+    }
+    options.tooltip.valueDecimals = 1;
+    options.yAxis.min = 0;
+    options.yAxis.max = 100;
+    options.yAxis[0].minorTickInterval = 5;
+    options.yAxis[0].tickInterval = 25;
     options.yAxis[0].title.text = "(" + seriesData[0].humidityplot.units + ")";
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
