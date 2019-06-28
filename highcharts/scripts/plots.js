@@ -30,7 +30,7 @@ History
 *****************************************************************************/
 var createweeklyfunctions = {
     temperatureplot: [addWeekOptions, setTemp, create_temperature_chart],
-    indoorplot: [addWeekOptions, setTemp, create_indoor_chart],
+    indoorplot: [addWeekOptions, setTempIndoor, create_indoor_chart],
     tempallplot: [addWeekOptions, setTempAll, create_tempall_chart],
     tempderivedplot: [addWeekOptions, setTempDerived, create_tempderived_chart],
     humidityplot: [addWeekOptions, setHumidity, create_humidity_chart],
@@ -47,8 +47,9 @@ var createweeklyfunctions = {
 };
 
 var createyearlyfunctions = {
-    temperatureplot: [addYearOptions, setTemp, setTempStock,create_temperature_chart],
-    tempsmallplot: [addYearOptions, setTemp, setTempSmall,create_temperature_chart],
+    temperatureplot: [addYearOptions, setTempStock,create_temperature_chart],
+    indoorplot: [addYearOptions, setTempIndoor, create_indoor_chart],
+    tempsmallplot: [addYearOptions, setTempSmall, create_temperature_chart],
     tempallplot: [addYearOptions, setTempAll, create_tempall_chart],
     tempderivedplot: [addYearOptions, setTempDerived, create_tempderived_chart],
     humidityplot: [addYearOptions, setHumidityStock, create_humidity_chart],
@@ -513,14 +514,14 @@ Function to add/set various plot options specific to temperature spline plots
     obj.series = [{
         name: getTranslation('Temperature'),
         type: 'spline',
-        visible: true
     }, {
-        yAxis:1,
-        name: getTranslation('Humidity'),
-        tooltip: {valueSuffix: '%'},
-        showInLegend: false,
+        name: getTranslation('Dewpoint'),
         type: 'spline',
-        visible: false
+    }, {
+        name: getTranslation('Feels'),
+        type: 'spline',
+        visible: false,
+        showInLegend: false,
     }];
     obj.title = {text: getTranslation('Temperature Dewpoint')};
     obj.xAxis.minTickInterval = 900000;
@@ -540,12 +541,18 @@ spline temperature plots
     obj.series = [{
         name: getTranslation('Temperature Range'),
         type: 'columnrange',
-        visible: true
     }, {
         name: getTranslation('Average Temperature'),
         type: 'spline',
-        visible: true
+    }, {
+        name: getTranslation('Dewpoint Range'),
+        type: 'columnrange',
+    }, {
+        name: getTranslation('Average Dewpoint'),
+        type: 'spline',
     }];
+    obj.xAxis.minTickInterval = 900000;
+    obj.tooltip.valueDecimals = 1;
     obj.yAxis[0].height = "110";
     $("#plot_div").css("height", 140);
     return obj
@@ -562,12 +569,53 @@ spline temperature plots
     obj.series = [{
         name: getTranslation('Temperature Range'),
         type: 'columnrange',
-        visible: true
     }, {
         name: getTranslation('Average Temperature'),
         type: 'spline',
-        visible: true
+    }, {
+        name: getTranslation('Dewpoint Range'),
+        type: 'columnrange',
+    }, {
+        name: getTranslation('Average Dewpoint'),
+        type: 'spline',
     }];
+    obj.title = {text: getTranslation('Temperature Dewpoint')};
+    return obj
+};
+
+function setTempIndoor(obj, span, seriesData, units) {
+/*****************************************************************************
+
+Function to add/set various plot options specific to temperature spline plots
+
+*****************************************************************************/
+    obj.chart.type = (span == 'yearly' ? 'columnrange' : 'spline');
+    obj.series = [{
+        name: getTranslation((span == 'yearly' ? 'Temperature Range' : 'Temperature')),
+        type: (span == 'yearly' ? 'columnrange' : 'spline'),
+    }, {
+        yAxis: (span == 'yearly' ? 0 : 1),
+        name: getTranslation((span == 'yearly' ? 'Temperature Average' : 'Humidity')),
+        tooltip: {valueSuffix: (span == 'yearly' ? units.temp : '%')},
+        type: 'spline',
+    }, {
+        yAxis: 1,
+        name: getTranslation((span == 'yearly' ? 'Humidity Range' : 'Humidity')),
+        type: (span == 'yearly' ? 'columnrange' : 'spline'),
+        tooltip: {valueSuffix: '%'},
+        showInLegend: (span == 'yearly' ? true : false),
+        visible: (span == 'yearly' ? true : false),
+    }, {
+        yAxis:1,
+        type: 'spline',
+        name: getTranslation('Humidity Average'),
+        tooltip: {valueSuffix: '%'},
+        showInLegend: (span == 'yearly' ? true : false),
+        visible: (span == 'yearly' ? true : false),
+    }];
+    obj.title = {text: getTranslation('Greenhouse Temperature Humidity')};
+    obj.xAxis.minTickInterval = 900000;
+    obj.tooltip.valueDecimals = 1;
     return obj
 };
 
@@ -580,12 +628,16 @@ Function to create temperature chart
     if (span[0] == "yearly"){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
+        options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
+        options.series[3].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
     }
     else if (span[0] == "weekly"){        
-        options.series[0] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp);
-        options.series[1] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint);
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp).data;
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
         if ("appTemp" in seriesData[0].temperatureplot.series) {
-           options.series[2] = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp);
+           options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
+           options.series[2].visible = true;
+           options.series[2].showInLegend = true;
         }
     }
     options.yAxis[0].title.text = "(" + units.temp + ")";
@@ -605,17 +657,14 @@ Function to create indoor temperature chart
 *****************************************************************************/
     if (span[0] == "yearly"){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempminmax);
-        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempaverage);
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempaverage)
         options.series[2].data = seriesData[0].humidityplot.inHumidityminmax;
         options.series[3].data = seriesData[0].humidityplot.inHumidityaverage;
     }
     else if (span[0] == "weekly"){        
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.inTemp).data;
-        options.series[1].visible = true;
-        options.series[1].showInLegend = true;
         options.series[1].data = seriesData[0].humidityplot.series.inHumidity.data;
     }
-    options.title = {text: getTranslation('Greenhouse Temperature Humidity')};
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.yAxis[1].title.text = "(%)";
     options.yAxis[0].title.rotation = 0;
