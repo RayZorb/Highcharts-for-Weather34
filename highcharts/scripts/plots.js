@@ -34,7 +34,7 @@ var createweeklyfunctions = {
     tempallplot: [addWeekOptions, create_tempall_chart],
     tempderivedplot: [addWeekOptions, create_tempderived_chart],
     humidityplot: [addWeekOptions, create_humidity_chart],
-    barometerplot: [addWeekOptions, setBarometer, create_barometer_chart],
+    barometerplot: [addWeekOptions, create_barometer_chart],
     dewpointplot: [addWeekOptions, create_dewpoint_chart],
     winddirplot: [addWeekOptions, setWindDir, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
@@ -51,8 +51,8 @@ var createyearlyfunctions = {
     tempallplot: [addYearOptions, create_tempall_chart],
     tempderivedplot: [addYearOptions, create_tempderived_chart],
     humidityplot: [addYearOptions, create_humidity_chart],
-    barometerplot: [addYearOptions, setBarometer, setBarometerStock, create_barometer_chart],
-    barsmallplot: [addYearOptions, setBarometer, setBarSmall, create_barometer_chart],
+    barometerplot: [addYearOptions, create_barometer_chart],
+    barsmallplot: [addYearOptions, setBarSmall, create_barometer_chart],
     dewpointplot: [addYearOptions, create_dewpoint_chart],
     windsmallplot: [addYearOptions, setWind, setWindSmall, create_wind_chart],
     winddirplot: [addYearOptions, setWindDirStock, create_winddir_chart],
@@ -677,6 +677,7 @@ Function to create dewpoint chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'columnrange', 'Dewpoint Ranges & Averages', [['Dewpoint Range', 'columnrange'],['Dewpoint','spline']]);
         options.series[0].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
         options.series[1].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
     }
@@ -720,42 +721,6 @@ Function to create humidity chart
     return options;
 }
 
-function setBarometer(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to barometric pressure
-spline plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.title = {
-        text: getTranslation('Barometer')
-    };
-    obj.xAxis.minTickInterval = 900000;
-    obj.tooltip.valueDecimals = 1;
-    return obj
-};
-
-function setBarometerStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline barometric pressure plots
-
-*****************************************************************************/
-    obj.chart.type = 'columnrange';
-    obj.series = [{
-        name: getTranslation('Barometeric Pressure Range'),
-        type: 'columnrange',
-        visible: true
-    }, {
-        name: getTranslation('Average Barometric Pressure'),
-        type: 'spline',
-        visible: true
-    }];
-    return obj
-};
-
 function setBarSmall(obj) {
 /*****************************************************************************
 
@@ -763,16 +728,6 @@ Function to do small barometer chart
 
 *****************************************************************************/
     obj.chart.marginBottom = 20;
-    obj.chart.type = 'columnrange';
-    obj.series = [{
-        name: getTranslation('Barometeric Pressure Range'),
-        type: 'columnrange',
-        visible: true
-    }, {
-        name: getTranslation('Average Barometric Pressure'),
-        type: 'spline',
-        visible: true
-    }];
     obj.yAxis[0].height = "160";
     $("#plot_div").css("height", 190);
     return obj
@@ -785,13 +740,18 @@ Function to create barometer chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'columnrange', 'Barometer Ranges & Averages', [['Barometer Range', 'columnrange'],['Average Barometer','spline']]);
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
         options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
     }
-    else if (span[0] == "weekly")
-        options.series[0] = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer);
+    else if (span[0] == "weekly"){
+        options = create_chart_options(options, 'spline', 'Barometer', [['Barometer', 'spline']]);
+        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer).data;
+    }
+    options.tooltip.valueDecimals = 1;
     options.yAxis[0].title.text = "(" + units.pressure + ")";
     options.tooltip.valueSuffix = units.pressure;
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options
