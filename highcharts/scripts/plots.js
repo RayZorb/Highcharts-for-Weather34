@@ -39,7 +39,7 @@ var createweeklyfunctions = {
     windplot: [addWeekOptions, create_wind_chart],
     winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
-    rainplot: [addWeekOptions, setRain, create_rain_chart],
+    rainplot: [addWeekOptions, create_rain_chart],
     radiationplot: [addWeekOptions, setRadiation, create_radiation_chart],
     raduvplot: [addWeekOptions, setRadUv, create_raduv_chart],
     uvplot: [addWeekOptions, setUv, setUvStock, create_uv_chart]
@@ -59,8 +59,8 @@ var createyearlyfunctions = {
     winddirplot: [addYearOptions, create_winddir_chart],
     windplot: [addYearOptions, create_wind_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
-    rainplot: [addYearOptions, setRain, setRainStock, create_rain_chart],
-    rainsmallplot: [addYearOptions, setRain, setRainSmall, create_rain_chart],
+    rainplot: [addYearOptions, create_rain_chart],
+    rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
     radiationplot: [addYearOptions, setRadiation, setRadiationStock, create_radiation_chart],
     raduvplot: [addYearOptions, setRadUv, create_raduv_chart],
     radsmallplot: [addYearOptions, setRadiation, setRadSmall, create_radiation_chart],
@@ -945,83 +945,16 @@ Function to post create for wind rose chart
     });
 };
 
-function setRain(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to rainfall plots
-
-*****************************************************************************/
-    obj.chart.type = 'column';
-    obj.plotOptions.column.dataGrouping.enabled = true;
-    obj.title = {
-        text: getTranslation('Rainfall')
-    };
-    obj.xAxis.minTickInterval = 900000;
-    obj.yAxis[0].min = 0;
-    obj.plotOptions.column.marker = {
-        enabled: false,
-    };
-    obj.plotOptions.series.pointPadding = 0;
-    obj.plotOptions.series.groupPadding = 0;
-    obj.plotOptions.series.borderWidth = 0;
-    obj.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>';
-    obj.tooltip.pointFormat = '<tr><td><span style="color: {series.color}">{series.name}</span>: </td>' + '<td style="text-align: right"><b>{point.y}</b></td></tr>';
-    obj.tooltip.crosshairs = false;
-    obj.tooltip.xDateFormat = '%e %B %Y hour to %H:%M';
-    return obj
-};
-
-function setRainStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline rainfall plots
-
-*****************************************************************************/
-    obj.navigator = {
-        enabled: true
-    };
-    obj.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = [
-        '%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'
-    ];
-    obj.plotOptions.column.dataGrouping.enabled = true;
-    obj.plotOptions.column.dataGrouping.groupPixelWidth = 50;
-    obj.series = [{
-        name: getTranslation('Rainfall'),
-        type: 'column',
-    }];
-    obj.title = {
-        text: getTranslation('Rainfall')
-    };
-    obj.tooltip.valueDecimals = 1;
-    obj.tooltip.xDateFormat = '%e %B %Y';
-
-    obj.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>';
-    obj.tooltip.pointFormat = '<span style="color: {series.color}">●</span> {series.name}: <b>{point.y}</b>'
-    obj.tooltip.crosshairs = false;
-    obj.yAxis[0].allowDecimals = true;
-    obj.yAxis[0].labels = {
-        format: '{value:.0f}',
-    };
-    return obj
-};
-
-function setRainSmall(obj) {
+function setRainSmall(options) {
 /*****************************************************************************
 
 Function to add small rain chart
 
 *****************************************************************************/
-    obj.chart.marginBottom = 20;
-    obj.chart.type = 'column';
-    obj.series = [{
-        name: getTranslation('Rainfall'),
-        type: 'column',
-        visible: true
-    }];
-    obj.yAxis[0].height = "170";
+    options.chart.marginBottom = 20;
+    options.yAxis[0].height = "170";
     $("#plot_div").css("height", 200);
-    return obj
+    return options;
 };
 
 function create_rain_chart(options, span, seriesData, units){
@@ -1030,17 +963,36 @@ function create_rain_chart(options, span, seriesData, units){
 Function to create rain chart
 
 *****************************************************************************/
-    if (span[0] == "yearly")
+    if (span[0] == "yearly"){
+        options = create_chart_options(options, 'column', 'Rainfall', [['Rainfall', 'column']]);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rainsum);
-    if (span[0] == "weekly")
-        options.series[0] = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain);
-    options.yAxis[0].title.text = "(" + units.rain + ")";
+        options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
+        options.tooltip.xDateFormat = '%e %B %Y';
+    }
+    if (span[0] == "weekly"){
+        options = create_chart_options(options, 'column', 'Rainfall', [['Rainfall', 'column']]);
+        options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain).data;
+        options.tooltip.xDateFormat = '%e %B %Y hour to %H:%M';
+    }
+    options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
+    options.plotOptions.column.dataGrouping.enabled = true;
+    options.plotOptions.column.marker = {enabled: false,};
+    options.plotOptions.series.pointPadding = 0;
+    options.plotOptions.series.groupPadding = 0;
+    options.plotOptions.series.borderWidth = 0;
+    options.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>';
+    options.tooltip.pointFormat = '<tr><td><span style="color: {series.color}">{series.name}</span>: </td>' + '<td style="text-align: right"><b>{point.y}</b></td></tr>';
+    options.tooltip.crosshairs = false;
     options.tooltip.valueSuffix = units.rain;
+    options.tooltip.valueDecimals = 1;
+    options.yAxis[0].title.text = "(" + units.rain + ")";
     options.yAxis[0].min = 0;
+    options.yAxis[0].tickInterval = 1;
+    options.yAxis[0].allowDecimals = true;
+    options.yAxis[0].labels = { format: '{value:.0f}'};
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.title.text = getTranslation('Rainfall');
-    options.yAxis[0].tickInterval = 1;
+    options.xAxis.minTickInterval = 900000;
     return options;
 }
 
