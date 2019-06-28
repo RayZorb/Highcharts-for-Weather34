@@ -40,7 +40,7 @@ var createweeklyfunctions = {
     winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addWeekOptions, create_rain_chart],
-    radiationplot: [addWeekOptions, setRadiation, create_radiation_chart],
+    radiationplot: [addWeekOptions, create_radiation_chart],
     raduvplot: [addWeekOptions, setRadUv, create_raduv_chart],
     uvplot: [addWeekOptions, setUv, setUvStock, create_uv_chart]
 };
@@ -61,9 +61,9 @@ var createyearlyfunctions = {
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addYearOptions, create_rain_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
-    radiationplot: [addYearOptions, setRadiation, setRadiationStock, create_radiation_chart],
+    radiationplot: [addYearOptions, create_radiation_chart],
     raduvplot: [addYearOptions, setRadUv, create_raduv_chart],
-    radsmallplot: [addYearOptions, setRadiation, setRadSmall, create_radiation_chart],
+    radsmallplot: [addYearOptions, setRadSmall, create_radiation_chart],
     uvplot: [addYearOptions, setUv, setUvStock, create_uv_chart],
     uvsmallplot: [addYearOptions, setUv, setUvSmall, create_uv_chart]
 };
@@ -996,82 +996,15 @@ Function to create rain chart
     return options;
 }
 
-function setRadiation(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to solar radiation spline
-plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.title = {
-        text: getTranslation('Solar Radiation')
-    };
-    obj.xAxis.minTickInterval = 900000;
-    obj.yAxis[0].min = 0;
-    obj.tooltip.formatter = function() {
-        var order = [], i, j, temp = [],
-            points = this.points;
-
-        for(i=0; i<points.length; i++)
-        {
-            j=0;
-            if( order.length )
-            {
-                while( points[order[j]] && points[order[j]].y > points[i].y )
-                    j++;
-            }
-            temp = order.splice(0, j);
-            temp.push(i);
-            order = temp.concat(order);
-        }
-        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
-        $(order).each(function(i,j){
-            temp += '<span style="color: '+points[j].series.color+'">' +
-                points[j].series.name + ': ' + points[j].y + 'W/m\u00B2</span><br/>';
-        });
-        return temp;
-    };
-    return obj
-};
-
-function setRadiationStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline solar radiation plots
-
-*****************************************************************************/
-    obj.chart.type = 'column';
-    obj.series = [{
-        name: getTranslation('Maximum Solar Radiation'),
-        type: 'column',
-    }, {
-        name: getTranslation('Average Solar Radiation'),
-        type: 'spline',
-    }];
-    obj.tooltip.valueSuffix = 'W/m\u00B2';
-    return obj
-};
-
-function setRadSmall(obj) {
+function setRadSmall(options) {
 /*****************************************************************************
 
 Function to add small radition chart
 
 *****************************************************************************/
-    obj.chart.type = 'column';
-    obj.series = [{
-        name: getTranslation('Maximum Solar Radiation'),
-        type: 'column',
-    }, {
-        name: getTranslation('Average Solar Radiation'),
-        type: 'spline',
-    }];
-    obj.tooltip.valueSuffix = 'W/m\u00B2';
-    obj.yAxis[0].height = "160";
+    options.yAxis[0].height = "160";
     $("#plot_div").css("height", 190);
-    return obj
+    return options;
 };
 
 function create_radiation_chart(options, span, seriesData, units){
@@ -1081,17 +1014,44 @@ Function to create radiation chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'column', 'Max Solar Radiation', [['Max Solar Radiation', 'column'], ["Average Solar Radiation", 'spline']]);
         options.series[0].data = seriesData[0].radiationplot.radiationmax;
         options.series[1].data = seriesData[0].radiationplot.radiationaverage;
     }
     else if (span[0] == "weekly"){
-        options.series[0] = seriesData[0].radiationplot.series.radiation;
+        options = create_chart_options(options, 'spline', 'Solar Radiation', [['Solar Radiation', 'spline'], ["Insolation", 'area',,false,false]]);
+        options.series[0].data = seriesData[0].radiationplot.series.radiation.data;
         if ("insolation" in seriesData[0].radiationplot.series) {
             options.series[1] = seriesData[0].radiationplot.series.insolation;
             options.series[1].type = 'area';
+            options.series[1].visible = true;
+            options.series[1].showInLegend = true;
         }
-    }    
+    } 
+    options.tooltip.formatter = function() {
+        var order = [], i, j, temp = [],
+            points = this.points;
+
+        for(i=0; i<points.length; i++){
+            j=0;
+            if( order.length ){
+                while( points[order[j]] && points[order[j]].y > points[i].y )
+                    j++;
+            }
+            temp = order.splice(0, j);
+            temp.push(i);
+            order = temp.concat(order);
+        }
+        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
+        $(order).each(function(i,j){
+            temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + points[j].y + 'W/m\u00B2</span><br/>';
+        });
+        return temp;
+    };   
+    options.tooltip.valueSuffix = 'W/m\u00B2';
+    options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -1257,15 +1217,14 @@ Function to create uv chart
         options.series[0].data = seriesData[0].uvplot.uvmax;
         options.series[1].data = seriesData[0].uvplot.uvaverage;
     }
-    else if (span[0] == "weekly")
+    else if (span[0] == "weekly"){
         options.series[0] = seriesData[0].uvplot.series.uv;
+    }
     options.yAxis[0].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     Highcharts.setOptions({
-        global: {
-            timezoneOffset: -seriesData[0].utcoffset,
-        },
+        global: { timezoneOffset: -seriesData[0].utcoffset,}
     });
     return options;
 }
