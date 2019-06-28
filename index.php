@@ -193,9 +193,10 @@ if ('serviceWorker' in navigator) {
   <span class="yearpopup"> <a alt="Indoor Guide" title="Indoor Guide" href="homeindoor.php" data-lity>'. $chartinfo. ' Indoor Guide </a></span>
   <span class="yearpopup"> <a alt="Moon Info" title="Moon Info" href="mooninfo.php" data-lity>'. $chartinfo. ' Moon Info </a></span>';}
 if ($position12=='airqualitymodule.php') {echo ' <span class="yearpopup"><a alt="air quality information" title="air quality information" href="purpleair.php" data-lity>'. $chartinfo. " Air Quality | Cloudbase </a></span>";}
-if ($position12=='weather34uvsolar.php') {echo ' <span class="yearpopup"><a alt="UV Guide" title="UV Guide" href="uvindex.php" data-lity>'. $chartinfo. " UV Info  </a></span>";} 
-if ($position12=='weather34uvsolar.php') {echo '<span class="yearpopup"> <a alt="Solar Alamanac" title="Solar Alamanac" href="solaralmanac.php" data-lity>'. $chartinfo. " Almanac Solar </a></span>";}
-if ($position12=='weather34uvsolar.php') {echo ' <span class="yearpopup"><a alt="UV Alamanac" title="UV Alamanac" href="uvalmanac.php" data-lity>'&nbsp;"| UV </a></span>";}
+if ($position12=='weather34uvsolar.php') {echo ' <span class="yearpopup"><a alt="UV Guide" title="UV Guide" href="uvindexwu.php" data-lity>'. $chartinfo. " UV Info </a></span>";}
+if ($position12=='weather34uvsolar.php') {echo '<span class="yearpopup"> <a alt="Solar Alamanac" title="Solar Alamanac" href="solaralmanac.php" data-lity>'. $chartinfo. " Alamanac Solar </a></span>";}
+if ($position12=='weather34uvsolar.php') {echo ' <span class="yearpopup"><a alt="UV Alamanac" title="UV Alamanac" href="uvalmanac.php" data-lity>&nbsp;'. $chartinfo. " | UV </a></span>";}
+
 
 
 
