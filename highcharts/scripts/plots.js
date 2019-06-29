@@ -348,7 +348,7 @@ var commonOptions = {
         tickWidth: 1,
         title: {
             text: ''
-           }
+        }
     }],
 };
 
@@ -456,7 +456,6 @@ Function to add/set various plot options specific to the 'week' plot.
     return obj
 };
 
-
 function addYearOptions(obj) {
 /*****************************************************************************
 
@@ -526,6 +525,8 @@ function create_chart_options(options, type, title, values){
     if (type == 'columnrange')
         options.tooltip.positioner = function(labelWidth, labelHeight, point){var tooltipX = point.plotX + 20; var tooltipY = point.plotY - 30;return {x: tooltipX,y: tooltipY}};
     options.tooltip.formatter = function() {return custom_tooltip(this)};
+    options.tooltip.valueDecimals = 1;
+    options.xAxis.minTickInterval = 900000;
     options.title = {text: getTranslation(title)};
     for (var i = 0; i < values.length; i++){
         options.series[i] = [];
@@ -584,14 +585,12 @@ Function to create temperature chart
            options.series[2].showInLegend = true;
         }
     }
-    options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.yAxis[0].title.rotation = 0;
-    options.xAxis.minTickInterval = 900000;
+    options.yAxis[0].tickInterval = 10;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis[0].tickInterval = 10;
     return options;
 };
 
@@ -613,14 +612,12 @@ Function to create indoor temperature chart
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.inTemp).data;
         options.series[1].data = seriesData[0].humidityplot.series.inHumidity.data;
     }
-    options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.yAxis[1].title.text = "(%)";
     options.yAxis[0].title.rotation = 0;
     options.yAxis[1].title.rotation = 0;
     options.yAxis[1].opposite = true;
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -649,9 +646,7 @@ Function to create temperature chart
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
         options.series[2].data = seriesData[0].humidityplot.series.outHumidity.data;
     }
-    options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis[0].title.text = "(" + units.temp + ")";
@@ -684,9 +679,7 @@ Function to create temperature chart
         options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
         //options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
     }
-    options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     options.yAxis[0].title.text = "(" + units.temp + ")";
@@ -711,10 +704,8 @@ Function to create dewpoint chart
     }
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
-    options.tooltip.valueDecimals = 1;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.xAxis.minTickInterval = 900000;
     return options;
 }
 
@@ -733,13 +724,11 @@ Function to create humidity chart
         options = create_chart_options(options, 'spline', 'Humidity', [['Humidity', 'spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = seriesData[0].humidityplot.series.outHumidity.data;
     }
-    options.tooltip.valueDecimals = 1;
     options.yAxis.min = 0;
     options.yAxis.max = 100;
     options.yAxis[0].minorTickInterval = 5;
     options.yAxis[0].tickInterval = 25;
     options.yAxis[0].title.text = "(" + seriesData[0].humidityplot.units + ")";
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -772,10 +761,8 @@ Function to create barometer chart
         options = create_chart_options(options, 'spline', 'Barometer', [['Barometer', 'spline']]);
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer).data;
     }
-    options.tooltip.valueDecimals = 1;
     options.yAxis[0].title.text = "(" + units.pressure + ")";
     options.tooltip.valueSuffix = units.pressure;
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -810,12 +797,10 @@ Function to create wind chart
         options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed).data;
         options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust).data;
     }
-    options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.wind;
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + units.wind + ")";
     options.yAxis[0].tickInterval = 10;
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -841,13 +826,11 @@ Function to create wind direction chart
     options.tooltip.pointFormat = '<span style="color: {series.color}">●</span> {series.name}: <b>{point.y}</b>'
     options.tooltip.valueSuffix = '\u00B0'
     options.tooltip.xDateFormat = '%e %B %Y %H:%M';
-    options.tooltip.valueDecimals = 1;
     options.tooltip.xDateFormat = '%e %B %Y';
     options.yAxis[0].min = 0;
     options.yAxis[0].max = 360;
     options.yAxis[0].tickInterval = 90;
     options.yAxis[0].title.text = "(" + units.wind + ")";
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -1003,7 +986,6 @@ Function to create rain chart
     options.plotOptions.series.groupPadding = 0;
     options.plotOptions.series.borderWidth = 0;
     options.tooltip.valueSuffix = units.rain;
-    options.tooltip.valueDecimals = 1;
     options.yAxis[0].title.text = "(" + units.rain + ")";
     options.yAxis[0].min = 0;
     options.yAxis[0].tickInterval = 1;
@@ -1011,7 +993,6 @@ Function to create rain chart
     options.yAxis[0].labels = { format: '{value:.0f}'};
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.xAxis.minTickInterval = 900000;
     return options;
 }
 
@@ -1049,7 +1030,6 @@ Function to create radiation chart
     options.tooltip.valueSuffix = 'W/m\u00B2';
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -1082,7 +1062,6 @@ Function to create radiation chart
     options.yAxis[1].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.yAxis[1].opposite = true;
     options.yAxis[0].min = 0;
-    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -1114,7 +1093,6 @@ Function to create uv chart
         options = create_chart_options(options, 'spline', 'UV Index', [['UV Index', 'spline']]);
         options.series[0].data = seriesData[0].uvplot.series.uv.data;
     }
-    options.tooltip.valueDecimals = 1;
     options.yAxis[0].min = 0;
     options.yAxis[0].max = 20;
     options.yAxis[0].minorTickInterval = 1;
@@ -1122,7 +1100,6 @@ Function to create uv chart
     options.yAxis[0].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.xAxis.minTickInterval = 900000;
     Highcharts.setOptions({ global: { timezoneOffset: -seriesData[0].utcoffset,}});
     return options;
 }
