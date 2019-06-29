@@ -24,12 +24,12 @@
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
-"radiationplot": {"series":
+"radiationplot": {
 #if $insolationWeekjson is not None
-{"radiation": {"name": "Solar Radiation", "data": $radiationWeekjson},
-"insolation": {"name": "Theoretical Max Solar Radiation", "data": $insolationWeekjson}},
+"radiation": $radiationWeekjson,
+"insolation": $insolationWeekjson,
 #else
-{"radiation": {"name": "Solar Radiation", "data": $radiationWeekjson}},
+"radiation": $radiationWeekjson,
 #end if
 "units": "$unit.label.radiation"#slurp
 #if $varExists('$radiation_min_range')
@@ -39,8 +39,8 @@
 },
 #end if
 ##
-"uvplot": {"series":
-{"uv": {"name": "UV Index", "data": $uvWeekjson}},
+"uvplot": {
+"uv": $uvWeekjson,
 "units": "$unit.label.UV"#slurp
 #if $varExists('$UV_min_range')
 , 

@@ -24,8 +24,8 @@
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
-"rainplot": {"series":
-{"rain": {"name": "Rainfall", "data": $rainWeekjson}},
+"rainplot": {
+"rain": $rainWeekjson,
 "units": "$unit.label.rain"#slurp
 #if $varExists('$rain_min_range')
 , 
@@ -34,8 +34,8 @@
 },
 #end if
 ##
-"barometerplot": {"series":
-{"barometer": {"name": "Barometer", "data": $barometerWeekjson}},
+"barometerplot": {
+"barometer": $barometerWeekjson,
 "units": "$unit.label.barometer"#slurp
 #if $varExists('$barometer_min_range')
 , 
