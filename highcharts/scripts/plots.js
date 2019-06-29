@@ -558,7 +558,7 @@ spline temperature plots
     options.chart.marginBottom = 20;
     options.yAxis[0].height = "110";
     $("#plot_div").css("height", 140);
-    return obj
+    return options
 };
 
 function create_temperature_chart(options, span, seriesData, units){
