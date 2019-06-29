@@ -94,11 +94,11 @@ var jsonfileforplot={
     windroseplot: [['wind_week.json'],['year.json']],
     rainplot: [['bar_rain_week.json'],['year.json']],
     rainsmallplot: [['bar_rain_week.json'],['year.json']],
-    radiationplot: [['solar_test.json'],['solar_year.json']],
-    raduvplot: [['solar_test.json'],['solar_year.json']],
-    radsmallplot: [['solar_test.json'],['solar_year.json']],
-    uvplot: [['solar_test.json'],['solar_year.json']],
-    uvsmallplot: [['solar_test.json'],['solar_year.json']]
+    radiationplot: [['solar_week.json'],['year.json']],
+    raduvplot: [['solar_week.json'],['year.json']],
+    radsmallplot: [['solar_week.json'],['year.json']],
+    uvplot: [['solar_week.json'],['year.json']],
+    uvsmallplot: [['solar_week.json'],['year.json']]
 };
 
 var pathjsonfiles = '../../weewx/json/';
