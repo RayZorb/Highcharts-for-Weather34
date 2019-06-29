@@ -41,8 +41,8 @@ var createweeklyfunctions = {
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addWeekOptions, create_rain_chart],
     radiationplot: [addWeekOptions, create_radiation_chart],
-    raduvplot: [addWeekOptions, setRadUv, create_raduv_chart],
-    uvplot: [addWeekOptions, setUv, setUvStock, create_uv_chart]
+    raduvplot: [addWeekOptions, create_raduv_chart],
+    uvplot: [addWeekOptions, create_uv_chart]
 };
 
 var createyearlyfunctions = {
@@ -62,10 +62,10 @@ var createyearlyfunctions = {
     rainplot: [addYearOptions, create_rain_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
     radiationplot: [addYearOptions, create_radiation_chart],
-    raduvplot: [addYearOptions, setRadUv, create_raduv_chart],
+    raduvplot: [addYearOptions, create_raduv_chart],
     radsmallplot: [addYearOptions, setRadSmall, create_radiation_chart],
-    uvplot: [addYearOptions, setUv, setUvStock, create_uv_chart],
-    uvsmallplot: [addYearOptions, setUv, setUvSmall, create_uv_chart]
+    uvplot: [addYearOptions, create_uv_chart],
+    uvsmallplot: [addYearOptions, setUvSmall, create_uv_chart]
 };
 
 var postcreatefunctions={
@@ -94,11 +94,11 @@ var jsonfileforplot={
     windroseplot: [['wind_week.json'],['year.json']],
     rainplot: [['bar_rain_week.json'],['year.json']],
     rainsmallplot: [['bar_rain_week.json'],['year.json']],
-    radiationplot: [['solar_week.json'],['year.json']],
-    raduvplot: [['solar_week.json'],['year.json']],
-    radsmallplot: [['solar_week.json'],['year.json']],
-    uvplot: [['solar_week.json'],['year.json']],
-    uvsmallplot: [['solar_week.json'],['year.json']]
+    radiationplot: [['solar_test.json'],['solar_year.json']],
+    raduvplot: [['solar_test.json'],['solar_year.json']],
+    radsmallplot: [['solar_test.json'],['solar_year.json']],
+    uvplot: [['solar_test.json'],['solar_year.json']],
+    uvsmallplot: [['solar_test.json'],['solar_year.json']]
 };
 
 var pathjsonfiles = '../../weewx/json/';
@@ -490,6 +490,25 @@ Function to add/set various plot options specific to the 'year' plot.
     return obj
 };
 
+function custom_tooltip(tooltip) {
+    var order = [], i, j, temp = [], points = tooltip.points;
+    for(i=0; i<points.length; i++){
+        j=0;
+        if( order.length ){
+            while( points[order[j]] && points[order[j]].y > points[i].y )
+                j++;
+        }
+        temp = order.splice(0, j);
+        temp.push(i);
+        order = temp.concat(order);
+    }
+    temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
+    $(order).each(function(i,j){
+        temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + points[j].y + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
+    });
+    return temp;
+};
+
 function getTranslation(term){
     if (typeof translations == 'undefined') return term;
     if (translations.hasOwnProperty(term)) return translations[term];
@@ -517,11 +536,11 @@ function create_chart_options(options, type, title, values){
 
 function post_create_small_chart(chart, height){
     chart.update({
-        exporting: { enabled: false },
+        exporting: {enabled: false },
         rangeSelector: {enabled: false},
         navigator: {enabled: false},
         scrollbar: {enabled: false},
-        legend:{ enabled:false },
+        legend:{enabled:false },
         title: {text: ''}
     });
 };
@@ -562,6 +581,7 @@ Function to create temperature chart
            options.series[2].showInLegend = true;
         }
     }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};    
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.yAxis[0].title.text = "(" + units.temp + ")";
@@ -591,6 +611,7 @@ Function to create indoor temperature chart
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.inTemp).data;
         options.series[1].data = seriesData[0].humidityplot.series.inHumidity.data;
     }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};    
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.yAxis[0].title.text = "(" + units.temp + ")";
@@ -627,6 +648,7 @@ Function to create temperature chart
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
         options.series[2].data = seriesData[0].humidityplot.series.outHumidity.data;
     }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.minTickInterval = 900000;
@@ -662,6 +684,7 @@ Function to create temperature chart
         options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
         //options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
     }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};    
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.minTickInterval = 900000;
@@ -687,6 +710,7 @@ Function to create dewpoint chart
         options = create_chart_options(options, 'spline', 'Dewpoint', [['Dewpoint', 'spline']]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
     }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};    
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
     options.tooltip.valueDecimals = 1;
@@ -711,6 +735,7 @@ Function to create humidity chart
         options = create_chart_options(options, 'spline', 'Humidity', [['Humidity', 'spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = seriesData[0].humidityplot.series.outHumidity.data;
     }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     options.yAxis.min = 0;
     options.yAxis.max = 100;
@@ -750,6 +775,7 @@ Function to create barometer chart
         options = create_chart_options(options, 'spline', 'Barometer', [['Barometer', 'spline']]);
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer).data;
     }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     options.yAxis[0].title.text = "(" + units.pressure + ")";
     options.tooltip.valueSuffix = units.pressure;
@@ -788,6 +814,7 @@ Function to create wind chart
         options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed).data;
         options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust).data;
     }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.wind;
     options.yAxis[0].min = 0;
@@ -980,9 +1007,7 @@ Function to create rain chart
     options.plotOptions.series.pointPadding = 0;
     options.plotOptions.series.groupPadding = 0;
     options.plotOptions.series.borderWidth = 0;
-    options.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>';
-    options.tooltip.pointFormat = '<tr><td><span style="color: {series.color}">{series.name}</span>: </td>' + '<td style="text-align: right"><b>{point.y}</b></td></tr>';
-    options.tooltip.crosshairs = false;
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueSuffix = units.rain;
     options.tooltip.valueDecimals = 1;
     options.yAxis[0].title.text = "(" + units.rain + ")";
@@ -1027,27 +1052,8 @@ Function to create radiation chart
             options.series[1].visible = true;
             options.series[1].showInLegend = true;
         }
-    } 
-    options.tooltip.formatter = function() {
-        var order = [], i, j, temp = [],
-            points = this.points;
-
-        for(i=0; i<points.length; i++){
-            j=0;
-            if( order.length ){
-                while( points[order[j]] && points[order[j]].y > points[i].y )
-                    j++;
-            }
-            temp = order.splice(0, j);
-            temp.push(i);
-            order = temp.concat(order);
-        }
-        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
-        $(order).each(function(i,j){
-            temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + points[j].y + 'W/m\u00B2</span><br/>';
-        });
-        return temp;
-    };   
+    }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueSuffix = 'W/m\u00B2';
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
@@ -1057,62 +1063,6 @@ Function to create radiation chart
     return options;
 }
 
-function setRadUv(obj, span) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to solar radiation spline
-plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.title = {
-        text: getTranslation('Solar Radiation UV Index')
-    };
-    obj.series = [{
-        name: getTranslation((span == 'yearly' ? 'Solar Radiation Max' : 'Solar Radiation')),
-        type: 'spline',
-    },{
-        name: getTranslation((span == 'yearly' ? 'Solar Radition Avg' : 'UV Index')),
-        type: 'spline',
-    },{
-        name: getTranslation((span == 'yearly' ? 'UV Index Max' : 'Isolation')),
-        type: 'spline',
-        visible : false,
-        showInLegend: false,
-    },{
-        name: getTranslation('UV Index Avg'),
-        type: 'spline',
-        visible : false,
-        showInLegend: false,
-    }];
-    obj.xAxis.minTickInterval = 900000;
-    obj.yAxis[0].min = 0;
-    obj.tooltip.formatter = function() {
-        var order = [], i, j, temp = [],
-            points = this.points;
-
-        for(i=0; i<points.length; i++)
-        {
-            j=0;
-            if( order.length )
-            {
-                while( points[order[j]] && points[order[j]].y > points[i].y )
-                    j++;
-            }
-            temp = order.splice(0, j);
-            temp.push(i);
-            order = temp.concat(order);
-        }
-        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(this.x)) + '</span><br/>';
-        $(order).each(function(i,j){
-            temp += '<span style="color: '+points[j].series.color+'">' +
-                points[j].series.name + ': ' + points[j].y + 'W/m\u00B2</span><br/>';
-        });
-        return temp;
-    };
-    return obj
-};
-
 function create_raduv_chart(options, span, seriesData, units){
 /*****************************************************************************
 
@@ -1120,91 +1070,42 @@ Function to create radiation chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'spline', 'Solar Radiation/UV Index Max & Avg', [['Solar Radiation Max', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],['Solar Radiation Avg', 'spline',1,,,{valueSuffix: ' W/m\u00B2'}],["UV Index Max", 'spline',1],["UV Index Avg", 'spline',1]]);
         options.series[0].data = seriesData[0].radiationplot.radiationmax;
         options.series[1].data = seriesData[0].radiationplot.radiationaverage;
-        options.series[2].yAxis = 1;
-        options.series[2].visible = true;
-        options.series[2].showInLegend = true;
         options.series[2].data = seriesData[0].uvplot.uvmax;
-        options.series[3].yAxis = 1;
-        options.series[3].visible = true;
-        options.series[3].showInLegend = true;
         options.series[3].data = seriesData[0].uvplot.uvaverage;
     }
     else if (span[0] == "weekly"){
+        options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ["Insolation", 'area',,false,false]]);
         options.series[0].data = seriesData[0].radiationplot.series.radiation.data;
-        options.series[1].yAxis = 1;
         options.series[1].data = seriesData[0].uvplot.series.uv.data;
         if ("insolation" in seriesData[0].radiationplot.series) {
             options.series[2].data = seriesData[0].radiationplot.series.insolation.data;
-            options.series[2].type = 'area';
             options.series[2].visible = true;
             options.series[2].showInLegend = true;
         }
-    }    
+    }
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
     options.yAxis[1].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.yAxis[1].opposite = true;
+    options.yAxis[0].min = 0;
+    options.xAxis.minTickInterval = 900000;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
 }
 
-function setUv(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to UV index spline plots
-
-*****************************************************************************/
-    obj.chart.type = 'spline';
-    obj.title = {
-        text: getTranslation('UV Index')
-    };
-    obj.xAxis.minTickInterval = 900000;
-    obj.yAxis[0].max = 20;
-    obj.yAxis[0].min = 0;
-    obj.yAxis[0].minorTickInterval = 1;
-    obj.yAxis[0].tickInterval = 4;
-    return obj
-};
-
-function setUvStock(obj) {
-/*****************************************************************************
-
-Function to add/set various plot options specific to combined columnrange
-spline UV index plots
-
-*****************************************************************************/
-    obj.chart.type = 'column';
-    obj.series = [{
-        name: getTranslation('Maximum UV Index'),
-        type: 'column',
-    }, {
-        name: getTranslation('Average UV Index'),
-        type: 'spline',
-    }];
-    obj.tooltip.valueDecimals = 1;
-    return obj
-};
-
-function setUvSmall(obj) {
+function setUvSmall(options) {
 /*****************************************************************************
 
 Function to add small uv chart
 
 *****************************************************************************/
-    obj.chart.type = 'column';
-    obj.series = [{
-        name: getTranslation('Maximum UV Index'),
-        type: 'column',
-    }, {
-        name: getTranslation('Average UV Index'),
-        type: 'spline',
-    }];
-    obj.tooltip.valueDecimals = 1;
-    obj.yAxis[0].height = "160";
+    options.yAxis[0].height = "160";
     $("#plot_div").css("height", 190);
-    return obj
+    return options
 };
 
 function create_uv_chart(options, span, seriesData, units){
@@ -1214,18 +1115,25 @@ Function to create uv chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
+        options = create_chart_options(options, 'column', 'UV Index Maximum & Average', [['UV Maximum Index', 'column'], ['UV Average Index', 'spline']]);
         options.series[0].data = seriesData[0].uvplot.uvmax;
         options.series[1].data = seriesData[0].uvplot.uvaverage;
     }
     else if (span[0] == "weekly"){
-        options.series[0] = seriesData[0].uvplot.series.uv;
+        options = create_chart_options(options, 'spline', 'UV Index', [['UV Index', 'spline']]);
+        options.series[0].data = seriesData[0].uvplot.series.uv.data;
     }
+    options.tooltip.valueDecimals = 1;
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
+    options.yAxis[0].min = 0;
+    options.yAxis[0].max = 20;
+    options.yAxis[0].minorTickInterval = 1;
+    options.yAxis[0].tickInterval = 4;
     options.yAxis[0].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    Highcharts.setOptions({
-        global: { timezoneOffset: -seriesData[0].utcoffset,}
-    });
+    options.xAxis.minTickInterval = 900000;
+    Highcharts.setOptions({ global: { timezoneOffset: -seriesData[0].utcoffset,}});
     return options;
 }
 
