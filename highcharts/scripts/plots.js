@@ -525,6 +525,7 @@ function create_chart_options(options, type, title, values){
     options.chart.type = type;
     if (type == 'columnrange')
         options.tooltip.positioner = function(labelWidth, labelHeight, point){var tooltipX = point.plotX + 20; var tooltipY = point.plotY - 30;return {x: tooltipX,y: tooltipY}};
+    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.title = {text: getTranslation(title)};
     for (var i = 0; i < values.length; i++){
         options.series[i] = [];
@@ -583,7 +584,6 @@ Function to create temperature chart
            options.series[2].showInLegend = true;
         }
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};    
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.yAxis[0].title.text = "(" + units.temp + ")";
@@ -613,7 +613,6 @@ Function to create indoor temperature chart
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.inTemp).data;
         options.series[1].data = seriesData[0].humidityplot.series.inHumidity.data;
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};    
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.yAxis[0].title.text = "(" + units.temp + ")";
@@ -650,7 +649,6 @@ Function to create temperature chart
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
         options.series[2].data = seriesData[0].humidityplot.series.outHumidity.data;
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.minTickInterval = 900000;
@@ -686,7 +684,6 @@ Function to create temperature chart
         options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
         //options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};    
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.temp;
     options.xAxis.minTickInterval = 900000;
@@ -712,7 +709,6 @@ Function to create dewpoint chart
         options = create_chart_options(options, 'spline', 'Dewpoint', [['Dewpoint', 'spline']]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};    
     options.yAxis[0].title.text = "(" + units.temp + ")";
     options.tooltip.valueSuffix = units.temp;
     options.tooltip.valueDecimals = 1;
@@ -737,7 +733,6 @@ Function to create humidity chart
         options = create_chart_options(options, 'spline', 'Humidity', [['Humidity', 'spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = seriesData[0].humidityplot.series.outHumidity.data;
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     options.yAxis.min = 0;
     options.yAxis.max = 100;
@@ -777,7 +772,6 @@ Function to create barometer chart
         options = create_chart_options(options, 'spline', 'Barometer', [['Barometer', 'spline']]);
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer).data;
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     options.yAxis[0].title.text = "(" + units.pressure + ")";
     options.tooltip.valueSuffix = units.pressure;
@@ -816,7 +810,6 @@ Function to create wind chart
         options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed).data;
         options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust).data;
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     options.tooltip.valueSuffix = units.wind;
     options.yAxis[0].min = 0;
@@ -1009,7 +1002,6 @@ Function to create rain chart
     options.plotOptions.series.pointPadding = 0;
     options.plotOptions.series.groupPadding = 0;
     options.plotOptions.series.borderWidth = 0;
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueSuffix = units.rain;
     options.tooltip.valueDecimals = 1;
     options.yAxis[0].title.text = "(" + units.rain + ")";
@@ -1050,12 +1042,10 @@ Function to create radiation chart
         options.series[0].data = seriesData[0].radiationplot.series.radiation.data;
         if ("insolation" in seriesData[0].radiationplot.series) {
             options.series[1] = seriesData[0].radiationplot.series.insolation;
-            options.series[1].type = 'area';
             options.series[1].visible = true;
             options.series[1].showInLegend = true;
         }
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueSuffix = 'W/m\u00B2';
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
@@ -1088,7 +1078,6 @@ Function to create radiation chart
             options.series[2].showInLegend = true;
         }
     }
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
     options.yAxis[1].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.yAxis[1].opposite = true;
@@ -1126,7 +1115,6 @@ Function to create uv chart
         options.series[0].data = seriesData[0].uvplot.series.uv.data;
     }
     options.tooltip.valueDecimals = 1;
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.yAxis[0].min = 0;
     options.yAxis[0].max = 20;
     options.yAxis[0].minorTickInterval = 1;
