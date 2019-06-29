@@ -523,13 +523,15 @@ function create_chart_options(options, type, title, values){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
     options.series = [];
     options.chart.type = type;
+    if (type == 'columnrange')
+        options.tooltip.positioner = function(labelWidth, labelHeight, point){var tooltipX = point.plotX + 20; var tooltipY = point.plotY - 30;return {x: tooltipX,y: tooltipY}};
     options.title = {text: getTranslation(title)};
     for (var i = 0; i < values.length; i++){
         options.series[i] = [];
         for (field in fields) options.series[i].push(field);
         for (var j = 0; j < fields.length; j++)
             if (values[i][j] != null)
-                options.series[i][fields[j]] = (fields[j] == 'name' ? getTranslation(values[i][j]) : values[i][j]);   
+                options.series[i][fields[j]] = (fields[j] == 'name' ? getTranslation(values[i][j]) : values[i][j]);  
     }
     return options;
 };
