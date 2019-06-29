@@ -518,14 +518,15 @@ function getTranslation(term){
     return translation.length > 0 ? translation : term;
 };
 
-function create_chart_options(options, type, title, values){
+function create_chart_options(options, type, title, valueSuffix, values){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
     options.series = [];
     options.chart.type = type;
     if (type == 'columnrange')
-        options.tooltip.positioner = function(labelWidth, labelHeight, point){var tooltipX = point.plotX + 20; var tooltipY = point.plotY - 30;return {x: tooltipX,y: tooltipY}};
+        options.tooltip.positioner = function(labelWidth, labelHeight, point){var tooltipX = point.plotX; var tooltipY = point.plotY - 40;return {x: tooltipX,y: tooltipY}};
     options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
+    if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
     options.xAxis.minTickInterval = 900000;
     options.title = {text: getTranslation(title)};
     for (var i = 0; i < values.length; i++){
@@ -569,24 +570,23 @@ Function to create temperature chart
 
 *****************************************************************************/
      if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint', [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint', 'spline']]);
+        options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint', 'spline']]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
         options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
         options.series[3].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
     }
     else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Temperature Dewpoint', [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false]]);
-        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp).data;
-        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
-        if ("appTemp" in seriesData[0].temperatureplot.series) {
-           options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
+        options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false]]);
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTemp);
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.dewpoint);
+        if ("appTemp" in seriesData[0].temperatureplot) {
+           options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTemp);
            options.series[2].visible = true;
            options.series[2].showInLegend = true;
         }
     }
-    options.tooltip.valueSuffix = units.temp;
-    options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.yAxis[0].title.rotation = 0;
     options.yAxis[0].tickInterval = 10;
     options.xAxis.min = seriesData[0].timespan.start;
@@ -601,22 +601,19 @@ Function to create indoor temperature chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Greenhouse Temperature Humidity', [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
+        options = create_chart_options(options, 'columnrange', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTempaverage)
         options.series[2].data = seriesData[0].humidityplot.inHumidityminmax;
         options.series[3].data = seriesData[0].humidityplot.inHumidityaverage;
     }
     else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', [['Temperature', 'spline'],['Humidity','spline', 1,,, "%"]]);
-        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.inTemp).data;
-        options.series[1].data = seriesData[0].humidityplot.series.inHumidity.data;
+        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,, "%"]]);
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.inTemp);
+        options.series[1].data = seriesData[0].humidityplot.inHumidity;
     }
-    options.tooltip.valueSuffix = units.temp;
-    options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.yAxis[1].title.text = "(%)";
-    options.yAxis[0].title.rotation = 0;
-    options.yAxis[1].title.rotation = 0;
     options.yAxis[1].opposite = true;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
@@ -630,7 +627,7 @@ Function to create temperature chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint Humidity Ranges & Averages', [['Temp Range', 'columnrange'],['Average Temp','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity Avg', 'spline', 1,,,{valueSuffix: '%'}]]);
+        options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint Humidity Ranges & Averages', '\xB0' + units.temp, [['Temp Range', 'columnrange'],['Average Temp','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity Avg', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempminmax);
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTempaverage);
         options.series[2].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
@@ -641,15 +638,14 @@ Function to create temperature chart
         options.yAxis[1].labels = {x: 16, y: 4};
     }
     else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Temperature Dewpoint Humidity', [['Temperature', 'spline'],['Dewpoint','spline'],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
-        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.outTemp).data;
-        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
-        options.series[2].data = seriesData[0].humidityplot.series.outHumidity.data;
+        options = create_chart_options(options, 'spline', 'Temperature Dewpoint Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.outTemp);
+        options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.dewpoint);
+        options.series[2].data = seriesData[0].humidityplot.outHumidity;
     }
-    options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.yAxis[1].title.text = "(%)";
     options.yAxis[0].tickInterval = 10;
     options.yAxis[1].tickInterval = 10;
@@ -664,25 +660,26 @@ Function to create temperature chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Windchill Heatindex Apparent Ranges & Averages', [['Windchill Range', 'columnrange'],['Average Windchill','spline'],['Heatindex Range', 'columnrange'],['Average Heatindex','spline'],['Apparent Range', 'columnrange',, false,false],['Apparent Avg', 'spline',, false,false]]);
+        options = create_chart_options(options, 'columnrange', 'Windchill Heatindex Apparent Ranges & Averages', '\xB0' + units.temp, [['Windchill Range', 'columnrange'],['Average Windchill','spline'],['Heatindex Range', 'columnrange'],['Average Heatindex','spline'],['Apparent Range', 'columnrange',, false,false],['Apparent Avg', 'spline',, false,false]]);
         options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillminmax);
         options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchillaverage);
         options.series[2].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexminmax);
         options.series[3].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindexaverage)
-        //options.series[4].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempminmax);
-        //options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempaverage);
-        options.yAxis[0].height = "150";
+        if ("appTempaverage" in seriesData[0].temperatureplot) {
+            options.series[4].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempminmax);
+            options.series[5].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTempaverage);
+        }
     }
     else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Windchill HeatIndex Apparent', [['Windchill', 'spline'],['Heatindex','spline'],['Apparent', 'spline',,false,false]]);
-        options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.windchill).data;
-        options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.series.heatindex).data;
-        //options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.appTemp).data;
+        options = create_chart_options(options, 'spline', 'Windchill HeatIndex Apparent', '\xB0' + units.temp, [['Windchill', 'spline'],['Heatindex','spline'],['Apparent', 'spline',,false,false]]);
+        options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.windchill);
+        options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, seriesData[0].windchillplot.heatindex);
+        if ("appTemp" in seriesData[0].temperatureplot)
+            options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.appTemp);
     }
-    options.tooltip.valueSuffix = units.temp;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
-    options.yAxis[0].title.text = "(" + units.temp + ")";
+    options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.yAxis[0].tickInterval = 10;
     return options;
 };
@@ -694,16 +691,15 @@ Function to create dewpoint chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Dewpoint Ranges & Averages', [['Dewpoint Range', 'columnrange'],['Dewpoint','spline']]);
+        options = create_chart_options(options, 'columnrange', 'Dewpoint Ranges & Averages', '\xB0' + units.temp, [['Dewpoint Range', 'columnrange'],['Dewpoint','spline']]);
         options.series[0].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointminmax);
         options.series[1].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, seriesData[0].dewpointplot.dewpointaverage);
     }
     else if (span[0] == "weekly"){                
-        options = create_chart_options(options, 'spline', 'Dewpoint', [['Dewpoint', 'spline']]);
-        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.series.dewpoint).data;
+        options = create_chart_options(options, 'spline', 'Dewpoint', '\xB0' + units.temp, [['Dewpoint', 'spline']]);
+        options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, seriesData[0].temperatureplot.dewpoint);
     }
-    options.yAxis[0].title.text = "(" + units.temp + ")";
-    options.tooltip.valueSuffix = units.temp;
+    options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -716,13 +712,13 @@ Function to create humidity chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Humidity Ranges & Averages', [['Humidity Range', 'columnrange',,,,{valueSuffix: '%'}],['Average Humidity','spline',,,,{valueSuffix: '%'}]]);
+        options = create_chart_options(options, 'columnrange', 'Humidity Ranges & Averages', null,[['Humidity Range', 'columnrange',,,,{valueSuffix: '%'}],['Average Humidity','spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = seriesData[0].humidityplot.outHumidityminmax;
         options.series[1].data = seriesData[0].humidityplot.outHumidityaverage;
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'spline', 'Humidity', [['Humidity', 'spline',,,,{valueSuffix: '%'}]]);
-        options.series[0].data = seriesData[0].humidityplot.series.outHumidity.data;
+        options = create_chart_options(options, 'spline', 'Humidity', null, [['Humidity', 'spline',,,,{valueSuffix: '%'}]]);
+        options.series[0].data = seriesData[0].humidityplot.outHumidity;
     }
     options.yAxis.min = 0;
     options.yAxis.max = 100;
@@ -753,16 +749,15 @@ Function to create barometer chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Barometer Ranges & Averages', [['Barometer Range', 'columnrange'],['Average Barometer','spline']]);
+        options = create_chart_options(options, 'columnrange', 'Barometer Ranges & Averages',units.pressure,[['Barometer Range', 'columnrange'],['Average Barometer','spline']]);
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometerminmax);
         options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometeraverage);
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'spline', 'Barometer', [['Barometer', 'spline']]);
-        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.series.barometer).data;
+        options = create_chart_options(options, 'spline', 'Barometer', units.pressure, [['Barometer', 'spline']]);
+        options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, seriesData[0].barometerplot.barometer);
     }
     options.yAxis[0].title.text = "(" + units.pressure + ")";
-    options.tooltip.valueSuffix = units.pressure;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -787,17 +782,16 @@ Function to create wind chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'area', 'Wind Speed Gust Max & Averages', [['Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area']]);
+        options = create_chart_options(options, 'area', 'Wind Speed Gust Max & Averages', units.wind,[['Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area']]);
         options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windmax);
         options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windAvmax);
         options.series[2].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windaverage);
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'spline', 'Wind Speed Gust', [['Wind Speed', 'spline'],['Wind Gust', 'spline']]);
-        options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windSpeed).data;
-        options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.series.windGust).data;
+        options = create_chart_options(options, 'spline', 'Wind Speed Gust', units.wind,[['Wind Speed', 'spline'],['Wind Gust', 'spline']]);
+        options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windSpeed);
+        options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windGust);
     }
-    options.tooltip.valueSuffix = units.wind;
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + units.wind + ")";
     options.yAxis[0].tickInterval = 10;
@@ -813,12 +807,12 @@ Function to create wind direction chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'scatter', 'Wind Direction Average', [['Wind Direction Average', 'scatter']]);
+        options = create_chart_options(options, 'scatter', 'Wind Direction Average', null, [['Wind Direction Average', 'scatter']]);
         options.series[0].data = seriesData[0].winddirplot.windDir;
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'scatter', 'Wind Direction', [['Wind Direction', 'scatter']]);
-        options.series[0].data = seriesData[0].winddirplot.series.windDir.data;
+        options = create_chart_options(options, 'scatter', 'Wind Direction', null, [['Wind Direction', 'scatter']]);
+        options.series[0].data = seriesData[0].winddirplot.windDir;
     }
     options.plotOptions.series = { marker: { radius: 2}};
     options.series.marker = { lineWidth: 0, radius: 10 };
@@ -969,14 +963,14 @@ Function to create rain chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'column', 'Rainfall', [['Rainfall', 'column']]);
+        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column']]);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rainsum);
         options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
         options.tooltip.xDateFormat = '%e %B %Y';
     }
     if (span[0] == "weekly"){
-        options = create_chart_options(options, 'column', 'Rainfall', [['Rainfall', 'column']]);
-        options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.series.rain).data;
+        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column']]);
+        options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rain);
         options.tooltip.xDateFormat = '%e %B %Y hour to %H:%M';
     }
     options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
@@ -985,7 +979,6 @@ Function to create rain chart
     options.plotOptions.series.pointPadding = 0;
     options.plotOptions.series.groupPadding = 0;
     options.plotOptions.series.borderWidth = 0;
-    options.tooltip.valueSuffix = units.rain;
     options.yAxis[0].title.text = "(" + units.rain + ")";
     options.yAxis[0].min = 0;
     options.yAxis[0].tickInterval = 1;
@@ -1014,20 +1007,19 @@ Function to create radiation chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'column', 'Max Solar Radiation', [['Max Solar Radiation', 'column'], ["Average Solar Radiation", 'spline']]);
+        options = create_chart_options(options, 'column', 'Max Solar Radiation','W/m\u00B2', [['Max Solar Radiation', 'column'], ["Average Solar Radiation", 'spline']]);
         options.series[0].data = seriesData[0].radiationplot.radiationmax;
         options.series[1].data = seriesData[0].radiationplot.radiationaverage;
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'spline', 'Solar Radiation', [['Solar Radiation', 'spline'], ["Insolation", 'area',,false,false]]);
-        options.series[0].data = seriesData[0].radiationplot.series.radiation.data;
-        if ("insolation" in seriesData[0].radiationplot.series) {
-            options.series[1] = seriesData[0].radiationplot.series.insolation;
+        options = create_chart_options(options, 'spline', 'Solar Radiation','W/m\u00B2', [['Solar Radiation', 'spline'], ["Insolation", 'area',,false,false]]);
+        options.series[0].data = seriesData[0].radiationplot.radiation;
+        if ("insolation" in seriesData[0].radiationplot) {
+            options.series[1].data = seriesData[0].radiationplot.insolation;
             options.series[1].visible = true;
             options.series[1].showInLegend = true;
         }
     }
-    options.tooltip.valueSuffix = 'W/m\u00B2';
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
     options.xAxis.min = seriesData[0].timespan.start;
@@ -1042,18 +1034,18 @@ Function to create radiation chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'spline', 'Solar Radiation/UV Index Max & Avg', [['Solar Radiation Max', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],['Solar Radiation Avg', 'spline',1,,,{valueSuffix: ' W/m\u00B2'}],["UV Index Max", 'spline',1],["UV Index Avg", 'spline',1]]);
+        options = create_chart_options(options, 'spline', 'Solar Radiation/UV Index Max & Avg', null, [['Solar Radiation Max', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],['Solar Radiation Avg', 'spline',1,,,{valueSuffix: ' W/m\u00B2'}],["UV Index Max", 'spline',1],["UV Index Avg", 'spline',1]]);
         options.series[0].data = seriesData[0].radiationplot.radiationmax;
         options.series[1].data = seriesData[0].radiationplot.radiationaverage;
         options.series[2].data = seriesData[0].uvplot.uvmax;
         options.series[3].data = seriesData[0].uvplot.uvaverage;
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ["Insolation", 'area',,false,false]]);
-        options.series[0].data = seriesData[0].radiationplot.series.radiation.data;
-        options.series[1].data = seriesData[0].uvplot.series.uv.data;
-        if ("insolation" in seriesData[0].radiationplot.series) {
-            options.series[2].data = seriesData[0].radiationplot.series.insolation.data;
+        options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ["Insolation", 'area',,false,false]]);
+        options.series[0].data = seriesData[0].radiationplot.radiation;
+        options.series[1].data = seriesData[0].uvplot.uv;
+        if ("insolation" in seriesData[0].radiationplot) {
+            options.series[2].data = seriesData[0].radiationplot.insolation;
             options.series[2].visible = true;
             options.series[2].showInLegend = true;
         }
@@ -1085,13 +1077,13 @@ Function to create uv chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'column', 'UV Index Maximum & Average', [['UV Maximum Index', 'column'], ['UV Average Index', 'spline']]);
+        options = create_chart_options(options, 'column', 'UV Index Maximum & Average', null, [['UV Maximum Index', 'column'], ['UV Average Index', 'spline']]);
         options.series[0].data = seriesData[0].uvplot.uvmax;
         options.series[1].data = seriesData[0].uvplot.uvaverage;
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'spline', 'UV Index', [['UV Index', 'spline']]);
-        options.series[0].data = seriesData[0].uvplot.series.uv.data;
+        options = create_chart_options(options, 'spline', 'UV Index', null, [['UV Index', 'spline']]);
+        options.series[0].data = seriesData[0].uvplot.uv;
     }
     options.yAxis[0].min = 0;
     options.yAxis[0].max = 20;
@@ -1125,6 +1117,7 @@ Function to display weekly or yearly charts
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
     var results, files = [];
+    if (!jsonfileforplot.hasOwnProperty(plot_type)){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
         files[i] = pathjsonfiles + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     jQuery.getMultipleJSON(...files).done(function(...results){
