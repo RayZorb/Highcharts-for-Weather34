@@ -120,7 +120,7 @@
                 }
             },
             tooltip: {
-                backgroundColor: 'transparent',
+                backgroundColor: 'rgba(37, 41, 45, 0.5)',
                 style: {
                     color: '#F0F0F0'
                 }
