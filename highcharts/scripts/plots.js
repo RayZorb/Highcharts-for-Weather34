@@ -37,6 +37,7 @@ var createweeklyfunctions = {
     barometerplot: [addWeekOptions, create_barometer_chart],
     dewpointplot: [addWeekOptions, create_dewpoint_chart],
     windplot: [addWeekOptions, create_wind_chart],
+    windallplot: [addWeekOptions, create_windall_chart],
     winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addWeekOptions, create_rain_chart],
@@ -58,6 +59,7 @@ var createyearlyfunctions = {
     windsmallplot: [addYearOptions, setWindSmall, create_wind_chart],
     winddirplot: [addYearOptions, create_winddir_chart],
     windplot: [addYearOptions, create_wind_chart],
+    windallplot: [addYearOptions, create_windall_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addYearOptions, create_rain_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
@@ -90,6 +92,7 @@ var jsonfileforplot={
     barsmallplot: [['bar_rain_week.json'],['year.json']],
     windplot: [['wind_week.json'],['year.json']],
     windsmallplot: [['wind_week.json'],['year.json']],
+    windallplot: [['wind_week.json'],['year.json']],
     winddirplot: [['wind_week.json'],['year.json']],
     windroseplot: [['wind_week.json'],['year.json']],
     rainplot: [['bar_rain_week.json'],['year.json']],
@@ -491,7 +494,8 @@ Function to add/set various plot options specific to the 'year' plot.
 
 function custom_tooltip(tooltip) {
     var order = [], i, j, temp = [], points = tooltip.points;
-    for(i=0; i<points.length; i++){
+    if (points == undefined) points = [tooltip.point];
+    for(i=0; i < points.length; i++){
         j=0;
         if( order.length ){
             while( points[order[j]] && points[order[j]].y > points[i].y )
@@ -794,7 +798,6 @@ Function to create wind chart
     }
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + units.wind + ")";
-    options.yAxis[0].tickInterval = 10;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -816,20 +819,46 @@ Function to create wind direction chart
     }
     options.plotOptions.series = { marker: { radius: 2}};
     options.series.marker = { lineWidth: 0, radius: 10 };
-    options.tooltip.headerFormat = '<span style="font-size: 10px">{point.key}</span><br/>'
-    options.tooltip.pointFormat = '<span style="color: {series.color}">●</span> {series.name}: <b>{point.y}</b>'
-    options.tooltip.valueSuffix = '\u00B0'
-    options.tooltip.xDateFormat = '%e %B %Y %H:%M';
-    options.tooltip.xDateFormat = '%e %B %Y';
     options.yAxis[0].min = 0;
     options.yAxis[0].max = 360;
     options.yAxis[0].tickInterval = 90;
-    options.yAxis[0].title.text = "(" + units.wind + ")";
+    options.yAxis[0].title.text = "Direction";
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
 }
 
+function create_windall_chart(options, span, seriesData, units){
+/*****************************************************************************
+
+Function to create wind chart
+
+*****************************************************************************/
+    if (span[0] == "yearly"){
+        options = create_chart_options(options, 'area', 'Wind Speed Gust Direction Max & Averages', units.wind,[['Max Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area'],['Average Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
+        options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windmax);
+        options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windAvmax);
+        options.series[2].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windaverage);
+        options.series[3].data = seriesData[0].winddirplot.windDir;
+    }
+    else if (span[0] == "weekly"){
+        options = create_chart_options(options, 'scatter', 'Wind Speed Gust Direction', units.wind,[['Wind Speed', 'spline'],['Wind Gust', 'spline'],['Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
+        options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windSpeed);
+        options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windGust);
+        options.series[2].data = seriesData[0].winddirplot.windDir;
+    }
+    options.tooltip.shared = false;
+    options.yAxis[0].min = 0;
+    options.yAxis[0].title.text = "(" + units.wind + ")";
+    options.yAxis[1].min = 0;
+    options.yAxis[1].max = 360;
+    options.yAxis[1].tickInterval = 90;
+    options.yAxis[1].title.text = "Direction";
+    options.yAxis[1].opposite = true;
+    options.xAxis.min = seriesData[0].timespan.start;
+    options.xAxis.max = seriesData[0].timespan.stop;
+    return options;
+}
 function setWindRose(options){
 /*****************************************************************************
 
@@ -1103,6 +1132,11 @@ Function to add/set various weekly plot options specific to the 'week' plot.
 
 *****************************************************************************/
     Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
+    buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
+    if (buttons.length < 8){
+        function callback(units, plot_type, cb_func, span){return function(){display_chart(units, plot_type, cb_func, span)}}
+        buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, cb_func, span)});
+    }
     for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
        options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func));
     return options
@@ -1117,7 +1151,7 @@ Function to display weekly or yearly charts
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
     var results, files = [];
-    if (!jsonfileforplot.hasOwnProperty(plot_type)){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
+    if (!jsonfileforplot.hasOwnProperty(plot_type) && (span[0] != "weekly" || span[0] != "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
         files[i] = pathjsonfiles + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     jQuery.getMultipleJSON(...files).done(function(...results){
