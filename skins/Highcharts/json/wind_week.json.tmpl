@@ -20,7 +20,7 @@
 ##                                                                           #
 ##############################################################################
 [{
-"_version": "wind_week.json.tmpl version 0.2.0",
+"_version": "wind_week.json.tmpl version 1.0.0",
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
@@ -28,30 +28,20 @@
 "windSpeed": $windSpeedWeekjson,
 "windGust": $windGustWeekjson,
 "units": "$unit.label.windSpeed"#slurp
-#if $varExists('$windSpeed_min_range')
-, 
-"minRange": $windSpeed_min_range},
-#else
 },
-#end if
 ##
 "winddirplot": {
 "windDir": $windDirWeekjson,
 "units": "$unit.label.windDir"#slurp
-#if $varExists('$windDir_min_range')
-, 
-"minRange": $windDir_min_range},
-#else
 },
-#end if
 ##
-"windroseDay": {#slurp
+"windroseDay": {
 "series": $wr86400['windrosejson'],
 "xAxis": {"categories": $wr86400['xAxisCategoriesjson']},
 "yAxis": $wr86400['yAxisjson']
 },
 ##
-"windroseWeek": {#slurp
+"windroseWeek": {
 "series": $wr604800['windrosejson'],
 "xAxis": {"categories": $wr604800['xAxisCategoriesjson']},
 "yAxis": $wr604800['yAxisjson']
