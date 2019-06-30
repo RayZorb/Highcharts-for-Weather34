@@ -779,7 +779,7 @@ Function to do wind small chart
     return options;
 };
 
-function create_wind_chart(options, span, seriesData, units){
+function create_wind_chart(options, span, seriesData, units, plot_type, cb_func){
 /*****************************************************************************
 
 Function to create wind chart
