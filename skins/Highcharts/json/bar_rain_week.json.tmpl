@@ -20,28 +20,19 @@
 ##                                                                           #
 ##############################################################################
 [{
-"_version": "bar_rain_week.json.tmpl version 0.2.0",
+"_version": "bar_rain_week.json.tmpl version 1.0.0",
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
 "rainplot": {
 "rain": $rainWeekjson,
+"rainRate": $rainRateWeekjson,
 "units": "$unit.label.rain"#slurp
-#if $varExists('$rain_min_range')
-, 
-"minRange": $rain_min_range},
-#else
 },
-#end if
 ##
 "barometerplot": {
 "barometer": $barometerWeekjson,
 "units": "$unit.label.barometer"#slurp
-#if $varExists('$barometer_min_range')
-, 
-"minRange": $barometer_min_range}
-#else
 }
-#end if
 ##
 }]
