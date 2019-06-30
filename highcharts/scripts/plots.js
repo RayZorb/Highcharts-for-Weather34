@@ -819,12 +819,8 @@ Function to create wind direction chart
         options = create_chart_options(options, 'scatter', 'Wind Direction', null, [['Wind Direction', 'scatter']]);
         options.series[0].data = seriesData[0].winddirplot.windDir;
     }
-    options.plotOptions.series = { marker: { radius: 2}};
-    options.series.marker = { lineWidth: 0, radius: 10 };
-    options.yAxis[0].min = 0;
-    options.yAxis[0].max = 360;
-    options.yAxis[0].tickInterval = 90;
     options.yAxis[0].title.text = "Direction";
+    options.yAxis[0].tickPositioner = function(){var positions = [0,90,180,270,360]; return positions;};
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -852,11 +848,9 @@ Function to create wind chart
     options.tooltip.shared = false;
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + units.wind + ")";
-    options.yAxis[1].min = 0;
-    options.yAxis[1].max = 360;
-    options.yAxis[1].tickInterval = 90;
     options.yAxis[1].title.text = "Direction";
     options.yAxis[1].opposite = true;
+    options.yAxis[1].tickPositioner = function(){var positions = [0,90,180,270,360]; return positions;};
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
