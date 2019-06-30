@@ -24,9 +24,9 @@
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
-"windplot": {"series":
-{"windSpeed": {"name": "Wind Speed", "data": $windSpeedWeekjson},
-"windGust": {"name": "Wind Gust", "data": $windGustWeekjson}},
+"windplot": {
+"windSpeed": $windSpeedWeekjson,
+"windGust": $windGustWeekjson,
 "units": "$unit.label.windSpeed"#slurp
 #if $varExists('$windSpeed_min_range')
 , 
@@ -35,8 +35,8 @@
 },
 #end if
 ##
-"winddirplot": {"series":
-{"windDir": {"name": "Wind Direction", "data": $windDirWeekjson}},
+"winddirplot": {
+"windDir": $windDirWeekjson,
 "units": "$unit.label.windDir"#slurp
 #if $varExists('$windDir_min_range')
 , 
@@ -48,20 +48,12 @@
 "windroseDay": {#slurp
 "series": $wr86400['windrosejson'],
 "xAxis": {"categories": $wr86400['xAxisCategoriesjson']},
-"yAxis": $wr86400['yAxisjson'],
-"colors": $wr86400['coloursjson'],
-"title": {"text": $wr86400['titlejson']},
-"legend": {"title": {"text": $wr86400['legendTitlejson']}},
-"bullseye": $wr86400['bullseyejson']
+"yAxis": $wr86400['yAxisjson']
 },
 ##
 "windroseWeek": {#slurp
 "series": $wr604800['windrosejson'],
 "xAxis": {"categories": $wr604800['xAxisCategoriesjson']},
-"yAxis": $wr604800['yAxisjson'],
-"colors": $wr604800['coloursjson'],
-"title": {"text": $wr604800['titlejson']},
-"legend": {"title": {"text": $wr604800['legendTitlejson']}},
-"bullseye": $wr604800['bullseyejson']
+"yAxis": $wr604800['yAxisjson']
 }
 }]
