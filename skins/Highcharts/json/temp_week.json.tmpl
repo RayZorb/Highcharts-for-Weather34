@@ -24,9 +24,9 @@
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
-"temperatureplot": {"series":
-{"outTemp": {"name": "Temperature", "data": $outTempWeekjson},
-"dewpoint": {"name": "Dew Point", "data": $dewpointWeekjson}},
+"temperatureplot": {
+"outTemp": $outTempWeekjson,
+"dewpoint": $dewpointWeekjson,
 "units": "$unit.label.outTemp"#slurp
 #if $varExists('$outTemp_min_range')
 , 
@@ -35,8 +35,8 @@
 },
 #end if
 ##
-"humidityplot": {"series":
-{"outHumidity": {"name": "Humidity", "data": $outHumidityWeekjson}},
+"humidityplot": {
+"outHumidity": $outHumidityWeekjson,
 "units": "$unit.label.outHumidity"#slurp
 #if $varExists('$outHumidity_min_range')
 , 
