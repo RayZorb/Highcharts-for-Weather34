@@ -20,7 +20,7 @@
 ##                                                                           #
 ##############################################################################
 [{
-"_version": "temp_week.json.tmpl version 0.2.0",
+"_version": "temp_week.json.tmpl version 1.0.0",
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
@@ -28,21 +28,11 @@
 "outTemp": $outTempWeekjson,
 "dewpoint": $dewpointWeekjson,
 "units": "$unit.label.outTemp"#slurp
-#if $varExists('$outTemp_min_range')
-, 
-"minRange": $outTemp_min_range},
-#else
 },
-#end if
 ##
 "humidityplot": {
 "outHumidity": $outHumidityWeekjson,
 "units": "$unit.label.outHumidity"#slurp
-#if $varExists('$outHumidity_min_range')
-, 
-"minRange": $outHumidity_min_range}
-#else
 }
-#end if
 ##
 }]

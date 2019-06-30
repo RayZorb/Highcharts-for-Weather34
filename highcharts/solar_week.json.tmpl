@@ -20,7 +20,7 @@
 ##                                                                           #
 ##############################################################################
 [{
-"_version": "solar_week.json.tmpl version 0.2.0",
+"_version": "solar_week.json.tmpl version 1.0.0",
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
@@ -32,20 +32,10 @@
 "radiation": $radiationWeekjson,
 #end if
 "units": "$unit.label.radiation"#slurp
-#if $varExists('$radiation_min_range')
-, 
-"minRange": $radiation_min_range},
-#else
 },
-#end if
 ##
 "uvplot": {
 "uv": $uvWeekjson,
 "units": "$unit.label.UV"#slurp
-#if $varExists('$UV_min_range')
-, 
-"minRange": $UV_min_range}
-#else
 }
-#end if
 }]
