@@ -17,7 +17,7 @@
             var vars = {};
             window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {vars[key.replace(/%27/g,"")] = value.replace(/%27/g,"");});
             document.title = vars['chart'] + " chart";
-            display_chart({temp:vars['temp'], pressure:vars['pressure'], wind:vars['wind'], rain:vars['rain']}, vars['chart'], display, vars['span']);
+            display_chart({temp:vars['temp'], pressure:vars['pressure'], wind:vars['wind'], rain:vars['rain']}, vars['chart'], vars['span']);
         }
     </script>
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css">
