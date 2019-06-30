@@ -345,7 +345,7 @@ var commonOptions = {
         minorTickPosition: 'outside',
         minorTickWidth: 1,
         showLastLabel: true,
-        opposite: false,
+        opposite: true,
         startOnTick: true,
         endOnTick: true,
         tickLength: 4,
@@ -620,7 +620,6 @@ Function to create indoor temperature chart
     }
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.yAxis[1].title.text = "(%)";
-    options.yAxis[1].opposite = true;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
@@ -655,7 +654,6 @@ Function to create temperature chart
     options.yAxis[1].title.text = "(%)";
     options.yAxis[0].tickInterval = 10;
     options.yAxis[1].tickInterval = 10;
-    options.yAxis[1].opposite = true;
     return options;
 };
 
@@ -849,7 +847,6 @@ Function to create wind chart
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + units.wind + ")";
     options.yAxis[1].title.text = "Direction";
-    options.yAxis[1].opposite = true;
     options.yAxis[1].tickPositioner = function(){var positions = [0,90,180,270,360]; return positions;};
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
@@ -994,9 +991,15 @@ Function to create rain chart
         options.tooltip.xDateFormat = '%e %B %Y';
     }
     if (span[0] == "weekly"){
-        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column']]);
+        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]]);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rain);
+        options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, seriesData[0].rainplot.rainRate);
         options.tooltip.xDateFormat = '%e %B %Y hour to %H:%M';
+        options.yAxis[1].title.text = "(" + units.rain + ")";
+        options.yAxis[1].min = 0;
+        options.yAxis[1].tickInterval = 1;
+        options.yAxis[1].allowDecimals = true;
+        options.yAxis[1].labels = { format: '{value:.0f}'};
     }
     options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
     options.plotOptions.column.dataGrouping.enabled = true;
@@ -1077,7 +1080,6 @@ Function to create radiation chart
     }
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
     options.yAxis[1].title.text = "(" + seriesData[0].uvplot.units + ")";
-    options.yAxis[1].opposite = true;
     options.yAxis[0].min = 0;
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
@@ -1132,12 +1134,16 @@ Function to add/set various weekly plot options specific to the 'week' plot.
     return options
 };
 
-function do_auto_update(units, plot_type, cb_func, span){
+function do_auto_update(units, plot_type, cb_func, span, buttonReload){
 /*****************************************************************************
 
 Function to do auto update of charts
 
 *****************************************************************************/  
+    if (buttonReload){
+        display_chart(units, plot_type, cb_func, span);
+        return;
+    }   
     auto_update = !auto_update;
     for (var i = 0; i < buttons.length;i++)
        if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
@@ -1154,14 +1160,12 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
-    Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
     if (buttons == null){
+        Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
-        if (buttons.every(function(button){return!button.hasOwnProperty('text')})){
-            function callback(units, plot_type, cb_func, span){return function(){do_auto_update(units, plot_type, cb_func, span)}}
-            buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, cb_func, span)});
-            buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, cb_func, span)});
-        }
+        function callback(units, plot_type, cb_func, span, buttonReload){return function(){do_auto_update(units, plot_type, cb_func, span, buttonReload)}}
+        buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, cb_func, span, true)});
+        buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, cb_func, span, false)});
     }
     var results, files = [];
     if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
