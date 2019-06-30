@@ -24,23 +24,22 @@
 "utcoffset": $utcOffset,
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
-"temperatureplot": {"series":
-{"inTemp": {"name": "Indoor Temperature", "data": $inTempWeekjson}},
+"temperatureplot": {
+"inTemp": $inTempWeekjson,
 "units": "$unit.label.outTemp"#slurp
 },
 ##
-"humidityplot": {"series":
-{"inHumidity": {"name": "Indoor Humidity", "data": $inHumidityWeekjson}},
+"humidityplot": {
+"inHumidity": $inHumidityWeekjson,
 "units": "$unit.label.outHumidity"#slurp
 },
 ##
-"windchillplot": {"series":
-{#slurp
+"windchillplot": {
 #if $appTempWeekjson is not None
-"appTemp": {"name": "Apparent Temperature", "data": $appTempWeekjson},
+"appTemp": $appTempWeekjson,
 #end if
-"windchill": {"name": "Wind Chill", "data": $windchillWeekjson},
-"heatindex": {"name": "Heat Index", "data": $heatindexWeekjson}},
+"windchill": $windchillWeekjson,
+"heatindex": $heatindexWeekjson,
 "units": "$unit.label.windchill"
 }
 }]
