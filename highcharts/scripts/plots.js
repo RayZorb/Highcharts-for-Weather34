@@ -530,7 +530,7 @@ function create_chart_options(options, type, title, valueSuffix, values){
     options.series = [];
     options.chart.type = type;
     if (type == 'columnrange')
-        options.tooltip.positioner = function(labelWidth, labelHeight, point){var tooltipX = point.plotX; var tooltipY = point.plotY - 40;return {x: tooltipX,y: tooltipY}};
+        options.tooltip.positioner = function(labelWidth, labelHeight, point){var tooltipX = (point.plotX > 490 ? point.plotX - 130 : point.plotX + 60); var tooltipY = point.plotY;return {x: tooltipX,y: tooltipY}};
     options.tooltip.formatter = function() {return custom_tooltip(this)};
     options.tooltip.valueDecimals = 1;
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
