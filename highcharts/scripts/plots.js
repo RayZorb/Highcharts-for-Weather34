@@ -104,6 +104,8 @@ var jsonfileforplot={
     uvsmallplot: [['solar_week.json'],['year.json']]
 };
 
+var buttons= null;
+var auto_update = false;
 var pathjsonfiles = '/pws/highcharts/json/';
 var windrosespans = ["24h","Week","Month","Year"];
 var categories;
@@ -779,7 +781,7 @@ Function to do wind small chart
     return options;
 };
 
-function create_wind_chart(options, span, seriesData, units, plot_type, cb_func){
+function create_wind_chart(options, span, seriesData, units){
 /*****************************************************************************
 
 Function to create wind chart
@@ -1131,16 +1133,24 @@ function setup_plots(seriesData, units, options, plot_type, cb_func, span){
 Function to add/set various weekly plot options specific to the 'week' plot.
 
 *****************************************************************************/
-    Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
-    buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
-    if (buttons.length < 8){
-        function callback(units, plot_type, cb_func, span){return function(){display_chart(units, plot_type, cb_func, span)}}
-        buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, cb_func, span)});
-    }
     for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
        options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, cb_func));
     return options
 };
+
+function do_auto_update(units, plot_type, cb_func, span){
+/*****************************************************************************
+
+Function to do auto update of charts
+
+*****************************************************************************/  
+    auto_update = !auto_update;
+    for (var i = 0; i < buttons.length;i++)
+       if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
+           buttons[i].text = "Auto Update Chart " + (auto_update ? "ON" : "OFF");
+    if (auto_update)
+        display_chart(units, plot_type, cb_func, span);
+}
 
 function display_chart(units, plot_type, cb_func, span){
 /*****************************************************************************
@@ -1150,8 +1160,17 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, cb_func, span);
+    Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
+    if (buttons == null){
+        buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
+        if (buttons.every(function(button){return!button.hasOwnProperty('text')})){
+            function callback(units, plot_type, cb_func, span){return function(){do_auto_update(units, plot_type, cb_func, span)}}
+            buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, cb_func, span)});
+            buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, cb_func, span)});
+        }
+    }
     var results, files = [];
-    if (!jsonfileforplot.hasOwnProperty(plot_type) && (span[0] != "weekly" || span[0] != "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
+    if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
         files[i] = pathjsonfiles + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     jQuery.getMultipleJSON(...files).done(function(...results){
@@ -1171,4 +1190,6 @@ Function to display weekly or yearly charts
             for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
                 postcreatefunctions[plot_type][i](chart);
     });
+    if (auto_update)
+        setTimeout(display_chart, 60000, units, plot_type, cb_func, span);
 };
