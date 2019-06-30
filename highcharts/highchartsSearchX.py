@@ -346,8 +346,7 @@ class highchartsWeek(SearchList):
         windGust_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
 
         # Get our wind direction vector
-        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                              'windDir')
+        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'windDir')
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         windDirRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windDir_vt[1], "1f")[-2])
@@ -358,8 +357,8 @@ class highchartsWeek(SearchList):
         windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
 
         # Get our rain vector, need to sum over the hour
-        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                           'rain', 'sum', 3600)
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'rain', 'sum', 3600)
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'rainRate', 'sum', 3600)
         # Check if we have a partial hour at the end
         # If we do then set the last time in the time vector to the hour
         # Avoids display issues with the column chart
@@ -369,11 +368,14 @@ class highchartsWeek(SearchList):
                 time_stop_vt[0][-1] = time_stop_vt[0][-2] + 3600
         # Convert our rain vector
         rain_vt = self.generator.converter.convert(rain_vt)
+        rainRate_vt = self.generator.converter.convert(rainRate_vt)
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
         rainRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rain_vt[1], "1f")[-2])
+        rainRateRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rainRate_vt[1], "1f")[-2])
         # Do the rounding
         rainRound_vt =  [roundNone(x,rainRound) for x in rain_vt[0]]
+        rainRateRound_vt =  [roundNone(x,rainRateRound) for x in rainRate_vt[0]]
         # Get our time vector in ms (Highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
@@ -450,6 +452,7 @@ class highchartsWeek(SearchList):
             insolation_json = None
         uv_json = json.dumps(zip(UV_time_ms, uvRound_vt))
         rain_json = json.dumps(zip(timeRain_ms, rainRound_vt))
+        rainRate_json = json.dumps(zip(timeRain_ms, rainRateRound_vt))
 
         # Put into a dictionary to return
         search_list_extension = {'outTempWeekjson' : outTemp_json,
@@ -465,6 +468,7 @@ class highchartsWeek(SearchList):
                                  'windGustWeekjson' : windGust_json,
                                  'windDirWeekjson' : windDir_json,
                                  'rainWeekjson' : rain_json,
+                                 'rainRateWeekjson' : rainRate_json,
                                  'radiationWeekjson' : radiation_json,
                                  'insolationWeekjson' : insolation_json,
                                  'uvWeekjson' : uv_json,
@@ -629,11 +633,7 @@ class highchartsYear(SearchList):
         windSpeedAvg_vt = self.generator.converter.convert(windSpeed_dict['avg'])
 
         # Get our windDir vectors
-        (windDir_time_vt, windDir_dict) = getDaySummaryVectors(db_lookup(),
-                                                               'wind',
-                                                               _timespan,
-                                                               ['vecdir'])
-
+        (windDir_time_vt, windDir_dict) = getDaySummaryVectors(db_lookup(),'wind',_timespan,['vecdir'])
         # Get our rain vectors
         (rain_time_vt, rain_dict) = getDaySummaryVectors(db_lookup(),
                                                          'rain',
