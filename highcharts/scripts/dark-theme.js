@@ -77,7 +77,7 @@
             	color: '#009bab',
             	dashStyle: 'shortdot'
         	},
-              	gridLineDashStyle: 'shortdot',
+              	gridLineDashStyle: 'shortdash',
               	gridLineWidth: 1, 
               	gridLineColor: 'RGBA(64, 65, 66, 0.8)',
                 labels: {
@@ -99,7 +99,7 @@
                 crosshair: {
             	width: 1,
             	color: '#ff832f',
-            	dashStyle: 'shortdot'
+            	dashStyle: 'shortdash'
         		},
     			gridLineDashStyle: 'shortdot',
               	gridLineWidth: 1,
