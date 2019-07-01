@@ -888,7 +888,7 @@ align-items:center;justify-content:center;margin-bottom:10px;top:0}
  <article style="height:60px;width:250px;">  
   <div class="lotemp">
   <?php echo $info?> 
-<a href="https://highcharts.com" title="https://highcharts.com" target="_blank" style="font-size:8px;"> Charts rendered and compiled using <?php echo $creditschart ;?> </a></span>
+<a href="https://highcharts.com" title="https://highcharts.com" target="_blank" style="font-size:8px;"> Charts rendered and compiled using Highcharts ;?> </a></span>
   </div><br>
   <div class="lotemp">
   <?php echo $info?> <a href="https://weather34.com" title="weather34.com" target="_blank" style="font-size:8px;">CSS/SVG/PHP scripts were developed by weather34.com  for use in the weather34 template &copy; 2015-<?php echo date('Y');?>
