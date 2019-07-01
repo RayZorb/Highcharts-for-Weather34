@@ -75,7 +75,7 @@
               	crosshair: {
             	width: 1,
             	color: '#009bab',
-            	dashStyle: 'shortdot'
+            	dashStyle: 'shortdash'
         	},
               	gridLineDashStyle: 'shortdot',
               	gridLineWidth: 1, 
@@ -99,7 +99,7 @@
                 crosshair: {
             	width: 1,
             	color: '#ff832f',
-            	dashStyle: 'shortdot'
+            	dashStyle: 'shortdash'
         		},
     			gridLineDashStyle: 'shortdot',
               	gridLineWidth: 1,
