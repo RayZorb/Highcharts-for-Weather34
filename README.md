@@ -8,7 +8,7 @@ This repository contains the instructions and code to enable Highcharts to be us
 1. Install the WeeWX Highcharts extension. Full intructions can be found at https://github.com/gjr80/weewx-highcharts. Pay careful attention to the modification of weewx.conf and skin.conf files.
 2. Download the .zip file to the root folder of WX-HWS template installation.
 3. Unzip the file which will result in a new folder, highcharts.
-4. Included in this folder is and alternative version of index.php with the links to the new charts. Rename your existing WX-HWS index.php file to index.php.cjs and replace it with the alternative version.
+4. Included in this folder are versions of index.php, barometeralmanac.php, rainfallalmanac.php, solaralmanac.php, tempalmanac.php,uvalmanac.php, windalmanac.php which include the essential links to the new charts. Rename your existing WX-HWS files (for example index.php to index.php.cjs) and replace them with the new versions.
 5. Go to the languages folder in this repository. Copy the two files contained within to the languages folder of your WX-HWS installation.
 6. Go to your skins/Highcharts folder and rename your Highcharts skin.conf file and json folder. Replace it with the skin.conf file and json folder found in the skin/Highcharts folder in this repository.         
 7. Go to the [CheetahGenerator] stanza and change [YOUR_PATH] to reflect your own path. For example it might be '/var/www/html/pws/highcharts'
@@ -42,6 +42,30 @@ This repository contains the instructions and code to enable Highcharts to be us
 13. You will notice that not all of these charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
 
             href="<?php echo $chartsource;?>/highcharts.html?chart='[chart_ID]'&span='[time_frame]'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity >
+            
+            The complete list of chart IDs available are as follows (the small plots are included in the almanacs): -
+            
+            temperatureplot,
+            indoorplot,
+            tempsmallplot,
+            tempallplot,
+            tempderivedplot,
+            humidityplot,
+            barometerplot,
+            barsmallplot,
+            dewpointplot,
+            windsmallplot,
+            winddirplot,
+            windplot,
+            windallplot,
+            windroseplot,
+            rainplot,
+            rainsmallplot,
+            radiationplot,
+            raduvplot,
+            radsmallplot,
+            uvplot,
+            uvsmallplot
             
             
 Any problems, contact me on steepleian@gmail.com or raise an Issue            
