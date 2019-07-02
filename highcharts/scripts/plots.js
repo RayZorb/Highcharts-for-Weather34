@@ -70,7 +70,7 @@ var createyearlyfunctions = {
     uvsmallplot: [addYearOptions, setUvSmall, create_uv_chart]
 };
 
-var postcreatefunctions={
+var postcreatefunctions = {
     tempsmallplot: [post_create_small_chart],
     barsmallplot: [post_create_small_chart],
     windsmallplot: [post_create_small_chart],
@@ -80,7 +80,7 @@ var postcreatefunctions={
     windroseplot: [post_create_windrose_chart]
 };
 
-var jsonfileforplot={
+var jsonfileforplot = {
     temperatureplot: [['temp_week.json'],['year.json']],
     indoorplot: [['indoor_derived_week.json'],['year.json']],
     tempsmallplot: [['temp_week.json'],['year.json']],
@@ -104,11 +104,11 @@ var jsonfileforplot={
     uvsmallplot: [['solar_week.json'],['year.json']]
 };
 
-var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','radsmallplot','uvsmallplot','windroseplot'];
-var buttons= null;
-var auto_update = false;
 var pathjsonfiles = '../../weewx/json/';
+var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','radsmallplot','uvsmallplot','windroseplot'];
 var windrosespans = ["24h","Week","Month","Year"];
+var auto_update = false;
+var buttons= null;
 var categories;
 var chart;
 
@@ -285,8 +285,10 @@ var commonOptions = {
     rangeSelector: {},
     series: [{}],
     tooltip: {
+        valueDecimals: 1,
         crosshairs: true,
         enabled: true,
+        followPointer: true,
         dateTimeLabelFormats: {
             minute: '%H:%M',
             hour: '%H:%M',
@@ -529,10 +531,7 @@ function create_chart_options(options, type, title, valueSuffix, values){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
     options.series = [];
     options.chart.type = type;
-    if (type == 'columnrange')
-        options.tooltip.positioner = function(labelWidth, labelHeight, point){var tooltipX = (point.plotX > 490 ? point.plotX - 130 : point.plotX + 60); var tooltipY = point.plotY;return {x: tooltipX,y: tooltipY}};
     options.tooltip.formatter = function() {return custom_tooltip(this)};
-    options.tooltip.valueDecimals = 1;
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
     options.xAxis.minTickInterval = 900000;
     options.title = {text: getTranslation(title)};
@@ -584,7 +583,7 @@ Function to create temperature chart
 
 *****************************************************************************/
      if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint', 'spline']]);
+        options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint Ranges & Averages', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint', 'spline']]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempminmax));
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempaverage));
         options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointminmax));
@@ -615,7 +614,7 @@ Function to create indoor temperature chart
 
 *****************************************************************************/
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'columnrange', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
+        options = create_chart_options(options, 'columnrange', 'Greenhouse Temperature Humidity Ranges & Averages', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempminmax));
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempaverage))
         options.series[2].data = reinflate_time(seriesData[0].humidityplot.inHumidityminmax);
@@ -773,7 +772,7 @@ Function to create barometer chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
-}
+};
 
 function setWindSmall(options) {
 /*****************************************************************************
@@ -809,7 +808,7 @@ Function to create wind chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
-}
+};
 
 function create_winddir_chart(options, span, seriesData, units){
 /*****************************************************************************
@@ -830,7 +829,7 @@ Function to create wind direction chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
-}
+};
 
 function create_windall_chart(options, span, seriesData, units){
 /*****************************************************************************
@@ -859,7 +858,8 @@ Function to create wind chart
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
-}
+};
+
 function setWindRose(options){
 /*****************************************************************************
 
