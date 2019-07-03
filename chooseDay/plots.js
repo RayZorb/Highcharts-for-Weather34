@@ -94,8 +94,8 @@ var jsonfileforplot = {
     windsmallplot: [['wind_week.json'],['year.json']],
     windallplot: [['wind_week.json'],['year.json']],
     winddirplot: [['wind_week.json'],['year.json']],
-    windroseplot: [['wind_week.json'],['year.json']],
-    rainplot: [['bar_rain_week.json'],['year.json']],
+    windroseplot: [['wind_week1.json'],['year.json']],
+    rainplot: [['bar_rain_week1.json'],['year.json']],
     rainsmallplot: [['bar_rain_week.json'],['year.json']],
     radiationplot: [['solar_week.json'],['year.json']],
     raduvplot: [['solar_week.json'],['year.json']],
@@ -529,11 +529,12 @@ function getTranslation(term){
     return translation.length > 0 ? translation : term;
 };
 
-function create_chart_options(options, type, title, valueSuffix, values){
+function create_chart_options(options, type, title, valueSuffix, values, custom_tp = true){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
     options.series = [];
     options.chart.type = type;
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
+    if (custom_tp)
+        options.tooltip.formatter = function() {return custom_tooltip(this)};
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
     options.xAxis.minTickInterval = 900000;
     options.title = {text: getTranslation(title)};
@@ -996,18 +997,15 @@ Function to create rain chart
         options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column']]);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainsum));
         options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
-        options.tooltip.xDateFormat = '%e %B %Y';
     }
     if (span[0] == "weekly"){
-        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]]);
+        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]], false);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rain));
         options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainRate));
-        options.tooltip.xDateFormat = '%e %B %Y hour to %H:%M';
         options.yAxis[1].title.text = "(" + units.rain + ")";
         options.yAxis[1].min = 0;
         options.yAxis[1].tickInterval = 1;
         options.yAxis[1].allowDecimals = true;
-        options.yAxis[1].labels = { format: '{value:.0f}'};
     }
     options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
     options.plotOptions.column.dataGrouping.enabled = true;
@@ -1019,7 +1017,6 @@ Function to create rain chart
     options.yAxis[0].min = 0;
     options.yAxis[0].tickInterval = 1;
     options.yAxis[0].allowDecimals = true;
-    options.yAxis[0].labels = { format: '{value:.0f}'};
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
