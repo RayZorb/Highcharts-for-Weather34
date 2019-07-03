@@ -1,4 +1,4 @@
-/***************************************************************************** 
+/*****************************************************************************
 
 Javascript to setup, configure and display Highcharts plots of weewx weather data.
 
@@ -650,8 +650,6 @@ Function to create temperature chart
         options.series[3].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointaverage));
         options.series[4].data = reinflate_time(seriesData[0].humidityplot.outHumidityminmax);
         options.series[5].data = reinflate_time(seriesData[0].humidityplot.outHumidityaverage);
-        options.yAxis[0].height = "150";
-        options.yAxis[1].labels = {x: 16, y: 4};
     }
     else if (span[0] == "weekly"){        
         options = create_chart_options(options, 'spline', 'Temperature Dewpoint Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
