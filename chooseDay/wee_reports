@@ -47,7 +47,7 @@ def main():
         exit(1)
     
     # If the user specified a time, retrieve it. Otherwise, set to None
-    gen_ts = int(args[0]) if args else None
+    gen_ts = int(args[0]) if args and args[0] != 'None' else None
 
     print "Using configuration file %s" % config_path
 
@@ -66,7 +66,7 @@ def main():
     socket.setdefaulttimeout(10)
     
     stn_info = weewx.station.StationInfo(**config_dict['Station'])
-    
+
     save_entries = ["SKIN_ROOT","HTML_ROOT","data_binding","log_success","log_failure","Highcharts"]
     for key in config_dict['StdReport']:
         if key not in save_entries:

@@ -28,13 +28,13 @@
             <p>Epoch time to display chart for <input type="text" id="epoch" name ="epoch"></p>
             Plot Type:
             <select name="plot_type">
-                <option value="tempallplot">Temperature</option>
-                <option value="indoorplot">Indoor Temp</option>
-                <option value="barometerplot">Barometer</option>
-                <option value="windallplot">Wind</option>
-                <option value="rainplot">Rain</option>
-                <option value="radiationplot">Solar</option>
-                <option value="uvplot">UV</option>
+                <option value='tempallplot,TempWeekJSON,json/temp_week.json.tmpl'>Temperature</option>
+                <option value='indoorplot,IndoorDerivedWeekJSON,json/indoor_derived_week.json.tmpl'>Indoor Temp</option>
+                <option value='barometerplot,BarRainWeekJSON,json/bar_rain_week.json.tmpl'>Barometer</option>
+                <option value='windallplot,WindWeekJSON,json/wind_week.json.tmpl'>Wind</option>
+                <option value='rainplot,BarRainWeekJSON,json/bar_rain_week.json.tmpl'>Rain</option>
+                <option value='radiationplot,SolarWeekJSON,json/solar_week.json.tmpl'>Solar</option>
+                <option value='uvplot,SolarWeekJSON,json/solar_week.json.tmpl'>UV</option>
             </select>
             <input type = "submit" name = "Submit" value = "Submit"> 
         </form> 
