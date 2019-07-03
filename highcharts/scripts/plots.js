@@ -528,11 +528,11 @@ function getTranslation(term){
     return translation.length > 0 ? translation : term;
 };
 
-function create_chart_options(options, type, title, valueSuffix, values, custom_tooltip = true){
+function create_chart_options(options, type, title, valueSuffix, values, custom_tp = true){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
     options.series = [];
     options.chart.type = type;
-    if (custom_tooltip)
+    if (custom_tp)
         options.tooltip.formatter = function() {return custom_tooltip(this)};
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
     options.xAxis.minTickInterval = 900000;
