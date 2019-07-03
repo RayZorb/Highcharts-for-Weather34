@@ -1,4 +1,4 @@
-<!DOCTYPE html>  
+<!DOCTYPE html> 
 <html> 
     <head> 
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -20,19 +20,21 @@
          </script>
     </head> 
     <body> 
-        <form action="get-method.php" method="post" name="pwd" > 
-            <input type="hidden"  id="temp_unit" name = "temp_unit">
-            <input type="hidden"  id="pressure_unit" name = "pressure_unit">
-            <input type="hidden"  id="wind_unit" name = "wind_unit">
-            <input type="hidden"  id="rain_unit" name = "rain_unit">
+        <form action="get-method.php" method="post" name="day_plot" > 
+            <input type="hidden" id="temp_unit" name = "temp_unit">
+            <input type="hidden" id="pressure_unit" name = "pressure_unit">
+            <input type="hidden" id="wind_unit" name = "wind_unit">
+            <input type="hidden" id="rain_unit" name = "rain_unit">
             <p>Epoch time to display chart for <input type="text" id="epoch" name ="epoch"></p>
             Plot Type:
             <select name="plot_type">
-                <option value="tempdayplot">Temperature</option>
-                <option value="bardayplot">Barometer</option>
-                <option value="winddayplot">Wind</option>
-                <option value="solardayplot">Solar</option>
-                <option value="raindayplot">Rain</option>
+                <option value="tempallplot">Temperature</option>
+                <option value="indoorplot">Indoor Temp</option>
+                <option value="barometerplot">Barometer</option>
+                <option value="windallplot">Wind</option>
+                <option value="rainplot">Rain</option>
+                <option value="radiationplot">Solar</option>
+                <option value="uvplot">UV</option>
             </select>
             <input type = "submit" name = "Submit" value = "Submit"> 
         </form> 

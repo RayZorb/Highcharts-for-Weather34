@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 #
 #    Copyright (c) 2009-2015 Tom Keffer <tkeffer@gmail.com>
 #
@@ -24,10 +24,10 @@ description = """Run all reports defined in the specified configuration file.
 Use this utility to run reports immediately instead of waiting for the end of
 an archive interval."""
 
-usage = """%prog: [timestamp] [--config=CONFIG_FILE] [--help]"""
+usage = """%prog: [timestamp] [span] [template] [html_root] [--config=CONFIG_FILE] [--help]"""
 
 def main():
-
+        
     # Set defaults for the system logger:
     syslog.openlog('wee_reports', syslog.LOG_PID | syslog.LOG_CONS)
 
@@ -42,9 +42,13 @@ def main():
     (options, args) = parser.parse_args()
     config_path, config_dict = weecfg.read_config(options.config_path, None)
     
+    if len(args) < 4:
+        print usage
+        exit(1)
+    
     # If the user specified a time, retrieve it. Otherwise, set to None
     gen_ts = int(args[0]) if args else None
-    
+
     print "Using configuration file %s" % config_path
 
     if gen_ts is None:
@@ -63,8 +67,12 @@ def main():
     
     stn_info = weewx.station.StationInfo(**config_dict['Station'])
     
-    config_dict['StdReport']['SeasonsReport']['enable'] = 'false'
+    save_entries = ["SKIN_ROOT","HTML_ROOT","data_binding","log_success","log_failure","Highcharts"]
+    for key in config_dict['StdReport']:
+        if key not in save_entries:
+            del config_dict['StdReport'][key]
     config_dict['StdReport']['Highcharts']['skin'] = 'Highcharts-day'
+    config_dict['StdReport']['Highcharts']['CheetahGenerator'] = {'ToDate': {args[1]: {'template': args[2],'HTML_ROOT': args[3]}}}
     
     t = weewx.reportengine.StdReportEngine(config_dict, stn_info, gen_ts=gen_ts)
 

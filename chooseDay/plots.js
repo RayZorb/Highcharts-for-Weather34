@@ -30,7 +30,6 @@ History
 *****************************************************************************/
 var createweeklyfunctions = {
     temperatureplot: [addWeekOptions, create_temperature_chart],
-    tempdayplot: [addWeekOptions,create_temperature_chart],
     indoorplot: [addWeekOptions, create_indoor_chart],
     tempallplot: [addWeekOptions, create_tempall_chart],
     tempderivedplot: [addWeekOptions, create_tempderived_chart],
@@ -49,7 +48,6 @@ var createweeklyfunctions = {
 
 var createyearlyfunctions = {
     temperatureplot: [addYearOptions,create_temperature_chart],
-    tempdayplot: [addYearOptions,create_temperature_chart],
     indoorplot: [addYearOptions, create_indoor_chart],
     tempsmallplot: [addYearOptions, setTempSmall, create_temperature_chart],
     tempallplot: [addYearOptions, create_tempall_chart],
@@ -83,7 +81,6 @@ var postcreatefunctions = {
 };
 
 var jsonfileforplot = {
-    tempdayplot: [['../../pws/mbcharts/json/temp_day.json'],['year.json']],
     temperatureplot: [['temp_week.json'],['year.json']],
     indoorplot: [['indoor_derived_week.json'],['year.json']],
     tempsmallplot: [['temp_week.json'],['year.json']],
@@ -108,6 +105,7 @@ var jsonfileforplot = {
 };
 
 var pathjsonfiles = '../../weewx/json/';
+var pathjsonfiles1 = 'json/';
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','radsmallplot','uvsmallplot','windroseplot'];
 var windrosespans = ["24h","Week","Month","Year"];
 var auto_update = false;
@@ -406,7 +404,7 @@ As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-
     throw new Error('Unable to copy obj! Its type isn\'t supported.');
 };
 
-function addWindRoseOptions(options, span, seriesData, units, plot_type) {
+function addWindRoseOptions(options, span, seriesData, units, plot_type, day_plots) {
 /*****************************************************************************
 
 Function to add/set various plot options specific to the 'wind rose' plot.
@@ -415,16 +413,16 @@ Function to add/set various plot options specific to the 'wind rose' plot.
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[0]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[0]], day_plots);return false;}}
     }, {
         text: windrosespans[1],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[1]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[1]], day_plots);return false;}}
     }, {
         text: windrosespans[2],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[2]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[2]], day_plots);return false;}}
     }, {
         text: windrosespans[3],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[3]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[3]], day_plots);return false;}}
     }];
     options.plotOptions.column.dataGrouping.enabled = false;
     return options
@@ -602,7 +600,6 @@ Function to create temperature chart
            options.series[2].showInLegend = true;
         }
     }
-    if (plot_type == 'tempdayplot') options.rangeSelector.selected = 6;
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.yAxis[0].title.rotation = 0;
     options.yAxis[0].tickInterval = 10;
@@ -1133,25 +1130,25 @@ Function to create uv chart
     return options;
 }
 
-function setup_plots(seriesData, units, options, plot_type, span){
+function setup_plots(seriesData, units, options, plot_type, span, day_plots){
 /*****************************************************************************
 
 Function to add/set various weekly plot options specific to the 'week' plot.
 
 *****************************************************************************/
     for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
-       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type));
+       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, day_plots) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, day_plots));
     return options
 };
 
-function do_auto_update(units, plot_type, span, buttonReload){
+function do_auto_update(units, plot_type, span, buttonReload, day_plots){
 /*****************************************************************************
 
 Function to do auto update of charts
 
 *****************************************************************************/  
     if (buttonReload){
-        display_chart(units, plot_type, span);
+        display_chart(units, plot_type, span, day_plots);
         return;
     }   
     auto_update = !auto_update;
@@ -1159,10 +1156,10 @@ Function to do auto update of charts
        if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
            buttons[i].text = "Auto Update Chart " + (auto_update ? "ON" : "OFF");
     if (auto_update)
-        display_chart(units, plot_type, span);
+        display_chart(units, plot_type, span, day_plots);
 }
 
-function display_chart(units, plot_type, span){
+function display_chart(units, plot_type, span, day_plots = false){
 /*****************************************************************************
 
 Function to display weekly or yearly charts
@@ -1173,23 +1170,24 @@ Function to display weekly or yearly charts
     if (buttons == null){
         Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
-        function callback(units, plot_type, span, buttonReload){return function(){do_auto_update(units, plot_type, span, buttonReload)}}
-        buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true)});
-        buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false)});
+        function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_auto_update(units, plot_type, span, buttonReload, day_plots)}}
+        buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true, day_plots)});
+        buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false, day_plots)});
     }
     var results, files = [];
     if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
-        files[i] = pathjsonfiles + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
+        files[i] = (day_plots ? pathjsonfiles1 : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     jQuery.getMultipleJSON(...files).done(function(...results){
-        var options = setup_plots(results.flat(), units, clone(commonOptions), plot_type, span);
+        var options = setup_plots(results.flat(), units, clone(commonOptions), plot_type, span, day_plots);
+        options.rangeSelector.selected = day_plots ? 6 : 3;
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (!plotsnoswitch.includes(plot_type))
             for (var i = 0; i < chart.series.length; i++){
                 chart.series[i].update({
                     cursor: 'pointer',
                     point: {
-                       events: {click: function(e){display_chart(units, plot_type, (span[0] == 'weekly' ? ['yearly'] : ['weekly']));}}
+                       events: {click: function(e){display_chart(units, plot_type, (span[0] == 'weekly' ? ['yearly'] : ['weekly']), day_plots);}}
                     }
                 });
             }
@@ -1198,5 +1196,5 @@ Function to display weekly or yearly charts
                 postcreatefunctions[plot_type][i](chart);
     });
     if (auto_update)
-        setTimeout(display_chart, 60000, units, plot_type, span);
+        setTimeout(display_chart, 60000, units, plot_type, span, day_plots);
 };
