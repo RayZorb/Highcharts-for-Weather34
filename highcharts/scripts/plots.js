@@ -623,7 +623,7 @@ Function to create indoor temperature chart
         options.series[3].data = reinflate_time(seriesData[0].humidityplot.inHumidityaverage);
     }
     else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,, "%"]]);
+        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTemp));
         options.series[1].data = reinflate_time(seriesData[0].humidityplot.inHumidity);
     }
