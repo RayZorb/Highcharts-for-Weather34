@@ -516,10 +516,10 @@ function custom_tooltip(tooltip, first_line) {
         temp.push(i);
         order = temp.concat(order);
     }
-    if (first_line == 0)
+    if (first_line == "date")
        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
-    else if (first_line == 1)
-       temp = '<span style="font-size: 10px">' + month_name[tooltip.x] + '</span><br/>';
+    else
+       temp = '<span style="font-size: 10px">' + first_line[tooltip.x] + '</span><br/>';
     $(order).each(function(i,j){
         temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + points[j].y + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
     });
@@ -536,11 +536,11 @@ function getTranslation(term){
     return translation.length > 0 ? translation : term;
 };
 
-function create_chart_options(options, type, title, valueSuffix, values, first_line = 0){
+function create_chart_options(options, type, title, valueSuffix, values, first_line = "date"){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
     options.series = [];
     options.chart.type = type;
-    if (first_line < 2)
+    if (first_line != null)
         options.tooltip.formatter = function() {return custom_tooltip(this, first_line)};
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
     options.xAxis.minTickInterval = 900000;
@@ -1010,7 +1010,7 @@ Function to create rain chart
         console.log (sum);
     }
     if (span[0] == "weekly"){
-        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]], 2);
+        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]], null);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rain));
         options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainRate));
         options.yAxis[1].title.text = "(" + units.rain + ")";
@@ -1039,22 +1039,23 @@ function create_rain_month_chart(options, span, seriesData, units){
 Function to create rain chart
 
 *****************************************************************************/
-    data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainsum));
-    index = 0;
-    month_data = [];
-    month_name = [];
+    var data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainsum));
+    var index = 0;
+    var month_data = [];
+    var month_name = [];
     month_name[index] = monthNames[new Date(data[0][0]).getMonth()];
     month_data[index] = data[0][1];
-    for (var i = 0; i < data.length; i++){
-        if (month_name[index] != monthNames[new Date(data[i][0]).getMonth()]){
+    for (var i = 1; i < data.length; i++){
+        var new_month = monthNames[new Date(data[i][0]).getMonth()];
+        if (month_name[index] != new_month){
             index  +=1;
-            month_name[index] = monthNames[new Date(data[i][0]).getMonth()];
+            month_name[index] = new_month;
             month_data[index] = data[i][1];
         }
         else
            month_data[index] +=  data[i][1];
     }
-    options = create_chart_options(options, 'column', 'Monthly Rainfall', units.rain,[['Rainfall', 'column']],1);
+    options = create_chart_options(options, 'column', 'Monthly Rainfall', units.rain,[['Rainfall', 'column']], month_name);
     options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data);
     options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
     options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
@@ -1069,7 +1070,7 @@ Function to create rain chart
     options.yAxis[0].allowDecimals = true;
     options.xAxis.minTickInterval =0;
     options.xAxis.type ='category';
-    options.xAxis.labels = {formatter: function () {return month_name[this.value]}};
+    options.xAxis.labels = {formatter: function (){return month_name[this.value]}};
     return options;
 }
 
