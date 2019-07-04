@@ -96,8 +96,8 @@ var jsonfileforplot = {
     windsmallplot: [['wind_week.json'],['year.json']],
     windallplot: [['wind_week.json'],['year.json']],
     winddirplot: [['wind_week.json'],['year.json']],
-    windroseplot: [['wind_week1.json'],['year.json']],
-    rainplot: [['bar_rain_week1.json'],['year.json']],
+    windroseplot: [['wind_week.json'],['year.json']],
+    rainplot: [['bar_rain_week.json'],['year.json']],
     rainmonthplot: [[''],['year.json']],
     rainsmallplot: [['bar_rain_week.json'],['year.json']],
     radiationplot: [['solar_week.json'],['year.json']],
@@ -109,7 +109,7 @@ var jsonfileforplot = {
 
 var pathjsonfiles = '../../weewx/json/';
 var pathjsonfiles1 = 'json/';
-var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','radsmallplot','uvsmallplot','windroseplot'];
+var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
 var monthNames = ["January", "February", "March", "April", "May","June","July", "August", "September", "October", "November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
 var auto_update = false;
@@ -586,7 +586,7 @@ spline temperature plots
     return options
 };
 
-function create_temperature_chart(options, span, seriesData, units, plot_type){
+function create_temperature_chart(options, span, seriesData, units){
 /*****************************************************************************
 
 Function to create temperature chart
@@ -761,7 +761,7 @@ Function to do small barometer chart
     return obj
 };
 
-function create_barometer_chart(options, span, seriesData, units, plot_type){
+function create_barometer_chart(options, span, seriesData, units){
 /*****************************************************************************
 
 Function to create barometer chart
@@ -1004,10 +1004,6 @@ Function to create rain chart
         options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column']]);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainsum));
         options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
-        sum = 0;
-        for (var i = 0; i < seriesData[0].rainplot.rainsum.length; i++)
-           sum += seriesData[0].rainplot.rainsum[i][1];
-        console.log (sum);
     }
     if (span[0] == "weekly"){
         options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]], null);
@@ -1057,7 +1053,6 @@ Function to create rain chart
     }
     options = create_chart_options(options, 'column', 'Monthly Rainfall', units.rain,[['Rainfall', 'column']], month_name);
     options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data);
-    options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
     options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
     options.plotOptions.column.dataGrouping.enabled = true;
     options.plotOptions.column.marker = {enabled: false,};
