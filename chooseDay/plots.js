@@ -62,6 +62,7 @@ var createyearlyfunctions = {
     windallplot: [addYearOptions, create_windall_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addYearOptions, create_rain_chart],
+    rainmonthplot: [addYearOptions, create_rain_month_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
     radiationplot: [addYearOptions, create_radiation_chart],
     raduvplot: [addYearOptions, create_raduv_chart],
@@ -75,6 +76,7 @@ var postcreatefunctions = {
     barsmallplot: [post_create_small_chart],
     windsmallplot: [post_create_small_chart],
     rainsmallplot: [post_create_small_chart],
+    rainmonthplot: [post_create_rain_month_chart],
     radsmallplot: [post_create_small_chart],
     uvsmallplot: [post_create_small_chart],
     windroseplot: [post_create_windrose_chart]
@@ -94,8 +96,9 @@ var jsonfileforplot = {
     windsmallplot: [['wind_week.json'],['year.json']],
     windallplot: [['wind_week.json'],['year.json']],
     winddirplot: [['wind_week.json'],['year.json']],
-    windroseplot: [['wind_week.json'],['year.json']],
-    rainplot: [['bar_rain_week.json'],['year.json']],
+    windroseplot: [['wind_week1.json'],['year.json']],
+    rainplot: [['bar_rain_week1.json'],['year.json']],
+    rainmonthplot: [[''],['year.json']],
     rainsmallplot: [['bar_rain_week.json'],['year.json']],
     radiationplot: [['solar_week.json'],['year.json']],
     raduvplot: [['solar_week.json'],['year.json']],
@@ -107,6 +110,7 @@ var jsonfileforplot = {
 var pathjsonfiles = '../../weewx/json/';
 var pathjsonfiles1 = 'json/';
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','radsmallplot','uvsmallplot','windroseplot'];
+var monthNames = ["January", "February", "March", "April", "May","June","July", "August", "September", "October", "November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
 var auto_update = false;
 var buttons= null;
@@ -499,7 +503,7 @@ Function to add/set various plot options specific to the 'year' plot.
     return obj
 };
 
-function custom_tooltip(tooltip) {
+function custom_tooltip(tooltip, first_line) {
     var order = [], i, j, temp = [], points = tooltip.points;
     if (points == undefined) points = [tooltip.point];
     for(i=0; i < points.length; i++){
@@ -512,7 +516,10 @@ function custom_tooltip(tooltip) {
         temp.push(i);
         order = temp.concat(order);
     }
-    temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
+    if (first_line == 0)
+       temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
+    else if (first_line == 1)
+       temp = '<span style="font-size: 10px">' + month_name[tooltip.x] + '</span><br/>';
     $(order).each(function(i,j){
         temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + points[j].y + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
     });
@@ -529,12 +536,12 @@ function getTranslation(term){
     return translation.length > 0 ? translation : term;
 };
 
-function create_chart_options(options, type, title, valueSuffix, values, custom_tp = true){
+function create_chart_options(options, type, title, valueSuffix, values, first_line = 0){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
     options.series = [];
     options.chart.type = type;
-    if (custom_tp)
-        options.tooltip.formatter = function() {return custom_tooltip(this)};
+    if (first_line < 2)
+        options.tooltip.formatter = function() {return custom_tooltip(this, first_line)};
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
     options.xAxis.minTickInterval = 900000;
     options.title = {text: getTranslation(title)};
@@ -997,9 +1004,13 @@ Function to create rain chart
         options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column']]);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainsum));
         options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
+        sum = 0;
+        for (var i = 0; i < seriesData[0].rainplot.rainsum.length; i++)
+           sum += seriesData[0].rainplot.rainsum[i][1];
+        console.log (sum);
     }
     if (span[0] == "weekly"){
-        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]], false);
+        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]], 2);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rain));
         options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainRate));
         options.yAxis[1].title.text = "(" + units.rain + ")";
@@ -1021,6 +1032,59 @@ Function to create rain chart
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
 }
+
+function create_rain_month_chart(options, span, seriesData, units){
+/*****************************************************************************
+
+Function to create rain chart
+
+*****************************************************************************/
+    data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainsum));
+    index = 0;
+    month_data = [];
+    month_name = [];
+    month_name[index] = monthNames[new Date(data[0][0]).getMonth()];
+    month_data[index] = data[0][1];
+    for (var i = 0; i < data.length; i++){
+        if (month_name[index] != monthNames[new Date(data[i][0]).getMonth()]){
+            index  +=1;
+            month_name[index] = monthNames[new Date(data[i][0]).getMonth()];
+            month_data[index] = data[i][1];
+        }
+        else
+           month_data[index] +=  data[i][1];
+    }
+    options = create_chart_options(options, 'column', 'Monthly Rainfall', units.rain,[['Rainfall', 'column']],1);
+    options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data);
+    options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
+    options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
+    options.plotOptions.column.dataGrouping.enabled = true;
+    options.plotOptions.column.marker = {enabled: false,};
+    options.plotOptions.series.pointPadding = 0;
+    options.plotOptions.series.groupPadding = 0;
+    options.plotOptions.series.borderWidth = 0;
+    options.yAxis[0].title.text = "(" + units.rain + ")";
+    options.yAxis[0].min = 0;
+    options.yAxis[0].tickInterval = 1;
+    options.yAxis[0].allowDecimals = true;
+    options.xAxis.minTickInterval =0;
+    options.xAxis.type ='category';
+    options.xAxis.labels = {formatter: function () {return month_name[this.value]}};
+    return options;
+}
+
+function post_create_rain_month_chart(chart, height){
+/*****************************************************************************
+
+Function to remove unwanted display items from chart
+
+*****************************************************************************/   
+chart.update({
+        exporting: {enabled: false },
+        rangeSelector: {enabled: false},
+        legend:{enabled:false }
+    });
+};
 
 function setRadSmall(options) {
 /*****************************************************************************
