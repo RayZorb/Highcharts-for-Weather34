@@ -108,7 +108,8 @@ var jsonfileforplot = {
 };
 
 var pathjsonfiles = '../../weewx/json/';
-var pathjsonfiles1 = 'json/';
+var dayplotsurl = "/pws/mbcharts/getDayChart.php";
+var pathjsondayfiles = 'json/';
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
 var monthNames = ["January", "February", "March", "April", "May","June","July", "August", "September", "October", "November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
@@ -126,7 +127,7 @@ https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-on
 jQuery.getMultipleJSON = function(){
   return jQuery.when.apply(jQuery, jQuery.map(arguments, function(jsonfile){
     return jQuery.getJSON(jsonfile).fail(function(){
-      alert("!!!!NO DATA FOUND in database for the choose date!!!!")});
+      alert("!!!!NO DATA FOUND in database for the choose date!!!!");return true;});
   })).then(function(){
     var def = jQuery.Deferred();
     return def.resolve.apply(def, jQuery.map(arguments, function(response){
@@ -631,7 +632,7 @@ Function to create indoor temperature chart
         options.series[3].data = reinflate_time(seriesData[0].humidityplot.inHumidityaverage);
     }
     else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,, "%"]]);
+        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,, {valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTemp));
         options.series[1].data = reinflate_time(seriesData[0].humidityplot.inHumidity);
     }
@@ -1235,7 +1236,7 @@ Function to display weekly or yearly charts
     var results, files = [];
     if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
-        files[i] = (day_plots ? pathjsonfiles1 : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
+        files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     jQuery.getMultipleJSON(...files).done(function(...results){
         var options = setup_plots(results.flat(), units, clone(commonOptions), plot_type, span, day_plots);
         options.rangeSelector.selected = day_plots ? 6 : 3;
@@ -1245,13 +1246,17 @@ Function to display weekly or yearly charts
                 chart.series[i].update({
                     cursor: 'pointer',
                     point: {
-                       events: {click: function(e){display_chart(units, plot_type, (span[0] == 'weekly' ? ['yearly'] : ['weekly']), day_plots);}}
+                       //events: {click: function(e){display_chart(units, plot_type, (span[0] == 'weekly' ? ['yearly'] : ['weekly']), day_plots);}}
+                       events: {click: function(e){window.location.href= dayplotsurl+"?temp="+units.temp+"&pressure="+units.pressure+"&wind="+units.wind+"&rain="+units.rain+"&plot_type="+plot_type+",json/"+jsonfileforplot[plot_type][0]+".tmpl&epoch="+this.x/1000}}
                     }
                 });
             }
         if (postcreatefunctions.hasOwnProperty(plot_type))
             for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
                 postcreatefunctions[plot_type][i](chart);
+    }).fail(function(){
+        $("#plot_div").load("../404.html");
+        return;
     });
     if (auto_update)
         setTimeout(display_chart, 60000, units, plot_type, span, day_plots);
