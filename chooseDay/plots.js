@@ -41,6 +41,7 @@ var createweeklyfunctions = {
     winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addWeekOptions, create_rain_chart],
+    rainmonthplot: [create_rain_month_chart],
     radiationplot: [addWeekOptions, create_radiation_chart],
     raduvplot: [addWeekOptions, create_raduv_chart],
     uvplot: [addWeekOptions, create_uv_chart]
@@ -62,7 +63,7 @@ var createyearlyfunctions = {
     windallplot: [addYearOptions, create_windall_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addYearOptions, create_rain_chart],
-    rainmonthplot: [addYearOptions, create_rain_month_chart],
+    rainmonthplot: [create_rain_month_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
     radiationplot: [addYearOptions, create_radiation_chart],
     raduvplot: [addYearOptions, create_raduv_chart],
@@ -98,7 +99,7 @@ var jsonfileforplot = {
     winddirplot: [['wind_week.json'],['year.json']],
     windroseplot: [['wind_week.json'],['year.json']],
     rainplot: [['bar_rain_week.json'],['year.json']],
-    rainmonthplot: [[],['year.json']],
+    rainmonthplot: [['year.json'],['year.json']],
     rainsmallplot: [['bar_rain_week.json'],['year.json']],
     radiationplot: [['solar_week.json'],['year.json']],
     raduvplot: [['solar_week.json'],['year.json']],
@@ -1040,10 +1041,10 @@ Function to create rain chart
     var index = 0;
     var month_data = [];
     var month_name = [];
-    month_name[index] = monthNames[new Date(data[0][0]).getMonth()];
+    month_name[index] = getTranslation(monthNames[new Date(data[0][0]).getMonth()]);
     month_data[index] = data[0][1];
     for (var i = 1; i < data.length; i++){
-        var new_month = monthNames[new Date(data[i][0]).getMonth()];
+        var new_month = getTranslation(monthNames[new Date(data[i][0]).getMonth()]);
         if (month_name[index] != new_month){
             index  +=1;
             month_name[index] = new_month;
@@ -1078,8 +1079,7 @@ Function to remove unwanted display items from chart
 *****************************************************************************/   
 chart.update({
         exporting: {enabled: false },
-        rangeSelector: {enabled: false},
-        legend:{enabled:false }
+        rangeSelector: {enabled: false}
     });
 };
 
