@@ -24,7 +24,7 @@
       $plot_info = explode(",",$_GET['plot_type']);
       $plot_info[1] = 'json/'.$plot_info[1];
       unlink($plot_info[1]);
-      $plot_info[1] = $plot_info[1].'.tmpl';
+      $plot_info[1] = ' '.$plot_info[1].'.tmpl ';
       $temp_unit = "'".$_GET['temp']."'";
       $pressure_unit = "'".$_GET['pressure']."'";
       $wind_unit = "'".$_GET['wind']."'";
@@ -32,6 +32,6 @@
       $plot_info[0] = "'".$plot_info[0]."'";
       $day_epoch = (int)$_GET['epoch'] + (86400 *3);
       $cwd = getcwd();
-      $output = shell_exec(escapeshellcmd('./wee_reports '.(time() < $day_epoch ? 'None':$day_epoch).' '.$plot_info[1].' '.$cwd));
+      $output = shell_exec(escapeshellcmd('./wee_reports '.(time() < $day_epoch ? 'None':$day_epoch).$plot_info[1].$cwd));
       echo "<script> display_chart({temp:$temp_unit,pressure:$pressure_unit,wind:$wind_unit,rain:$rain_unit},$plot_info[0],'weekly',true);</script>";
  ?> 
