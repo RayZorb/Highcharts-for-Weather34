@@ -98,7 +98,7 @@ var jsonfileforplot = {
     winddirplot: [['wind_week.json'],['year.json']],
     windroseplot: [['wind_week.json'],['year.json']],
     rainplot: [['bar_rain_week.json'],['year.json']],
-    rainmonthplot: [[''],['year.json']],
+    rainmonthplot: [[],['year.json']],
     rainsmallplot: [['bar_rain_week.json'],['year.json']],
     radiationplot: [['solar_week.json'],['year.json']],
     raduvplot: [['solar_week.json'],['year.json']],
@@ -1246,8 +1246,7 @@ Function to display weekly or yearly charts
                 chart.series[i].update({
                     cursor: 'pointer',
                     point: {
-                       //events: {click: function(e){display_chart(units, plot_type, (span[0] == 'weekly' ? ['yearly'] : ['weekly']), day_plots);}}
-                       events: {click: function(e){window.location.href= dayplotsurl+"?temp="+units.temp+"&pressure="+units.pressure+"&wind="+units.wind+"&rain="+units.rain+"&plot_type="+plot_type+",json/"+jsonfileforplot[plot_type][0]+".tmpl&epoch="+this.x/1000}}
+                       events: {click: function(e){if (day_plots) display_chart(units, plot_type, ['yearly']); else window.location.href= dayplotsurl+"?temp="+units.temp+"&pressure="+units.pressure+"&wind="+units.wind+"&rain="+units.rain+"&plot_type="+plot_type+",json/"+jsonfileforplot[plot_type][0]+".tmpl&epoch="+this.x/1000}}
                     }
                 });
             }
