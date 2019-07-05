@@ -323,6 +323,7 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type, day_plo
 Function to add/set various plot options specific to the 'wind rose' plot.
 
 *****************************************************************************/
+    options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
         events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[0]], day_plots);return false;}}
