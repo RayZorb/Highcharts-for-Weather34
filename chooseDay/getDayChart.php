@@ -22,7 +22,6 @@
 </html>
 <?php 
       $plot_info = explode(",",$_GET['plot_type']);
-      $plot_info[1] = 'json/'.$plot_info[1];
       unlink($plot_info[1]);
       $plot_info[1] = ' '.$plot_info[1].'.tmpl ';
       $temp_unit = "'".$_GET['temp']."'";

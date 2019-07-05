@@ -108,8 +108,8 @@ var jsonfileforplot = {
 };
 
 var pathjsonfiles = '../../weewx/json/';
-var dayplotsurl = "/pws/mbcharts/getDayChart.php";
 var pathjsondayfiles = 'json/';
+var dayplotsurl = "/pws/mbcharts/getDayChart.php";
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
 var monthNames = ["January", "February", "March", "April", "May","June","July", "August", "September", "October", "November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
@@ -1246,7 +1246,7 @@ Function to display weekly or yearly charts
                 chart.series[i].update({
                     cursor: 'pointer',
                     point: {
-                       events: {click: function(e){if (day_plots) display_chart(units, plot_type, ['yearly']); else window.location.href= dayplotsurl+"?temp="+units.temp+"&pressure="+units.pressure+"&wind="+units.wind+"&rain="+units.rain+"&plot_type="+plot_type+","+jsonfileforplot[plot_type][0]+"&epoch="+this.x/1000}}
+                       events: {click: function(e){if (day_plots) display_chart(units, plot_type, ['yearly']); else window.location.href= dayplotsurl+"?temp="+units.temp+"&pressure="+units.pressure+"&wind="+units.wind+"&rain="+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+"&epoch="+this.x/1000}}
                     }
                 });
             }
