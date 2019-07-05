@@ -70,7 +70,6 @@ def main():
     config_dict['StdReport']['Highcharts']['skin'] = 'Highcharts-day'
     config_dict['StdReport']['Highcharts']['CheetahGenerator'] = {'ToDate': {'DayJSON': {'template': args[1],'HTML_ROOT': args[2]}}}
     
-    print gen_ts;
     t = weewx.reportengine.StdReportEngine(config_dict, stn_info, gen_ts=gen_ts)
 
     # Although the report engine inherits from Thread, we can just run it in the main thread:
