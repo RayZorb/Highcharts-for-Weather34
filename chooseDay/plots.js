@@ -136,6 +136,7 @@ jQuery.getMultipleJSON = function(){
     });
 };
 
+function create_common_options(){
 /*****************************************************************************
 
 Set default plot options
@@ -145,270 +146,175 @@ make sure you know what you are doing. The Highcharts API documentation is
 your reference.
 
 *****************************************************************************/
-var commonOptions = {
-    chart: {
-        renderTo: "plot_div",
-        spacing: [10, 10, 0, -1],
-        zoomType: 'xy',
-    },
-    legend: {
-        enabled: true,
-        itemDistance:15,
-    },
-    plotOptions: {
-        area: {
-            lineWidth: 1,
-            marker: {
-                enabled: false,
-                radius: 2,
-                symbol: 'circle'
-            },
+    var commonOptions = {
+        chart: {
+            renderTo: "plot_div",
+            spacing: [10, 10, 0, -1],
+            zoomType: 'xy',
         },
-        column: {
-            dataGrouping: {
-                dateTimeLabelFormats: {
-                    hour: ['%e %B %Y hour to %H:%M', '%e %B %Y %H:%M', '-%H:%M'],
-                    day: ['%e %B %Y', '%e %B', '-%e %B %Y'],
-                    week: ['Week starting %e %B %Y', '%e %B', '-%e %B %Y'],
-                    month: ['%B %Y', '%B', '-%B %Y'],
-                    year: ['%Y', '%Y', '-%Y']
+        legend: {
+            enabled: true,
+            itemDistance:15,
+        },
+        plotOptions: {
+            area: {
+                lineWidth: 1,
+                marker: {
+                    enabled: false,
+                    radius: 2,
+                    symbol: 'circle'
                 },
-                enabled: true,
-                forced: false,
-                units: [[
-                    'hour',
-                        [1]
-                    ], [
-                    'day',
-                        [1]
-                    ], [
-                    'week',
-                        [1]
-                    ]
-                ]
             },
-        },
-        columnrange: {
-            dataGrouping: {
-                dateTimeLabelFormats: {
-                    hour: ['%e %B %Y hour to %H:%M', '%e %b %Y %H:%M', '-%H:%M'],
-                    day: ['%e %B %Y', '%e %B', '-%e %B %Y'],
-                    week: ['Week from %e %B %Y', '%e %B', '-%e %B %Y'],
-                    month: ['%B %Y', '%B', '-%B %Y'],
-                    year: ['%Y', '%Y', '-%Y']
+            column: {
+                dataGrouping: {
+                    dateTimeLabelFormats: {
+                        hour: ['%e %B %Y hour to %H:%M', '%e %B %Y %H:%M', '-%H:%M'],
+                        day: ['%e %B %Y', '%e %B', '-%e %B %Y'],
+                        week: ['Week starting %e %B %Y', '%e %B', '-%e %B %Y'],
+                        month: ['%B %Y', '%B', '-%B %Y'],
+                        year: ['%Y', '%Y', '-%Y']
+                    },
+                    enabled: true,
+                    forced: false,
+                    units: [['hour',[1]], ['day',[1]], ['week',[1]]]},
+            },
+            columnrange: {
+                dataGrouping: {
+                    dateTimeLabelFormats: {
+                        hour: ['%e %B %Y hour to %H:%M', '%e %b %Y %H:%M', '-%H:%M'],
+                        day: ['%e %B %Y', '%e %B', '-%e %B %Y'],
+                        week: ['Week from %e %B %Y', '%e %B', '-%e %B %Y'],
+                        month: ['%B %Y', '%B', '-%B %Y'],
+                        year: ['%Y', '%Y', '-%Y']
+                    },
+                    enabled: true,
+                    forced: true,
+                    units: [['day',[1]], ['week',[1]]]},
+            },
+            series: {states: {hover: {halo: {size: 0,}}}
+            },
+            scatter: {
+                dataGrouping: {
+                    dateTimeLabelFormats: {
+                        hour: ['%e %B %Y hour to %H:%M', '%e %b %Y %H:%M', '-%H:%M'],
+                        day: ['%e %b %Y', '%e %b', '-%e %b %Y'],
+                        week: ['Week from %e %b %Y', '%e %b', '-%e %b %Y'],
+                        month: ['%B %Y', '%B', '-%B %Y'],
+                        year: ['%Y', '%Y', '-%Y']
+                    },
+                    enabled: true,
+                    forced: true,
+                    units: [['hour',[1]], ['day',[1]], ['week',[1]]]
                 },
-                enabled: true,
-                forced: true,
-                units: [[
-                    'day',
-                        [1]
-                    ], [
-                    'week',
-                        [1]
-                    ]
-                ]
-            },
-        },
-        series: {
-            states: {
-                hover: {
-                    halo: {
-                        size: 0,
-                    }
-                }
-            }
-        },
-        scatter: {
-            dataGrouping: {
-                dateTimeLabelFormats: {
-                    hour: ['%e %B %Y hour to %H:%M', '%e %b %Y %H:%M', '-%H:%M'],
-                    day: ['%e %b %Y', '%e %b', '-%e %b %Y'],
-                    week: ['Week from %e %b %Y', '%e %b', '-%e %b %Y'],
-                    month: ['%B %Y', '%B', '-%B %Y'],
-                    year: ['%Y', '%Y', '-%Y']
+                marker: {
+                    radius: 1,
+                    symbol: 'circle'
                 },
-                enabled: true,
-                forced: true,
-                units: [[
-                    'hour',
-                        [1]
-                    ], [
-                    'day',
-                        [1]
-                    ], [
-                    'week',
-                        [1]
-                    ]
-                ]
+                shadow: false,
+                states: {
+                    hover: {halo: false,}}
             },
-            marker: {
-                radius: 1,
-                symbol: 'circle'
-            },
-            shadow: false,
-            states: {
-                hover: {
-                    halo: false,
-                }
-            }
-        },
-        spline: {
-            dataGrouping: {
-                dateTimeLabelFormats: {
-                    hour: ['%e %B %Y hour to %H:%M', '%e %b %Y %H:%M', '-%H:%M'],
-                    day: ['%e %b %Y', '%e %b', '-%e %b %Y'],
-                    week: ['Week from %e %b %Y', '%e %b', '-%e %b %Y'],
-                    month: ['%B %Y', '%B', '-%B %Y'],
-                    year: ['%Y', '%Y', '-%Y']
+            spline: {
+                dataGrouping: {
+                    dateTimeLabelFormats: {
+                        hour: ['%e %B %Y hour to %H:%M', '%e %b %Y %H:%M', '-%H:%M'],
+                        day: ['%e %b %Y', '%e %b', '-%e %b %Y'],
+                        week: ['Week from %e %b %Y', '%e %b', '-%e %b %Y'],
+                        month: ['%B %Y', '%B', '-%B %Y'],
+                        year: ['%Y', '%Y', '-%Y']
+                    },
+                    enabled: true,
+                    forced: true,
+                    units: [['hour',[1]], ['day',[1]], ['week',[1]]]
                 },
-                enabled: true,
-                forced: true,
-                units: [[
-                    'hour',
-                        [1]
-                    ], [
-                    'day',
-                        [1]
-                    ], [
-                    'week',
-                        [1]
-                    ]
-                ]
+                lineWidth: 1,
+                marker: {
+                    radius: 1,
+                    enabled: false,
+                    symbol: 'circle'
+                },
+                shadow: false,
+                states: {
+                    hover: {
+                        lineWidth: 1,
+                        lineWidthPlus: 1}}},
+        },
+        rangeSelector: {},
+        series: [{}],
+        tooltip: {
+            valueDecimals: 1,
+            crosshairs: true,
+            enabled: true,
+            followPointer: true,
+            dateTimeLabelFormats: {
+                minute: '%H:%M',
+                hour: '%H:%M',
+                day: ''
+            },
+            shared: true,
+            split: false,
+            valueSuffix: ''
+        },
+        xAxis: {
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
             },
             lineWidth: 1,
-            marker: {
-                radius: 1,
-                enabled: false,
-                symbol: 'circle'
+            minorGridLineWidth: 0,
+            minorTickLength: 2,
+            minorTickPosition: 'outside',
+            minorTickWidth: 1,
+            tickLength: 4,
+            tickPosition: 'outside',
+            tickWidth: 1,
+            title: {
             },
-            shadow: false,
-            states: {
-                hover: {
-                    lineWidth: 1,
-                    lineWidthPlus: 1
-                }
+            type: 'datetime',
+        },
+        yAxis: [{
+            endOnTick: true,
+            labels: {
+                x: -4,
+                y: 4,
+            },
+            lineWidth: 1,
+            minorGridLineWidth: 0,
+            minorTickLength: 2,
+            minorTickPosition: 'outside',
+            minorTickWidth: 1,
+            opposite: false,
+            showLastLabel: true,
+            startOnTick: true,
+            endOnTick: true,
+            tickLength: 4,
+            tickPosition: 'outside',
+            tickWidth: 1,
+            title: {text: ''}
+            }, {
+            labels: {
+                x: 4,
+                y: 4,
+            },
+            lineWidth: 1,
+            minorGridLineWidth: 0,
+            minorTickLength: 2,
+            minorTickPosition: 'outside',
+            minorTickWidth: 1,
+            showLastLabel: true,
+            opposite: true,
+            startOnTick: true,
+            endOnTick: true,
+            tickLength: 4,
+            tickPosition: 'outside',
+            tickWidth: 1,
+            title: {
+                text: ''
             }
-        },
-    },
-    rangeSelector: {},
-    series: [{}],
-    tooltip: {
-        valueDecimals: 1,
-        crosshairs: true,
-        enabled: true,
-        followPointer: true,
-        dateTimeLabelFormats: {
-            minute: '%H:%M',
-            hour: '%H:%M',
-            day: ''
-        },
-        shared: true,
-        split: false,
-        valueSuffix: ''
-    },
-    xAxis: {
-        dateTimeLabelFormats: {
-            day: '%e %b',
-            week: '%e %b',
-            month: '%b %y',
-        },
-        lineWidth: 1,
-        minorGridLineWidth: 0,
-        minorTickLength: 2,
-        minorTickPosition: 'outside',
-        minorTickWidth: 1,
-        tickLength: 4,
-        tickPosition: 'outside',
-        tickWidth: 1,
-        title: {
-        },
-        type: 'datetime',
-    },
-    yAxis: [{
-        endOnTick: true,
-        labels: {
-            x: -4,
-            y: 4,
-        },
-        lineWidth: 1,
-        minorGridLineWidth: 0,
-        minorTickLength: 2,
-        minorTickPosition: 'outside',
-        minorTickWidth: 1,
-        opposite: false,
-        showLastLabel: true,
-        startOnTick: true,
-        endOnTick: true,
-        tickLength: 4,
-        tickPosition: 'outside',
-        tickWidth: 1,
-        title: {
-            text: ''
-            }
-    }, {
-        labels: {
-            x: 4,
-            y: 4,
-        },
-        lineWidth: 1,
-        minorGridLineWidth: 0,
-        minorTickLength: 2,
-        minorTickPosition: 'outside',
-        minorTickWidth: 1,
-        showLastLabel: true,
-        opposite: true,
-        startOnTick: true,
-        endOnTick: true,
-        tickLength: 4,
-        tickPosition: 'outside',
-        tickWidth: 1,
-        title: {
-            text: ''
-        }
-    }],
-};
-
-function clone(obj) {
-/*****************************************************************************
-
-Function to clone an object
-
-As found at http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
-
-*****************************************************************************/
-    var copy;
-    // Handle the 3 simple types, and null or undefined
-    if (null === obj || 'object' !== typeof obj) {
-        return obj;
-    }
-
-    // Handle Date
-    if (obj instanceof Date) {
-        copy = new Date();
-        copy.setTime(obj.getTime());
-        return copy;
-    }
-
-    // Handle Array
-    if (obj instanceof Array) {
-        copy = [];
-        for (var i = 0, len = obj.length; i < len; i++) {
-            copy[i] = clone(obj[i]);
-        }
-        return copy;
-    }
-
-    // Handle Object
-    if (obj instanceof Object) {
-        copy = {};
-        for (var attr in obj) {
-            if (obj.hasOwnProperty(attr)) {
-                copy[attr] = clone(obj[attr]);
-            }
-        }
-        return copy;
-    }
-    throw new Error('Unable to copy obj! Its type isn\'t supported.');
+        }],
+    };
+    return commonOptions;
 };
 
 function addWindRoseOptions(options, span, seriesData, units, plot_type, day_plots) {
@@ -417,7 +323,6 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type, day_plo
 Function to add/set various plot options specific to the 'wind rose' plot.
 
 *****************************************************************************/
-    options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
         events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[0]], day_plots);return false;}}
@@ -431,7 +336,7 @@ Function to add/set various plot options specific to the 'wind rose' plot.
         text: windrosespans[3],
         events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[3]], day_plots);return false;}}
     }];
-    options.plotOptions.column.dataGrouping.enabled = false;
+    options.rangeSelector.selected = 0;
     return options
 };
     
@@ -498,7 +403,7 @@ Function to add/set various plot options specific to the 'year' plot.
         type: 'all',
         text: '1y'
     }],
-    obj.rangeSelector.selected = 2;
+    obj.rangeSelector.selected = 4;
     obj.plotOptions.spline.dataGrouping.enabled = false;
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.columnrange.dataGrouping.enabled = false;
@@ -1238,8 +1143,7 @@ Function to display weekly or yearly charts
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
         files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     jQuery.getMultipleJSON(...files).done(function(...results){
-        var options = setup_plots(results.flat(), units, clone(commonOptions), plot_type, span, day_plots);
-        options.rangeSelector.selected = day_plots ? 6 : 3;
+        var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span, day_plots);
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (!plotsnoswitch.includes(plot_type))
             for (var i = 0; i < chart.series.length; i++){
@@ -1250,7 +1154,7 @@ Function to display weekly or yearly charts
                             if (day_plots) 
                                 display_chart(units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly')
-                                window.location.href= dayplotsurl+"?temp="+units.temp+"&pressure="+units.pressure+"&wind="+units.wind+"&rain="+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+"&epoch="+this.x/1000
+                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+"&epoch="+this.x/1000
                             else
                                 display_chart(units, plot_type, ['yearly'])}}
                     }

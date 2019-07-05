@@ -1,0 +1,79 @@
+#!/usr/bin/env python
+#
+#    Copyright (c) 2009-2015 Tom Keffer <tkeffer@gmail.com>
+#
+#    See the file LICENSE.txt for your rights.
+#
+"""Executable that can run all reports."""
+
+import sys
+sys.path.insert(0, '/usr/share/weewx')
+
+import socket
+import syslog
+
+import optparse
+
+import user.extensions #@UnusedImport
+import weewx.station
+import weewx.reportengine
+import weecfg
+from weeutil.weeutil import timestamp_to_string
+
+description = """Run all reports defined in the specified configuration file.
+Use this utility to run reports immediately instead of waiting for the end of
+an archive interval."""
+
+usage = """%prog: [timestamp] [template] [html_root] [--config=CONFIG_FILE] [--help]"""
+
+def main():
+        
+    # Set defaults for the system logger:
+    syslog.openlog('wee_reports', syslog.LOG_PID | syslog.LOG_CONS)
+
+    # Create a command line parser:
+    parser = optparse.OptionParser(description=description, usage=usage)
+    
+    # Add the various options:
+    parser.add_option("--config", dest="config_path", type=str, metavar="CONFIG_FILE",
+                      help="Use the configuration file CONFIG_FILE")
+
+    # Now we are ready to parse the command line:
+    (options, args) = parser.parse_args()
+    config_path, config_dict = weecfg.read_config(options.config_path, None)
+    
+    # If the user specified a time, retrieve it. Otherwise, set to None
+    gen_ts = int(args[0]) if args and args[0] != 'None' else None
+
+    print "Using configuration file %s" % config_path
+
+    if gen_ts is None:
+        print "Generating for all time"
+    else:
+        print "Generating for requested time", timestamp_to_string(gen_ts)
+        
+    # Look for the debug flag. If set, ask for extra logging
+    weewx.debug = int(config_dict.get('debug', 0))
+    if weewx.debug:
+        syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_DEBUG))
+    else:
+        syslog.setlogmask(syslog.LOG_UPTO(syslog.LOG_INFO))
+
+    socket.setdefaulttimeout(10)
+    
+    stn_info = weewx.station.StationInfo(**config_dict['Station'])
+
+    save_entries = ["SKIN_ROOT","HTML_ROOT","data_binding","log_success","log_failure","Highcharts"]
+    for key in config_dict['StdReport']:
+        if key not in save_entries:
+            del config_dict['StdReport'][key]
+    config_dict['StdReport']['Highcharts']['skin'] = 'Highcharts-day'
+    config_dict['StdReport']['Highcharts']['CheetahGenerator'] = {'ToDate': {'DayJSON': {'template': args[1],'HTML_ROOT': args[2]}}}
+    
+    t = weewx.reportengine.StdReportEngine(config_dict, stn_info, gen_ts=gen_ts)
+
+    # Although the report engine inherits from Thread, we can just run it in the main thread:
+    t.run()
+    
+if __name__=="__main__" :
+    main()
