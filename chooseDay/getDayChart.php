@@ -25,6 +25,6 @@
       $units = explode(",",$_GET['units']);
       $day_epoch = (int)$_GET['epoch'] + (86400 *3);
       unlink($plot_info[1]);
-      $output = shell_exec(escapeshellcmd('./wee_reports_w34 '.(time() < $day_epoch ? 'None':$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
+      $output = shell_exec(escapeshellcmd($plot_info[2].(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
       echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',true);</script>";
  ?> 

@@ -111,6 +111,8 @@ var jsonfileforplot = {
 var pathjsonfiles = '../../weewx/json/';
 var pathjsondayfiles = 'json/';
 var dayplotsurl = "/pws/mbcharts/getDayChart.php";
+var weereportcmd = "./wee_reports_w34 "
+
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
 var monthNames = ["January", "February", "March", "April", "May","June","July", "August", "September", "October", "November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
@@ -211,8 +213,7 @@ your reference.
                     symbol: 'circle'
                 },
                 shadow: false,
-                states: {
-                    hover: {halo: false,}}
+                states: { hover: {halo: false,}}
             },
             spline: {
                 dataGrouping: {
@@ -269,8 +270,7 @@ your reference.
             tickLength: 4,
             tickPosition: 'outside',
             tickWidth: 1,
-            title: {
-            },
+            title: {},
             type: 'datetime',
         },
         yAxis: [{
@@ -1156,7 +1156,7 @@ Function to display weekly or yearly charts
                             if (day_plots) 
                                 display_chart(units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly')
-                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+"&epoch="+this.x/1000
+                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&epoch="+this.x/1000
                             else
                                 display_chart(units, plot_type, ['yearly'])}}
                     }
