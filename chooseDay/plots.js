@@ -1145,6 +1145,7 @@ Function to display weekly or yearly charts
         files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     jQuery.getMultipleJSON(...files).done(function(...results){
         var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span, day_plots);
+        if (day_plots) options.rangeSelector.selected = 5;
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (!plotsnoswitch.includes(plot_type))
             for (var i = 0; i < chart.series.length; i++){
