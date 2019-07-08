@@ -104,7 +104,7 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json']]
 };
 
-var pathjsonfiles = '/pws/highcharts/json/';
+var pathjsonfiles = '../../weewx/json/';
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','radsmallplot','uvsmallplot','windroseplot'];
 var windrosespans = ["24h","Week","Month","Year"];
 var auto_update = false;
@@ -120,7 +120,8 @@ https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-on
 *****************************************************************************/
 jQuery.getMultipleJSON = function(){
   return jQuery.when.apply(jQuery, jQuery.map(arguments, function(jsonfile){
-    return jQuery.getJSON(jsonfile);
+    return jQuery.getJSON(jsonfile).fail(function(){
+      alert("!!!!NO DATA FOUND in database for the choose date!!!!")});
   })).then(function(){
     var def = jQuery.Deferred();
     return def.resolve.apply(def, jQuery.map(arguments, function(response){
@@ -527,11 +528,12 @@ function getTranslation(term){
     return translation.length > 0 ? translation : term;
 };
 
-function create_chart_options(options, type, title, valueSuffix, values){
+function create_chart_options(options, type, title, valueSuffix, values, custom_tp = true){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
     options.series = [];
     options.chart.type = type;
-    options.tooltip.formatter = function() {return custom_tooltip(this)};
+    if (custom_tp)
+        options.tooltip.formatter = function() {return custom_tooltip(this)};
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
     options.xAxis.minTickInterval = 900000;
     options.title = {text: getTranslation(title)};
@@ -621,7 +623,7 @@ Function to create indoor temperature chart
         options.series[3].data = reinflate_time(seriesData[0].humidityplot.inHumidityaverage);
     }
     else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,, "%"]]);
+        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTemp));
         options.series[1].data = reinflate_time(seriesData[0].humidityplot.inHumidity);
     }
@@ -994,18 +996,15 @@ Function to create rain chart
         options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column']]);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainsum));
         options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
-        options.tooltip.xDateFormat = '%e %B %Y';
     }
     if (span[0] == "weekly"){
-        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]]);
+        options = create_chart_options(options, 'column', 'Rainfall', units.rain,[['Rainfall', 'column'], ['RainRate', 'column', 1]], false);
         options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rain));
         options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainRate));
-        options.tooltip.xDateFormat = '%e %B %Y hour to %H:%M';
         options.yAxis[1].title.text = "(" + units.rain + ")";
         options.yAxis[1].min = 0;
         options.yAxis[1].tickInterval = 1;
         options.yAxis[1].allowDecimals = true;
-        options.yAxis[1].labels = { format: '{value:.0f}'};
     }
     options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
     options.plotOptions.column.dataGrouping.enabled = true;
@@ -1017,7 +1016,6 @@ Function to create rain chart
     options.yAxis[0].min = 0;
     options.yAxis[0].tickInterval = 1;
     options.yAxis[0].allowDecimals = true;
-    options.yAxis[0].labels = { format: '{value:.0f}'};
     options.xAxis.min = seriesData[0].timespan.start;
     options.xAxis.max = seriesData[0].timespan.stop;
     return options;
