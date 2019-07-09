@@ -1163,7 +1163,7 @@ Function to display weekly or yearly charts
             for (var j =0; j < realtimeplot[plot_type].length; j++)
                 if (realtimeplot[plot_type][j] != null && options.series[j].data != undefined)
                     chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            setTimeout(do_realtime_update, 100, chart, plot_type);
+            setTimeout(do_realtime_update, 50, chart, plot_type);
             return;
         }
         if (!plotsnoswitch.includes(plot_type)){
