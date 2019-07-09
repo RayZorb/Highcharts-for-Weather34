@@ -28,6 +28,21 @@ History
         - initial implementation
 
 *****************************************************************************/
+var pathjsonfiles = '../../weewx/json/';
+var pathjsondayfiles = 'json/';
+var dayplotsurl = "/pws/mbcharts/getDayChart.php";
+var weereportcmd = "./wee_reports_w34"
+var realtimefile = "../demodata/realtime.txt"
+var realtimeinterval = 10;  //This is seconds
+var realtimeXscaleFactor = 30;
+var autoupdateinterval = 60; //This is seconds
+
+var realtimeplot = {
+    temperatureplot:[2,4],
+    windplot:[6,40],
+    barometerplot:[10]
+};
+
 var createweeklyfunctions = {
     temperatureplot: [addWeekOptions, create_temperature_chart],
     indoorplot: [addWeekOptions, create_indoor_chart],
@@ -107,19 +122,6 @@ var jsonfileforplot = {
     uvplot: [['solar_week.json'],['year.json']],
     uvsmallplot: [['solar_week.json'],['year.json']]
 };
-
-var realtimeplot = {
-    temperatureplot:[2,4],
-    windplot:[6,40]
-};
-
-var pathjsonfiles = '../../weewx/json/';
-var pathjsondayfiles = 'json/';
-var dayplotsurl = "/pws/mbcharts/getDayChart.php";
-var weereportcmd = "./wee_reports_w34"
-var realtimefile = "../demodata/realtime.txt"
-var realtimeinterval = 10;  //This is seconds
-var autoupdateinterval = 60; //This is seconds
 
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
 var monthNames = ["January", "February", "March", "April", "May","June","July", "August", "September", "October", "November","December"];
@@ -1085,9 +1087,9 @@ Function to get realtime data
 *****************************************************************************/    
     $.get(realtimefile, function(data) {
         for (var j = 0; j < realtimeplot[plot_type].length; j++)
-            if (chart.series[j].data != undefined)
-                if (chart.series[j].data.length > realtimeinterval*30)
-                    chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*30));
+            if (realtimeplot[plot_type][j] != null && chart.series[j].data != undefined)
+                if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
+                    chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
         var parts = data.split(" ");
         var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
         tparts[3] ="20"+tparts[3];
@@ -1138,20 +1140,20 @@ Function to display weekly or yearly charts
 *****************************************************************************/
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, span);
+    var results, files = [];
+    if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
+    for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
+        files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
+    Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
     if (buttons == null){
-        Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
-        buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_auto_update(units, plot_type, span, buttonReload, day_plots)}}
-        function realtime_callback(){return function(){do_realtime=true;display_chart(units, plot_type, span, day_plots)}}
+        function realtime_callback(){return function(){do_realtime=true;display_chart(units, plot_type, 'weekly', day_plots)}}
+        buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true, day_plots)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false, day_plots)});
         if (realtimeplot.hasOwnProperty(plot_type))
             buttons.push({text: "Realtime Update", onclick: realtime_callback()});
     }
-    var results, files = [];
-    if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
-    for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
-        files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     jQuery.getMultipleJSON(...files).done(function(...results){
         var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span, day_plots);
         if (day_plots) options.rangeSelector.selected = 5;
@@ -1160,25 +1162,30 @@ Function to display weekly or yearly charts
             post_create_rain_month_chart(chart); //No range selector or exporting
             for (var j =0; j < realtimeplot[plot_type].length; j++)
                 if (realtimeplot[plot_type][j] != null && options.series[j].data != undefined)
-                    chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*30));
+                    chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
             setTimeout(do_realtime_update, 100, chart, plot_type);
             return;
         }
-        if (!plotsnoswitch.includes(plot_type))
+        if (!plotsnoswitch.includes(plot_type)){
             for (var i = 0; i < chart.series.length; i++){
                 chart.series[i].update({
                     cursor: 'pointer',
                     point: {
                        events: {click: function(e){
                             if (day_plots) 
-                                display_chart(units, plot_type, ['weekly']); 
+                                setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly')
-                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&epoch="+this.x/1000
+                                if (day_plots)
+                                    window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&epoch="+this.x/1000
+                                else
+                                    setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else
-                                display_chart(units, plot_type, ['yearly'])}}
+                                setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
                     }
                 });
             }
+            return;
+        }
         if (postcreatefunctions.hasOwnProperty(plot_type))
             for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
                 postcreatefunctions[plot_type][i](chart);
