@@ -981,7 +981,7 @@ Function to create rain chart
     return options;
 }
 
-ffunction setRadSmall(options) {
+function setRadSmall(options) {
 /*****************************************************************************
 
 Function to add small radition chart
