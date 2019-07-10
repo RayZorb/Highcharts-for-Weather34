@@ -39,6 +39,7 @@ var realtimeinterval = 10;  //This is seconds
 var realtimeplot = {
     temperatureplot:[2,4],
     windplot:[6,40],
+    winddirplot:[7],
     barometerplot:[10]
 };
 
@@ -1175,10 +1176,7 @@ Function to display weekly or yearly charts
                             if (day_plots) 
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly')
-                                if (day_plots)
-                                    window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&epoch="+this.x/1000
-                                else
-                                    setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
+                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&epoch="+this.x/1000
                             else
                                 setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
                     }
