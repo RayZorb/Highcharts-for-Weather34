@@ -36,11 +36,11 @@ var realtimefile = "../demodata/realtime.txt"
 var autoupdateinterval = 60; //This is seconds
 var realtimeinterval = 10;  //This is seconds
 
-var realtimeplot = {
-    temperatureplot:[2,4],
-    windplot:[6,40],
-    winddirplot:[7],
-    barometerplot:[10]
+var realtimeplot = { // First array offset to wanted real-time data(s), Second array offset to data's real-time units, Third array unit convert function(s)
+    temperatureplot:[[2,4],[14,14],['convert_temp','convert_temp']],
+    windplot:[[6,40],[13,13],['convert_wind','convert_wind']],
+    winddirplot:[[7],[13],['convert_wind']],
+    barometerplot:[[10],[15],['convert_pressure']]
 };
 
 var createweeklyfunctions = {
@@ -92,7 +92,7 @@ var postcreatefunctions = {
     barsmallplot: [post_create_small_chart],
     windsmallplot: [post_create_small_chart],
     rainsmallplot: [post_create_small_chart],
-    rainmonthplot: [post_create_rain_month_chart],
+    rainmonthplot: [remove_range_selector],
     radsmallplot: [post_create_small_chart],
     uvsmallplot: [post_create_small_chart],
     windroseplot: [post_create_windrose_chart]
@@ -328,6 +328,18 @@ your reference.
         }],
     };
     return commonOptions;
+};
+
+function remove_range_selector(chart){
+/*****************************************************************************
+
+Function to remove unwanted display items from chart
+
+*****************************************************************************/   
+chart.update({
+        exporting: {enabled: false },
+        rangeSelector: {enabled: false}
+    });
 };
 
 function addWindRoseOptions(options, span, seriesData, units, plot_type, day_plots) {
@@ -969,19 +981,7 @@ Function to create rain chart
     return options;
 }
 
-function post_create_rain_month_chart(chart){
-/*****************************************************************************
-
-Function to remove unwanted display items from chart
-
-*****************************************************************************/   
-chart.update({
-        exporting: {enabled: false },
-        rangeSelector: {enabled: false}
-    });
-};
-
-function setRadSmall(options) {
+ffunction setRadSmall(options) {
 /*****************************************************************************
 
 Function to add small radition chart
@@ -1080,45 +1080,31 @@ Function to create uv chart
     return options;
 }
 
-function do_realtime_update(chart, plot_type){
+function do_realtime_update(chart, plot_type, units){
 /*****************************************************************************
 
 Function to get realtime data
 
 *****************************************************************************/    
     $.get(realtimefile, function(data) {
-        for (var j = 0; j < realtimeplot[plot_type].length; j++)
-            if (realtimeplot[plot_type][j] != null && chart.series[j].data != undefined)
+        for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
+            if (realtimeplot[plot_type][0][j] != null && chart.series[j].data != undefined)
                 if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
                     chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
         var parts = data.split(" ");
         var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-        tparts[3] ="20"+tparts[3];
-        var x = Date.UTC(+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6])-(utcoffset*60000);
-        for (var j = 0; j < realtimeplot[plot_type].length; j++)
-            if (realtimeplot[plot_type][j] != null && chart.series[j].data != undefined)
-                chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][j]])], true, true);
-        setTimeout(do_realtime_update, realtimeinterval*1000, chart, plot_type);
+        var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6])-(utcoffset*60000);
+        for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
+            if (realtimeplot[plot_type][0][j] != null && chart.series[j].data != undefined)
+                chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
+        setTimeout(do_realtime_update, realtimeinterval*1000, chart, plot_type, units);
     });
-};
-
-function setup_plots(seriesData, units, options, plot_type, span, day_plots){
-/*****************************************************************************
-
-Function to add/set various weekly plot options specific to the 'week' plot.
-
-*****************************************************************************/
-    utcoffset = seriesData[0].utcoffset;
-    Highcharts.setOptions({ global: { timezoneOffset: - utcoffset,}});
-    for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
-       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, day_plots) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, day_plots));
-    return options
 };
 
 function do_auto_update(units, plot_type, span, buttonReload, day_plots){
 /*****************************************************************************
 
-Function to do auto update of charts
+Function do auto update of charts
 
 *****************************************************************************/  
     if (buttonReload){
@@ -1132,6 +1118,19 @@ Function to do auto update of charts
     if (auto_update)
         display_chart(units, plot_type, span, day_plots);
 }
+
+function setup_plots(seriesData, units, options, plot_type, span, day_plots){
+/*****************************************************************************
+
+Function to add/set various weekly plot options specific to the 'week' plot.
+
+*****************************************************************************/
+    utcoffset = seriesData[0].utcoffset;
+    Highcharts.setOptions({global:{timezoneOffset: - utcoffset,}});
+    for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
+       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, day_plots) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, day_plots));
+    return options
+};
 
 function display_chart(units, plot_type, span, day_plots = false){
 /*****************************************************************************
@@ -1160,11 +1159,11 @@ Function to display weekly or yearly charts
         if (day_plots) options.rangeSelector.selected = 5;
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (do_realtime){
-            post_create_rain_month_chart(chart); //No range selector or exporting
-            for (var j =0; j < realtimeplot[plot_type].length; j++)
-                if (realtimeplot[plot_type][j] != null && options.series[j].data != undefined)
+            remove_range_selector(chart);
+            for (var j =0; j < realtimeplot[plot_type][0].length; j++)
+                if (realtimeplot[plot_type][0][j] != null && options.series[j].data != undefined)
                     chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            setTimeout(do_realtime_update, 50, chart, plot_type);
+            setTimeout(do_realtime_update, 50, chart, plot_type, units);
             return;
         }
         if (!plotsnoswitch.includes(plot_type)){
