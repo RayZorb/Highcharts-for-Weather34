@@ -36,11 +36,12 @@ var realtimefile = "../demodata/realtime.txt"
 var autoupdateinterval = 60; //This is seconds
 var realtimeinterval = 10;  //This is seconds
 
-var realtimeplot = { // First array offset to wanted real-time data(s), Second array offset to data's real-time units, Third array unit convert function(s)
-    temperatureplot:[[2,4],[14,14],['convert_temp','convert_temp']],
-    windplot:[[6,40],[13,13],['convert_wind','convert_wind']],
-    winddirplot:[[7],[13],['convert_wind']],
-    barometerplot:[[10],[15],['convert_pressure']]
+var realtimeplot = { // First array offset(s) to wanted real-time data(s), Second array offset(s) to data's real-time units, Third array unit convert function(s), Fourth plot type
+    temperatureplot:[[2,4],[14,14],['convert_temp','convert_temp'],['temperatureplot']],
+    windplot:[[6],[13],['convert_wind'],['windonlyplot']],
+    windonlyplot:[[6],[13],['convert_wind'],['windonlyplot']],
+    winddirplot:[[7],[13],['convert_wind'],['winddirplot']],
+    barometerplot:[[10],[15],['convert_pressure'],['barometerplot']]
 };
 
 var createweeklyfunctions = {
@@ -52,6 +53,7 @@ var createweeklyfunctions = {
     barometerplot: [addWeekOptions, create_barometer_chart],
     dewpointplot: [addWeekOptions, create_dewpoint_chart],
     windplot: [addWeekOptions, create_wind_chart],
+    windonlyplot: [addWeekOptions, create_windonly_chart],
     windallplot: [addWeekOptions, create_windall_chart],
     winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
@@ -109,6 +111,7 @@ var jsonfileforplot = {
     barometerplot: [['bar_rain_week.json'],['year.json']],
     barsmallplot: [['bar_rain_week.json'],['year.json']],
     windplot: [['wind_week.json'],['year.json']],
+    windonlyplot: [['wind_week.json'],['year.json']],
     windsmallplot: [['wind_week.json'],['year.json']],
     windallplot: [['wind_week.json'],['year.json']],
     winddirplot: [['wind_week.json'],['year.json']],
@@ -714,6 +717,19 @@ Function to do wind small chart
     return options;
 };
 
+function create_windonly_chart(options, span, seriesData, units){
+/*****************************************************************************
+
+Function to create wind chart
+
+*****************************************************************************/
+    options = create_chart_options(options, 'spline', 'Wind Speed', units.wind,[['Wind Speed', 'spline']]);
+    options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, reinflate_time(seriesData[0].windplot.windSpeed));
+    options.yAxis[0].min = 0;
+    options.yAxis[0].title.text = "(" + units.wind + ")";
+    return options;
+};
+
 function create_wind_chart(options, span, seriesData, units){
 /*****************************************************************************
 
@@ -1088,14 +1104,14 @@ Function to get realtime data
 *****************************************************************************/    
     $.get(realtimefile, function(data) {
         for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-            if (realtimeplot[plot_type][0][j] != null && chart.series[j].data != undefined)
+            if (chart.series[j].data != undefined)
                 if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
                     chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
         var parts = data.split(" ");
         var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
         var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6])-(utcoffset*60000);
         for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-            if (realtimeplot[plot_type][0][j] != null && chart.series[j].data != undefined)
+            if (chart.series[j].data != undefined)
                 chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
         setTimeout(do_realtime_update, realtimeinterval*1000, chart, plot_type, units);
     });
@@ -1147,7 +1163,7 @@ Function to display weekly or yearly charts
     Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
     if (buttons == null){
         function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_auto_update(units, plot_type, span, buttonReload, day_plots)}}
-        function realtime_callback(){return function(){do_realtime=true;display_chart(units, plot_type, 'weekly', false)}}
+        function realtime_callback(){return function(){do_realtime=true;display_chart(units, realtimeplot[plot_type][3], 'weekly', false)}}
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true, day_plots)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false, day_plots)});
@@ -1161,7 +1177,7 @@ Function to display weekly or yearly charts
         if (do_realtime){
             remove_range_selector(chart);
             for (var j =0; j < realtimeplot[plot_type][0].length; j++)
-                if (realtimeplot[plot_type][0][j] != null && options.series[j].data != undefined)
+                if (options.series[j].data != undefined)
                     chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
             setTimeout(do_realtime_update, 50, chart, plot_type, units);
             return;
