@@ -44,6 +44,8 @@ function do_speed_conversion(source, dest, data, fixed){
 
 //function to convert pressure 
 function convert_pressure(source, dest, fields, fixed = 2){
+   if (source == 'in') source = 'inHg';
+   if (dest == 'in') dest = 'inHg';
    dest = dest.trim();
    source = source.trim();
    if (dest == source) return fields;
