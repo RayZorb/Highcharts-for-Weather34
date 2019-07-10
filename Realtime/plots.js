@@ -965,6 +965,7 @@ function display_chart(units, plot_type, span, day_plots = false){
         if (realtimeplot.hasOwnProperty(plot_type))
             buttons.push({text: "Realtime Update", onclick: realtime_callback()});
     }
+    $.ajaxSetup({timeout:10000});
     jQuery.getMultipleJSON(...files).done(function(...results){
         var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span, day_plots);
         if (day_plots) options.rangeSelector.selected = 5;
