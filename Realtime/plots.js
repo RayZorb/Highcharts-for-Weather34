@@ -1148,7 +1148,7 @@ Function to display weekly or yearly charts
     Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
     if (buttons == null){
         function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_auto_update(units, plot_type, span, buttonReload, day_plots)}}
-        function realtime_callback(){return function(){do_realtime=true;display_chart(units, plot_type, 'weekly', day_plots)}}
+        function realtime_callback(){return function(){do_realtime=true;display_chart(units, plot_type, 'weekly', false)}}
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true, day_plots)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false, day_plots)});
