@@ -33,9 +33,8 @@ var pathjsondayfiles = 'json/';
 var dayplotsurl = "/pws/mbcharts/getDayChart.php";
 var weereportcmd = "./wee_reports_w34"
 var realtimefile = "../demodata/realtime.txt"
-var realtimeinterval = 10;  //This is seconds
-var realtimeXscaleFactor = 30;
 var autoupdateinterval = 60; //This is seconds
+var realtimeinterval = 10;  //This is seconds
 
 var realtimeplot = {
     temperatureplot:[2,4],
@@ -123,6 +122,7 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json']]
 };
 
+var realtimeXscaleFactor = 300/realtimeinterval;
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
 var monthNames = ["January", "February", "March", "April", "May","June","July", "August", "September", "October", "November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
