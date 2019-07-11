@@ -15,11 +15,11 @@ var realtimeinterval = 10;  //This is seconds
 
 var realtimeplot = { // First array offset(s) to wanted real-time data(s), Second array offset(s) to data's real-time units, Third array unit convert function(s), Fourth plot type
     temperatureplot:[[2,4],[14,14],['convert_temp','convert_temp'],['temperatureplot']],
-    windplot:[[6],[13],['convert_wind'],['windonlyplot']],
+    windplot:[[],[],[],['windonlyplot']],                              //Info not needed since the plot is switching
     windonlyplot:[[6],[13],['convert_wind'],['windonlyplot']],
-    winddirplot:[[7],[13],['convert_wind'],['winddirplot']],
-    windallplot:[[5,40,46],[13,13,-1],['convert_wind','convert_wind',null],['winddirspeedplot']],
+    windallplot:[[],[],[],['winddirspeedplot']],                       //Info not needed since the plot is switching
     winddirspeedplot:[[5,40,46],[13,13,-1],['convert_wind','convert_wind',null],['winddirspeedplot']],
+    winddirplot:[[7],[13],['convert_wind'],['winddirplot']],
     barometerplot:[[10],[15],['convert_pressure'],['barometerplot']]
 };
 
