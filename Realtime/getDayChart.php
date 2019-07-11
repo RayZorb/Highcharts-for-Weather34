@@ -21,10 +21,16 @@
     </body> 
 </html>
 <?php 
+    for($i = 3; $i > 0; $i--){
       $plot_info = explode(",",$_GET['plot_type']);
       $units = explode(",",$_GET['units']);
-      $day_epoch = (int)$_GET['epoch'] + (86400 *3);
+      $day_epoch = (int)$_GET['epoch'] + (86400 * $i);
       unlink($plot_info[1]);
       $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
-      echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',true);</script>";
+      if (file_exists($plot_info[1])) {
+        echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',true);</script>";
+        return;
+      }
+    }
+    include("../404.html");
  ?> 
