@@ -301,7 +301,6 @@ function create_common_options(){
 
 function remove_range_selector(chart){
     chart.update({
-        exporting: {enabled: false },
         rangeSelector: {enabled: false}
     });
 };
@@ -957,8 +956,8 @@ function display_chart(units, plot_type, span, day_plots = false){
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
         files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     if (buttons == null){
-        function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_auto_update(units, plot_type, span, buttonReload, day_plots)}}
-        function realtime_callback(){return function(){do_realtime=true;display_chart(units, realtimeplot[plot_type][3], 'weekly', false)}}
+        function callback(units, plot_type, span, buttonReload, day_plots){return function(){if (do_realtime) return;do_auto_update(units, plot_type, span, buttonReload, day_plots)}}
+        function realtime_callback(){return function(){if (do_realtime) return;do_realtime=true;display_chart(units, realtimeplot[plot_type][3], 'weekly', false)}}
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true, day_plots)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false, day_plots)});
