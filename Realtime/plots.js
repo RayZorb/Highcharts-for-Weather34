@@ -8,8 +8,8 @@ History
 var pathjsonfiles = '../../weewx/json/';
 var pathjsondayfiles = 'json/';
 var dayplotsurl = "/pws/mbcharts/getDayChart.php";
-var weereportcmd = "./wee_reports_w34"
-var realtimefile = "../demodata/realtime.txt"
+var weereportcmd = "./wee_reports_w34";
+var realtimefile = "../demodata/realtime.txt";
 var autoupdateinterval = 60; //This is seconds
 var realtimeinterval = 10;  //This is seconds
 
@@ -103,10 +103,10 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json']]
 };
 
-var realtimeXscaleFactor = 300/realtimeinterval;
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
-var monthNames = ["January", "February", "March", "April", "May","June","July", "August", "September", "October", "November","December"];
+var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
+var realtimeXscaleFactor = 300/realtimeinterval;
 var do_realtime = false;
 var auto_update = false;
 var buttons= null;
@@ -159,7 +159,7 @@ function create_common_options(){
                         year: ['%Y', '%Y', '-%Y']
                     },
                     enabled: true,
-                    forced: false,
+                    //forced: false,
                     units: [['hour',[1]], ['day',[1]], ['week',[1]]]},
             },
             columnrange: {
@@ -172,7 +172,7 @@ function create_common_options(){
                         year: ['%Y', '%Y', '-%Y']
                     },
                     enabled: true,
-                    forced: true,
+                    //forced: true,
                     units: [['day',[1]], ['week',[1]]]},
             },
             series: {states: {hover: {halo: {size: 0,}}}
@@ -187,7 +187,7 @@ function create_common_options(){
                         year: ['%Y', '%Y', '-%Y']
                     },
                     enabled: true,
-                    forced: true,
+                    //forced: true,
                     units: [['hour',[1]], ['day',[1]], ['week',[1]]]
                 },
                 marker: {
@@ -754,7 +754,7 @@ function convertlegend(series, units){
             percent += series[i].data[j];
         series[i].name = newName + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
     }
-}
+};
  
 function post_create_windrose_chart(chart){
     chart.update({
@@ -800,7 +800,7 @@ function create_rain_chart(options, span, seriesData, units){
     options.yAxis[0].tickInterval = 1;
     options.yAxis[0].allowDecimals = true;
     return options;
-}
+};
 
 function create_rain_month_chart(options, span, seriesData, units){
     var data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainsum));
@@ -835,7 +835,7 @@ function create_rain_month_chart(options, span, seriesData, units){
     options.xAxis.type ='category';
     options.xAxis.labels = {formatter: function (){return month_name[this.value]}};
     return options;
-}
+};
 
 function setRadSmall(options) {
     options.yAxis[0].height = "160";
@@ -861,7 +861,7 @@ function create_radiation_chart(options, span, seriesData, units){
     options.yAxis[0].min = 0;
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
     return options;
-}
+};
 
 function create_raduv_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
@@ -885,7 +885,7 @@ function create_raduv_chart(options, span, seriesData, units){
     options.yAxis[1].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.yAxis[0].min = 0;
     return options;
-}
+};
 
 function setUvSmall(options) {
     options.yAxis[0].height = "160";
@@ -909,20 +909,18 @@ function create_uv_chart(options, span, seriesData, units){
     options.yAxis[0].tickInterval = 4;
     options.yAxis[0].title.text = "(" + seriesData[0].uvplot.units + ")";
     return options;
-}
+};
 
 function do_realtime_update(chart, plot_type, units){
     $.get(realtimefile, function(data) {
         for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-            if (chart.series[j].data != undefined)
-                if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
-                    chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
+            if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
+                chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
         var parts = data.split(" ");
         var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
         var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6])-(utcoffset*60000);
         for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-            if (chart.series[j].data != undefined)
-                chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
+            chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
         setTimeout(do_realtime_update, realtimeinterval*1000, chart, plot_type, units);
     });
 };
@@ -971,10 +969,9 @@ function display_chart(units, plot_type, span, day_plots = false){
         if (day_plots) options.rangeSelector.selected = 5;
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (do_realtime){
-            remove_range_selector(chart);
+            remove_range_selector(chart);           
             for (var j =0; j < realtimeplot[plot_type][0].length; j++)
-                if (options.series[j].data != undefined)
-                    chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
+                chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
             setTimeout(do_realtime_update, 50, chart, plot_type, units);
             return;
         }
