@@ -121,7 +121,7 @@ https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-on
 jQuery.getMultipleJSON = function(){
   return jQuery.when.apply(jQuery, jQuery.map(arguments, function(jsonfile){
     return jQuery.getJSON(jsonfile).fail(function(){
-      alert("!!!!NO DATA FOUND in database for the choose date!!!!");return true;});
+      alert("!!!!NO DATA FOUND in database for the chosen date. Please choose another date!!!!");return true;});
   })).then(function(){
     var def = jQuery.Deferred();
     return def.resolve.apply(def, jQuery.map(arguments, function(response){
