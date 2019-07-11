@@ -18,6 +18,8 @@ var realtimeplot = { // First array offset(s) to wanted real-time data(s), Secon
     windplot:[[6],[13],['convert_wind'],['windonlyplot']],
     windonlyplot:[[6],[13],['convert_wind'],['windonlyplot']],
     winddirplot:[[7],[13],['convert_wind'],['winddirplot']],
+    windallplot:[[5,40,46],[13,13,-1],['convert_wind','convert_wind',null],['winddirspeedplot']],
+    winddirspeedplot:[[5,40,46],[13,13,-1],['convert_wind','convert_wind',null],['winddirspeedplot']],
     barometerplot:[[10],[15],['convert_pressure'],['barometerplot']]
 };
 
@@ -31,6 +33,7 @@ var createweeklyfunctions = {
     dewpointplot: [addWeekOptions, create_dewpoint_chart],
     windplot: [addWeekOptions, create_wind_chart],
     windonlyplot: [addWeekOptions, create_windonly_chart],
+    winddirspeedplot: [addWeekOptions, create_winddir_speed_chart],
     windallplot: [addWeekOptions, create_windall_chart],
     winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
@@ -88,7 +91,8 @@ var jsonfileforplot = {
     barometerplot: [['bar_rain_week.json'],['year.json']],
     barsmallplot: [['bar_rain_week.json'],['year.json']],
     windplot: [['wind_week.json'],['year.json']],
-    windonlyplot: [['wind_week.json'],['year.json']],
+    windonlyplot: [['wind_week.json'],['wind_week.json']],
+    winddirspeedplot: [['wind_week.json'],['wind_week.json']],
     windsmallplot: [['wind_week.json'],['year.json']],
     windallplot: [['wind_week.json'],['year.json']],
     winddirplot: [['wind_week.json'],['year.json']],
@@ -103,7 +107,7 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json']]
 };
 
-var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
+var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','windonlyplot','winddirspeedplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
@@ -119,6 +123,7 @@ Read multiple json files at the same time found at this URL
 https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-one-getjson-request
 *****************************************************************************/
 jQuery.getMultipleJSON = function(){
+  jQuery.ajaxSetup({timeout:10000});
   return jQuery.when.apply(jQuery, jQuery.map(arguments, function(jsonfile){
     return jQuery.getJSON(jsonfile).fail(function(){
       alert("!!!!NO DATA FOUND in database for the chosen date. Please choose another date!!!!");return true;});
@@ -620,6 +625,18 @@ function create_windonly_chart(options, span, seriesData, units){
     return options;
 };
 
+function create_winddir_speed_chart(options, span, seriesData, units){
+    options = create_chart_options(options, 'spline', 'Average Wind Speed/Gust/Direction', units.wind,[['Avg Wind Speed', 'spline'], ['Avg Wind Gust', 'spline'], ['Avg Wind Direction', 'scatter',1]]);
+    options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, reinflate_time(seriesData[0].windplot.windSpeed));
+    options.series[1].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windGust));
+    options.series[2].data = reinflate_time(seriesData[0].winddirplot.windDir);
+    options.yAxis[0].min = 0;
+    options.yAxis[0].title.text = "(" + units.wind + ")";
+    options.yAxis[1].title.text = "Direction";
+    options.yAxis[1].tickPositioner = function(){var positions = [0,90,180,270,360]; return positions;};
+    return options;
+};
+
 function create_wind_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'area', 'Wind Speed Gust Max & Averages', units.wind,[['Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area']]);
@@ -653,14 +670,14 @@ function create_winddir_chart(options, span, seriesData, units){
 
 function create_windall_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'area', 'Wind Speed Gust Direction Max & Averages', units.wind,[['Max Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area'],['Average Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
+        options = create_chart_options(options, 'area', 'Wind Speed/Gust/Direction Max & Averages', units.wind,[['Max Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area'],['Average Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
         options.series[0].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windmax));
         options.series[1].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windAvmax));
         options.series[2].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windaverage));
         options.series[3].data = reinflate_time(seriesData[0].winddirplot.windDir);
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'scatter', 'Wind Speed Gust Direction', units.wind,[['Wind Speed', 'spline'],['Wind Gust', 'spline'],['Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
+        options = create_chart_options(options, 'scatter', 'Wind Speed/Gust/Direction', units.wind,[['Wind Speed', 'spline'],['Wind Gust', 'spline'],['Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
         options.series[0].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windSpeed));
         options.series[1].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windGust));
         options.series[2].data = reinflate_time(seriesData[0].winddirplot.windDir);
@@ -715,6 +732,7 @@ function setWindRose(options){
 };
 
 function create_windrose_chart(options, span, seriesData, units){
+    Highcharts.setOptions({lang:{rangeSelectorZoom: ""}});
     if (!windrosespans.includes(span[1])) span[1] = windrosespans[0];
     if (span[1] == windrosespans[0]){
         convertlegend(seriesData[0].windroseDay.series, units);
@@ -920,7 +938,10 @@ function do_realtime_update(chart, plot_type, units){
         var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
         var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6])-(utcoffset*60000);
         for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-            chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
+            if (realtimeplot[plot_type][2][j] == null)
+                chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
+            else
+                chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
         setTimeout(do_realtime_update, realtimeinterval*1000, chart, plot_type, units);
     });
 };
@@ -953,7 +974,6 @@ function display_chart(units, plot_type, span, day_plots = false){
     if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
         files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
-    Highcharts.setOptions({lang:{rangeSelectorZoom: (plot_type == 'windroseplot' ? "" : "Zoom")}});
     if (buttons == null){
         function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_auto_update(units, plot_type, span, buttonReload, day_plots)}}
         function realtime_callback(){return function(){do_realtime=true;display_chart(units, realtimeplot[plot_type][3], 'weekly', false)}}
@@ -963,7 +983,6 @@ function display_chart(units, plot_type, span, day_plots = false){
         if (realtimeplot.hasOwnProperty(plot_type))
             buttons.push({text: "Realtime Update", onclick: realtime_callback()});
     }
-    $.ajaxSetup({timeout:10000});
     jQuery.getMultipleJSON(...files).done(function(...results){
         var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span, day_plots);
         if (day_plots) options.rangeSelector.selected = 5;
