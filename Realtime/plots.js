@@ -13,13 +13,14 @@ var realtimefile = "../demodata/realtime.txt";
 var autoupdateinterval = 60; //This is seconds
 var realtimeinterval = 10;  //This is seconds
 
-var realtimeplot = { // First array offset(s) to wanted real-time data(s), Second array offset(s) to data's real-time units, Third array unit convert function(s), Fourth plot type
+//First array offset(s) to wanted real-time data(s)(can be empty),Second array offset(s) to data's real-time units(can be empty),Third array unit convert function(s)(can be empty), Fourth plot type
+var realtimeplot = {
     temperatureplot:[[2,4],[14,14],['convert_temp','convert_temp'],['temperatureplot']],
-    windplot:[[],[],[],['windonlyplot']],                              //Info not needed since the plot is switching
-    windonlyplot:[[6],[13],['convert_wind'],['windonlyplot']],
-    windallplot:[[],[],[],['winddirspeedplot']],                       //Info not needed since the plot is switching
-    winddirspeedplot:[[5,40,46],[13,13,-1],['convert_wind','convert_wind',null],['winddirspeedplot']],
     winddirplot:[[7],[13],['convert_wind'],['winddirplot']],
+    windplot:[[],[],[],['windonlyplot']],
+    windonlyplot:[[6],[13],['convert_wind'],['windonlyplot']],
+    windallplot:[[],[],[],['winddirspeedplot']],
+    winddirspeedplot:[[5,40,46],[13,13,-1],['convert_wind','convert_wind',null],['winddirspeedplot']],
     barometerplot:[[10],[15],['convert_pressure'],['barometerplot']]
 };
 
@@ -626,7 +627,7 @@ function create_windonly_chart(options, span, seriesData, units){
 };
 
 function create_winddir_speed_chart(options, span, seriesData, units){
-    options = create_chart_options(options, 'spline', 'Average Wind Speed/Gust/Direction', units.wind,[['Avg Wind Speed', 'spline'], ['Avg Wind Gust', 'spline'], ['Avg Wind Direction', 'scatter',1]]);
+    options = create_chart_options(options, 'spline', 'Average Wind Speed/Gust/Direction', units.wind,[['Avg Wind Speed', 'spline'], ['Avg Wind Gust', 'spline'], ['Avg Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
     options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, reinflate_time(seriesData[0].windplot.windSpeed));
     options.series[1].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windGust));
     options.series[2].data = reinflate_time(seriesData[0].winddirplot.windDir);
