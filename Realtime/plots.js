@@ -5,11 +5,16 @@ History
     v1.0.0      June 2019
         -  large rewrite of the original plots.js to support w34 type charts
 *****************************************************************************/
-var pathjsonfiles = '../../weewx/json/';
-var pathjsondayfiles = 'json/';
-var dayplotsurl = "/pws/mbcharts/getDayChart.php";
-var weereportcmd = "./wee_reports_w34";
-var realtimefile = "../demodata/realtime.txt";
+var pathweewx = '/weewx/'   //Path from web server home location for weewx
+var pathpws   = '/pws/'     //Path from web server home location for pws
+
+var realtimefile =  pathpws   + "demodata/realtime.txt";    //Location of real-time data from home location of pws
+var pathjsonfiles = pathweewx + "json/";                    //Location weewx report output json files from home location of weewx
+
+var dayplotsurl =   pathpws   + "mbcharts/getDayChart.php";  //Location of day reports php file from home location of pws. Should not need to change
+var pathjsondayfiles = "json/";                              //Location day report output json files from home location of where wee_report_34 run. Should not need to change.
+var weereportcmd = "./wee_reports_w34";                      //Command to run  wee_report_34. Should not need to change.
+
 var autoupdateinterval = 60; //This is seconds
 var realtimeinterval = 10;  //This is seconds
 
@@ -912,6 +917,7 @@ function create_uv_chart(options, span, seriesData, units){
 
 function do_realtime_update(chart, plot_type, units){
     $.get(realtimefile, function(data) {
+        if (!do_realtime) return;
         for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
             if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
                 chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
@@ -927,12 +933,12 @@ function do_realtime_update(chart, plot_type, units){
     });
 };
 
-function do_auto_update(units, plot_type, span, buttonReload, day_plots){
+function do_auto_update(units, plot_type, span, buttonReload, day_plots){       
     if (buttonReload){
         display_chart(units, plot_type, span, day_plots);
         return;
-    }   
-    auto_update = !auto_update;
+    }
+    auto_update = do_realtime ? false : !auto_update;
     for (var i = 0; i < buttons.length;i++)
        if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
            buttons[i].text = "Auto Update Chart " + (auto_update ? "ON" : "OFF");
@@ -956,8 +962,8 @@ function display_chart(units, plot_type, span, day_plots = false){
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
         files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     if (buttons == null){
-        function callback(units, plot_type, span, buttonReload, day_plots){return function(){if (do_realtime) return;do_auto_update(units, plot_type, span, buttonReload, day_plots)}}
-        function realtime_callback(){return function(){if (do_realtime) return;do_realtime=true;display_chart(units, realtimeplot[plot_type][3], 'weekly', false)}}
+        function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_realtime = false;do_auto_update(units, plot_type, span, buttonReload, false)}}
+        function realtime_callback(){return function(){if (do_realtime) return;do_realtime=true;auto_update=false;display_chart(units, realtimeplot[plot_type][3], 'weekly', false)}}
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true, day_plots)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false, day_plots)});
