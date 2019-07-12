@@ -6,9 +6,6 @@
 #
 """Executable that can run all reports."""
 
-import sys
-sys.path.insert(0, '/usr/share/weewx')
-
 import socket
 import syslog
 
@@ -43,7 +40,7 @@ def main():
     config_path, config_dict = weecfg.read_config(options.config_path, None)
     
     # If the user specified a time, retrieve it. Otherwise, set to None
-    gen_ts = int(args[0]) if args and args[0] != 'None' else None
+    gen_ts = int(args[0]) if args and args[0] != 0 else None
 
     print "Using configuration file %s" % config_path
 

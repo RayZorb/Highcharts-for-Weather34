@@ -21,9 +21,10 @@
     </body> 
 </html>
 <?php 
+    putenv("PYTHONPATH=".$_GET['weewxpathbin']);
+    $plot_info = explode(",",$_GET['plot_type']);
+    $units = explode(",",$_GET['units']);
     for($i = 3; $i > 0; $i--){
-      $plot_info = explode(",",$_GET['plot_type']);
-      $units = explode(",",$_GET['units']);
       $day_epoch = (int)$_GET['epoch'] + (86400 * $i);
       unlink($plot_info[1]);
       $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
