@@ -8,7 +8,7 @@ History
 var pathweewx = '/weewx/'   //Path from web server home location to weewx directory
 var pathpws   = '/pws/'     //Path from web server home location to pws directory
 
-var pathjsonfiles = pathweewx + "json/";                    //Location weewx report output json files from home location of weewx
+var pathjsonfiles = pathweewx + "json/";                    //Location weewx report output json files from home location of weewx. DO NOT CHANGE UNLESS YOU CHANGE SKIN DIRECTORY.
 var realtimefile =  pathpws   + "demodata/realtime.txt";    //Location of real-time data from web server
 
 var dayplotsurl =   pathpws   + "mbcharts/getDayChart.php"; //Location of day reports php file from home location of pws.
@@ -117,6 +117,7 @@ var auto_update = false;
 var buttons= null;
 var categories;
 var utcoffset;
+var timer1;
 var chart;
 
 /*****************************************************************************
@@ -943,8 +944,10 @@ function do_auto_update(units, plot_type, span, buttonReload, day_plots){
     for (var i = 0; i < buttons.length;i++)
        if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
            buttons[i].text = "Auto Update Chart " + (auto_update ? "ON" : "OFF");
-    if (auto_update)
+    if (auto_update){
+        timer1 = null;
         display_chart(units, plot_type, span, day_plots);
+    }
 }
 
 function setup_plots(seriesData, units, options, plot_type, span, day_plots){
@@ -964,7 +967,18 @@ function display_chart(units, plot_type, span, day_plots = false){
         files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     if (buttons == null){
         function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_realtime = false;do_auto_update(units, plot_type, span, buttonReload, false)}}
-        function realtime_callback(){return function(){if (do_realtime) return;do_realtime=true;auto_update=false;display_chart(units, realtimeplot[plot_type][3], 'weekly', false)}}
+        function realtime_callback(){return function(){
+                                    if (do_realtime) return;
+                                    do_realtime = true;
+                                    if (timer1 != null){
+                                        clearTimeout(timer1);
+                                        timer1 = null
+                                        for (var i = 0; i < buttons.length;i++)
+                                            if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
+                                                buttons[i].text = "Auto Update Chart OFF";
+                                    };
+                                    auto_update=false;
+                                    display_chart(units, realtimeplot[plot_type][3], 'weekly', false)}}
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true, day_plots)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false, day_plots)});
@@ -1007,5 +1021,5 @@ function display_chart(units, plot_type, span, day_plots = false){
         return;
     });
     if (auto_update)
-        setTimeout(display_chart, autoupdateinterval*1000, units, plot_type, span, day_plots);
+        timer1 = setTimeout(display_chart, autoupdateinterval*1000, units, plot_type, span, day_plots);
 };
