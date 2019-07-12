@@ -5,8 +5,9 @@ History
     v1.0.0      June 2019
         -  large rewrite of the original plots.js to support w34 type charts
 *****************************************************************************/
-var pathweewx = '/weewx/'   //Path from web server home location to weewx directory
-var pathpws   = '/pws/'     //Path from web server home location to pws directory
+var pathweewx = '/weewx/'             //Path from web server home location to weewx directory
+var pathweewxbin ='/usr/share/weewx'  //Path to weewx include files for wee_report_w34
+var pathpws   = '/pws/'               //Path from web server home location to pws directory
 
 var pathjsonfiles = pathweewx + "json/";                    //Location weewx report output json files from home location of weewx. DO NOT CHANGE UNLESS YOU CHANGE SKIN DIRECTORY.
 var realtimefile =  pathpws   + "demodata/realtime.txt";    //Location of real-time data from web server
@@ -1005,7 +1006,7 @@ function display_chart(units, plot_type, span, day_plots = false){
                             if (day_plots) 
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly')
-                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&epoch="+this.x/1000
+                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&weewxpathbin="+pathweewxbin+"&epoch="+this.x/1000
                             else
                                 setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
                     }
