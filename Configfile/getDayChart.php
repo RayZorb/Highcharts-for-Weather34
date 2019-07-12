@@ -22,6 +22,7 @@
     </body> 
 </html>
 <?php 
+    include_once('../settings1.php');
     putenv("PYTHONPATH=".$_GET['weewxpathbin']);
     $plot_info = explode(",",$_GET['plot_type']);
     $units = explode(",",$_GET['units']);
