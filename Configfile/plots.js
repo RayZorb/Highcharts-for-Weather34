@@ -113,7 +113,7 @@ jQuery.getMultipleJSON = function(){
     });
 };
 
-function create_common_options(){
+function create_common_options(day_plots){
     var commonOptions = {
         chart: {
             renderTo: "plot_div",
@@ -202,7 +202,7 @@ function create_common_options(){
                         lineWidth: 1,
                         lineWidthPlus: 1}}},
         },
-        rangeSelector: {},
+        rangeSelector: {selected: (day_plots ? 5 : 3)},
         series: [{}],
         tooltip: {
             valueDecimals: 1,
@@ -330,7 +330,6 @@ function addWeekOptions(obj) {
         type: 'all',
         text: '7d'
     }],
-    obj.rangeSelector.selected = 3;
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.spline.dataGrouping.enabled = false;
     obj.plotOptions.scatter.dataGrouping.enabled = false;
@@ -461,7 +460,6 @@ function create_temperature_chart(options, span, seriesData, units){
         }
     }
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
-    options.yAxis[0].title.rotation = 0;
     options.yAxis[0].tickInterval = 10;
     return options;
 };
@@ -543,7 +541,7 @@ function create_dewpoint_chart(options, span, seriesData, units){
     }
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     return options;
-}
+};
 
 function create_humidity_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
@@ -561,7 +559,7 @@ function create_humidity_chart(options, span, seriesData, units){
     options.yAxis[0].tickInterval = 25;
     options.yAxis[0].title.text = "(" + seriesData[0].humidityplot.units + ")";
     return options;
-}
+};
 
 function setBarSmall(obj) {
     obj.chart.marginBottom = 20;
@@ -921,7 +919,7 @@ function do_auto_update(units, plot_type, span, buttonReload, day_plots){
         timer1 = null;
         display_chart(units, plot_type, span, day_plots);
     }
-}
+};
 
 function setup_plots(seriesData, units, options, plot_type, span, day_plots){
     utcoffset = seriesData[0].utcoffset;
@@ -939,7 +937,7 @@ function display_chart(units, plot_type, span, day_plots = false){
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
         files[i] = (day_plots ? pathjsondayfiles : pathjsonfiles) + jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1][i];
     if (buttons == null){
-        function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_realtime = false;do_auto_update(units, plot_type, span, buttonReload, false)}}
+        function callback(units, plot_type, span, buttonReload, day_plots){return function(){do_realtime=false;do_auto_update(units, plot_type, span, buttonReload, false)}}
         function realtime_callback(){return function(){
                                     if (do_realtime) return;
                                     do_realtime = true;
@@ -959,8 +957,7 @@ function display_chart(units, plot_type, span, day_plots = false){
             buttons.push({text: "Realtime Update", onclick: realtime_callback()});
     }
     jQuery.getMultipleJSON(...files).done(function(...results){
-        var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span, day_plots);
-        if (day_plots) options.rangeSelector.selected = 5;
+        var options = setup_plots(results.flat(), units, create_common_options(day_plots), plot_type, span, day_plots);
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (do_realtime){
             remove_range_selector(chart);           
