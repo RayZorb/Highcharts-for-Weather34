@@ -143,7 +143,6 @@ function create_common_options(){
                         year: ['%Y', '%Y', '-%Y']
                     },
                     enabled: true,
-                    //forced: false,
                     units: [['hour',[1]], ['day',[1]], ['week',[1]]]},
             },
             columnrange: {
@@ -156,7 +155,6 @@ function create_common_options(){
                         year: ['%Y', '%Y', '-%Y']
                     },
                     enabled: true,
-                    //forced: true,
                     units: [['day',[1]], ['week',[1]]]},
             },
             series: {states: {hover: {halo: {size: 0,}}}
@@ -171,7 +169,6 @@ function create_common_options(){
                         year: ['%Y', '%Y', '-%Y']
                     },
                     enabled: true,
-                    //forced: true,
                     units: [['hour',[1]], ['day',[1]], ['week',[1]]]
                 },
                 marker: {
@@ -191,7 +188,6 @@ function create_common_options(){
                         year: ['%Y', '%Y', '-%Y']
                     },
                     enabled: true,
-                  //  forced: true,
                     units: [['hour',[1]], ['day',[1]], ['week',[1]]]
                 },
                 lineWidth: 1,
@@ -949,7 +945,7 @@ function display_chart(units, plot_type, span, day_plots = false){
                                     do_realtime = true;
                                     if (timer1 != null){
                                         clearTimeout(timer1);
-                                        timer1 = null
+                                        timer1 = null;
                                         for (var i = 0; i < buttons.length;i++)
                                             if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
                                                 buttons[i].text = "Auto Update Chart OFF";
