@@ -5,20 +5,21 @@ History
     v1.0.0      June 2019
         -  large rewrite of the original plots.js to support w34 type charts
 *****************************************************************************/
-var pathweewx = '/weewx/'   //Path from web server home location for weewx
-var pathpws   = '/pws/'     //Path from web server home location for pws
+var pathweewx = '/weewx/'   //Path from web server home location to weewx directory
+var pathpws   = '/pws/'     //Path from web server home location to pws directory
 
-var realtimefile =  pathpws   + "demodata/realtime.txt";    //Location of real-time data from home location of pws
 var pathjsonfiles = pathweewx + "json/";                    //Location weewx report output json files from home location of weewx
+var realtimefile =  pathpws   + "demodata/realtime.txt";    //Location of real-time data from web server
 
-var dayplotsurl =   pathpws   + "mbcharts/getDayChart.php";  //Location of day reports php file from home location of pws. Should not need to change
-var pathjsondayfiles = "json/";                              //Location day report output json files from home location of where wee_report_34 run. Should not need to change.
-var weereportcmd = "./wee_reports_w34";                      //Command to run  wee_report_34. Should not need to change.
+var dayplotsurl =   pathpws   + "mbcharts/getDayChart.php"; //Location of day reports php file from home location of pws.
+var pathjsondayfiles = "json_day/";                         //Location day report output json files from home location of where wee_report_34 run. DO NOT CHANGE UNLESS YOU CHANGE SKIN DIRECTORY.
+var weereportcmd = "./wee_reports_w34";                     //Command to run wee_report_34. DO NOT CHANGE.
 
 var autoupdateinterval = 60; //This is seconds
 var realtimeinterval = 10;  //This is seconds
 
-//First array offset(s) to wanted real-time data(s)(can be empty),Second array offset(s) to data's real-time units(can be empty),Third array unit convert function(s)(can be empty), Fourth plot type
+//[0] array offset(s) to wanted real-time data(s)(can be empty),[1] array offset(s) to data's real-time units(can be empty),[2] array of unit convert function(s)(can be empty), [3] plot type must have
+// The (can be empty) entries then must have a plot_type that is another plot type entry with fill in values.
 var realtimeplot = {
     temperatureplot:[[2,4],[14,14],['convert_temp','convert_temp'],['temperatureplot']],
     winddirplot:[[7],[13],['convert_wind'],['winddirplot']],
@@ -1002,7 +1003,7 @@ function display_chart(units, plot_type, span, day_plots = false){
             for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
                 postcreatefunctions[plot_type][i](chart);
     }).fail(function(){
-        $("#plot_div").load("../404.html");
+        $("#plot_div").load(pathpws + "404.html");
         return;
     });
     if (auto_update)
