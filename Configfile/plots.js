@@ -88,7 +88,7 @@ var jsonfileforplot = {
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
-var realtimeXscaleFactor = 300/realtimeinterval;
+var realtimeXscaleFactor = 150/realtimeinterval;
 var do_realtime = false;
 var auto_update = false;
 var buttons= null;
@@ -405,7 +405,7 @@ function create_chart_options(options, type, title, valueSuffix, values, first_l
     if (first_line != null)
         options.tooltip.formatter = function() {return custom_tooltip(this, first_line)};
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
-    options.xAxis.minTickInterval = do_realtime ? 600000 : 900000;
+    options.xAxis.minTickInterval = do_realtime ? 450000 : 900000;
     options.title = {text: getTranslation(title)};
     for (var i = 0; i < values.length; i++){
         options.series[i] = [];
