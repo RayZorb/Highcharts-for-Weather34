@@ -994,3 +994,11 @@ function display_chart(units, plot_type, span, day_plots = false){
     if (auto_update)
         timer1 = setTimeout(display_chart, autoupdateinterval*1000, units, plot_type, span, day_plots);
 };
+$.datepicker.setDefaults({
+    dateFormat: 'yy-mm-dd',
+    onSelect: function () {
+        this.onchange();
+        this.onblur();
+    }
+});
+
