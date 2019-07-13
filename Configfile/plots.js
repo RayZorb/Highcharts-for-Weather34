@@ -202,7 +202,7 @@ function create_common_options(day_plots){
                         lineWidth: 1,
                         lineWidthPlus: 1}}},
         },
-        rangeSelector: {selected: (day_plots ? 5 : 3)},
+        rangeSelector: {selected: (day_plots ? 5 : undefined)},
         series: [{}],
         tooltip: {
             valueDecimals: 1,
@@ -330,6 +330,7 @@ function addWeekOptions(obj) {
         type: 'all',
         text: '7d'
     }],
+    obj.rangeSelector.selected = 3;
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.spline.dataGrouping.enabled = false;
     obj.plotOptions.scatter.dataGrouping.enabled = false;
