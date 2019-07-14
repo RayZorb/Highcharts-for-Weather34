@@ -91,6 +91,7 @@ var windrosespans = ["24h","Week","Month","Year"];
 var realtimeXscaleFactor = 150/realtimeinterval;
 var do_realtime = false;
 var auto_update = false;
+var day_plots = false;
 var buttons= null;
 var categories;
 var utcoffset;
@@ -113,7 +114,7 @@ jQuery.getMultipleJSON = function(){
     });
 };
 
-function create_common_options(day_plots){
+function create_common_options(){
     var commonOptions = {
         chart: {
             renderTo: "plot_div",
@@ -202,7 +203,7 @@ function create_common_options(day_plots){
                         lineWidth: 1,
                         lineWidthPlus: 1}}},
         },
-        rangeSelector: {selected: (day_plots ? 5 : undefined)},
+        rangeSelector: {},
         series: [{}],
         tooltip: {
             valueDecimals: 1,
@@ -285,7 +286,7 @@ function remove_range_selector(chart){
     });
 };
 
-function addWindRoseOptions(options, span, seriesData, units, plot_type, day_plots) {
+function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
@@ -330,7 +331,7 @@ function addWeekOptions(obj) {
         type: 'all',
         text: '7d'
     }],
-    obj.rangeSelector.selected = 3;
+    obj.rangeSelector.selected = day_plots ? 5 : 3;
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.spline.dataGrouping.enabled = false;
     obj.plotOptions.scatter.dataGrouping.enabled = false;
@@ -922,17 +923,18 @@ function do_auto_update(units, plot_type, span, buttonReload, day_plots){
     }
 };
 
-function setup_plots(seriesData, units, options, plot_type, span, day_plots){
+function setup_plots(seriesData, units, options, plot_type, span){
     utcoffset = seriesData[0].utcoffset;
     Highcharts.setOptions({global:{timezoneOffset: - utcoffset,}});
     for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
-       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type, day_plots) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type, day_plots));
+       options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type));
     return options
 };
 
-function display_chart(units, plot_type, span, day_plots = false){
+function display_chart(units, plot_type, span, dplots = false){
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, span);
+    day_plots = dplots;
     var results, files = [];
     if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++)
@@ -958,7 +960,7 @@ function display_chart(units, plot_type, span, day_plots = false){
             buttons.push({text: "Realtime Update", onclick: realtime_callback()});
     }
     jQuery.getMultipleJSON(...files).done(function(...results){
-        var options = setup_plots(results.flat(), units, create_common_options(day_plots), plot_type, span, day_plots);
+        var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span);
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         if (do_realtime){
             remove_range_selector(chart);           
@@ -975,8 +977,10 @@ function display_chart(units, plot_type, span, day_plots = false){
                        events: {click: function(e){
                             if (day_plots) 
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
-                            else if (span[0] == 'yearly')
+                            else if (span[0] == 'yearly'){
+                                chart.showLoading('Loading data from database...');
                                 window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&weewxpathbin="+pathweewxbin+"&epoch="+this.x/1000
+                            }
                             else
                                 setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
                     }
@@ -1001,4 +1005,3 @@ $.datepicker.setDefaults({
         this.onblur();
     }
 });
-
