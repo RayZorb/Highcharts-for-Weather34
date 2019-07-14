@@ -392,7 +392,7 @@ function custom_tooltip(tooltip, first_line) {
 function getTranslation(term){
     if (typeof translations == 'undefined') return term;
     if (translations.hasOwnProperty(term)) return translations[term];
-    var parts = term.split(/([" ", "/"])/);
+    var parts = term.split(/([" ", "/", "&"])/);
     var translation = "";
     for (var i = 0; i < parts.length; i++)
        translation += translations.hasOwnProperty(parts[i]) ? translations[parts[i]] : parts[i];
