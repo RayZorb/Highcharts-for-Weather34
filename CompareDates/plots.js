@@ -107,7 +107,7 @@ jQuery.getMultipleJSON = function(){
   jQuery.ajaxSetup({timeout:10000});
   return jQuery.when.apply(jQuery, jQuery.map(arguments, function(jsonfile){
     return jQuery.getJSON(jsonfile).fail(function(){
-      alert("!!!!NO DATA FOUND in database for the chosen date. Please choose another date!!!!");return true;});
+      alert("!!!!NO DATA FOUND in database. Please choose another date!!!! " + jsonfile.split("/")[1]);return true;});
   })).then(function(){
     var def = jQuery.Deferred();
     return def.resolve.apply(def, jQuery.map(arguments, function(response){
