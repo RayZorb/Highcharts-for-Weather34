@@ -220,7 +220,7 @@ function create_common_options(){
             split: false,
             valueSuffix: ''
         },
-        xAxis: {
+        xAxis: [{
             dateTimeLabelFormats: {
                 day: '%e %b',
                 week: '%e %b',
@@ -236,7 +236,24 @@ function create_common_options(){
             tickWidth: 1,
             title: {},
             type: 'datetime',
-        },
+        },{
+            dateTimeLabelFormats: {
+                day: '%e %b',
+                week: '%e %b',
+                month: '%b %y',
+            },
+            lineWidth: 1,
+            minorGridLineWidth: 0,
+            minorTickLength: 2,
+            minorTickPosition: 'outside',
+            minorTickWidth: 1,
+            tickLength: 4,
+            tickPosition: 'outside',
+            tickWidth: 1,
+            title: {},
+            type: 'datetime',
+            opposite: true,
+        }],
         yAxis: [{
             endOnTick: true,
             labels: {
@@ -401,13 +418,13 @@ function getTranslation(term){
 };
 
 function create_chart_options(options, type, title, valueSuffix, values, first_line = "date"){
-    var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip'];
+    var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip', 'xAxis'];
     options.series = [];
     options.chart.type = type;
     if (first_line != null)
         options.tooltip.formatter = function() {return custom_tooltip(this, first_line)};
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
-    options.xAxis.minTickInterval = do_realtime ? 450000 : 900000;
+    options.xAxis[0].minTickInterval = do_realtime ? 450000 : 900000;
     options.title = {text: getTranslation(title)};
     for (var i = 0; i < values.length; i++){
         options.series[i] = [];
@@ -454,7 +471,7 @@ function create_temperature_chart(options, span, seriesData, units){
     }
     else if (span[0] == "weekly"){
         if (compare_dates)
-            options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false], ['Temperature', 'spline',1],['Dewpoint','spline',1],['Feels', 'spline',1, false, false]]);
+            options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false], ['Temperature', 'spline',1,,,,1],['Dewpoint','spline',1,,,,1],['Feels', 'spline',1, false, false]]);
         else
             options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTemp));
