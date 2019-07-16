@@ -28,28 +28,31 @@
     putenv("PYTHONPATH=".$_GET['weewxpathbin']);
     $plot_info = explode(",",$_GET['plot_type']);
     $units = explode(",",$_GET['units']);
-    $epoch = (int)$_GET['epoch'];
-    $epoch1 = (int)$_GET['epoch1'];
     unlink($plot_info[1]);
-    if ($epoch1 > 0){
+    if (sizeof($plot_info) == 4){
       unlink($plot_info[3]);
-      $output = shell_exec(escapeshellcmd($plot_info[2]." ".($epoch1 + 86400)." ".$plot_info[1].".tmpl ".getcwd()));
-      rename($plot_info[1], $plot_info[3]);
-      $output = shell_exec(escapeshellcmd($plot_info[2]." ".($epoch + 86400)." ".$plot_info[1].".tmpl ".getcwd()));
-      if (file_exists($plot_info[1]) && file_exists($plot_info[3])) {
-        echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',false,true);</script>";
-        return;
+      for($i = 4; $i > 0; $i--){
+        $day_epoch = (int)$_GET['epoch1'] + (86400 * $i);
+        $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
+        if (file_exists($plot_info[1])) 
+          break;
       }
+      rename($plot_info[1], $plot_info[3]);
+      for($i = 4; $i > 0; $i--){
+        $day_epoch = (int)$_GET['epoch'] + (86400 * $i);
+        $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
+        if (file_exists($plot_info[1])) 
+          break;
+      }
+      echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',false,true);</script>";
+      return;
     }
     else {
       for($i = 3; $i > 0; $i--){
         $day_epoch = (int)$_GET['epoch'] + (86400 * $i);
         $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
-        if (file_exists($plot_info[1])) {
-          echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',true,false);</script>";
-          return;
-      }
+        echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',true,false);</script>";
+        return;
     }
   }
-  include("../404.html");
 ?> 

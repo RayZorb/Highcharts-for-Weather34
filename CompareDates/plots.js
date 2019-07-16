@@ -62,7 +62,7 @@ var postcreatefunctions = {
 
 var jsonfileforplot = {
     temperatureplot: [['temp_week.json'],['year.json'],['temp_week1.json']],
-    indoorplot: [['indoor_derived_week.json'],['year.json'],[null]],
+    indoorplot: [['indoor_derived_week.json'],['year.json'],['indoor_derived_week1.json']],
     tempsmallplot: [['temp_week.json'],['year.json'],[null]],
     tempallplot: [['temp_week.json'],['year.json'],[null]],
     tempderivedplot: [['indoor_derived_week.json'],['year.json'],[null]],
@@ -509,10 +509,17 @@ function create_indoor_chart(options, span, seriesData, units){
         options.series[2].data = reinflate_time(seriesData[0].utcoffset, seriesData[0].humidityplot.inHumidityminmax);
         options.series[3].data = reinflate_time(seriesData[0].utcoffset, seriesData[0].humidityplot.inHumidityaverage);
     }
-    else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,, {valueSuffix: '%'}]]);
+    else if (span[0] == "weekly"){ 
+        if (compare_dates)
+            options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,, {valueSuffix: '%'}], ['Temperature', 'spline',,,,,1],['Humidity','spline', 1,,, {valueSuffix: '%'},1]]);
+        else
+            options = create_chart_options(options, 'spline', 'Greenhouse Temperature Humidity', '\xB0' + units.temp, [['Temperature', 'spline'],['Humidity','spline', 1,,, {valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].utcoffset, seriesData[0].temperatureplot.inTemp));
         options.series[1].data = reinflate_time(seriesData[0].utcoffset, seriesData[0].humidityplot.inHumidity);
+        if (compare_dates){
+            options.series[2].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].utcoffset, seriesData[1].temperatureplot.inTemp));
+            options.series[3].data = reinflate_time(seriesData[1].utcoffset, seriesData[1].humidityplot.inHumidity);
+        }
     }
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.yAxis[1].title.text = "(%)";
