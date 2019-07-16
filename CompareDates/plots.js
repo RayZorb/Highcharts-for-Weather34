@@ -207,7 +207,7 @@ function create_common_options(){
         rangeSelector: {},
         series: [{}],
         tooltip: {
-            valueDecimals: 1,
+            valueDecimals: 2,
             crosshairs: true,
             enabled: true,
             followPointer: true,
@@ -326,7 +326,8 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
 function addWeekOptions(obj) {
     if (do_realtime) return obj;
     if (compare_dates){
-        obj.rangeSelector = {inputEnabled: true, buttonTheme: {visibility: 'hidden'}, labelStyle: {visibility: 'hidden'}};
+        obj.rangeSelector = {inputEnabled:false };
+        obj.rangeSelector = {enabled:false };
         return obj;
     }
     obj.rangeSelector.buttons = [{
@@ -406,7 +407,7 @@ function custom_tooltip(tooltip, first_line) {
     else
        temp = '<span style="font-size: 10px">' + first_line[tooltip.x] + '</span><br/>';
     $(order).each(function(i,j){
-        temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + points[j].y + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
+        temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + parseFloat(points[j].y.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
     });
     return temp;
 };
@@ -475,7 +476,7 @@ function create_temperature_chart(options, span, seriesData, units){
     }
     else if (span[0] == "weekly"){
         if (compare_dates)
-            options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false], ['Temperature', 'spline',1,,,,1],['Dewpoint','spline',1,,,,1],['Feels', 'spline',1, false, false]]);
+            options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false], ['Temperature', 'spline',,,,,1],['Dewpoint','spline',,,,,1],['Feels', 'spline',,false,false,,1]]);
         else
             options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTemp));
