@@ -325,6 +325,10 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     
 function addWeekOptions(obj) {
     if (do_realtime) return obj;
+    if (compare_dates){
+        obj.rangeSelector = {inputEnabled: true, buttonTheme: {visibility: 'hidden'}, labelStyle: {visibility: 'hidden'}};
+        return obj;
+    }
     obj.rangeSelector.buttons = [{
         type: 'hour',
         count: 1,
