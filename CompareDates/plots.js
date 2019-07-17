@@ -236,6 +236,7 @@ function create_common_options(){
             tickWidth: 1,
             title: {},
             type: 'datetime',
+            minRange: 1,
         },{
             dateTimeLabelFormats: {
                 day: '%e %b',
@@ -253,6 +254,8 @@ function create_common_options(){
             title: {},
             type: 'datetime',
             opposite: true,
+            minRange: 1,
+            //linkedTo: 0,
         }],
         yAxis: [{
             endOnTick: true,

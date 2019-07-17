@@ -31,16 +31,16 @@
     unlink($plot_info[1]);
     if (sizeof($plot_info) == 4){
       unlink($plot_info[3]);
-      for($i = 4; $i > 0; $i--){
+      for($i = 2; $i > 0; $i--){
         $day_epoch = (int)$_GET['epoch1'] + (86400 * $i);
-        $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
+        $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?(int)$_GET['epoch1']:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
         if (file_exists($plot_info[1])) 
           break;
       }
       rename($plot_info[1], $plot_info[3]);
-      for($i = 4; $i > 0; $i--){
+      for($i = 2; $i > 0; $i--){
         $day_epoch = (int)$_GET['epoch'] + (86400 * $i);
-        $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
+        $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?(int)$_GET['epoch']:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
         if (file_exists($plot_info[1])) 
           break;
       }
@@ -48,7 +48,7 @@
       return;
     }
     else {
-      for($i = 4; $i > 0; $i--){
+      for($i = 3; $i > 0; $i--){
         $day_epoch = (int)$_GET['epoch'] + (86400 * $i);
         $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?0:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
         echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',true,false);</script>";
