@@ -452,10 +452,10 @@ function post_create_small_chart(chart, height){
     });
 };
 
-function reinflate_time(utcoffset, series){
-    series[0][0] = (series[0][0] + (utcoffset *60)) *1000; 
+function reinflate_time(utcoffset, series, series_ts = null){
+    series[0][0] = series_ts == null ? (series[0][0] + (utcoffset *60)) *1000 : series_ts[0][0]; 
     for (var i = 1; i < series.length; i++)
-        series[i][0] = series[0][0] + (series[i][0] *1000);
+        series[i][0] = series_ts == null ? series[0][0] + (series[i][0] *1000) : series_ts[i < series_ts.length ? i : series_ts.length -1][0];
     return series;
 };
 
@@ -482,15 +482,15 @@ function create_temperature_chart(options, span, seriesData, units){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].utcoffset, seriesData[0].temperatureplot.outTemp));
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].utcoffset, seriesData[0].temperatureplot.dewpoint));
         if (compare_dates){
-            options.series[3].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].utcoffset, seriesData[1].temperatureplot.outTemp));
-            options.series[4].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].utcoffset, seriesData[1].temperatureplot.dewpoint));
+            options.series[3].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].utcoffset, seriesData[1].temperatureplot.outTemp, options.series[0].data));
+            options.series[4].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].utcoffset, seriesData[1].temperatureplot.dewpoint, options.series[0].data));
         }
         if ("appTemp" in seriesData[0].temperatureplot) {
             options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].utcoffset, seriesData[0].temperatureplot.appTemp));
             options.series[2].visible = true;
             options.series[2].showInLegend = true;
             if (compare_dates){
-                options.series[5].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].utcoffset, seriesData[1].temperatureplot.appTemp));
+                options.series[5].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].utcoffset, seriesData[1].temperatureplot.appTemp, options.series[0].data));
                 options.series[5].visible = true;
                 options.series[5].showInLegend = true;
             }
@@ -966,9 +966,6 @@ function do_auto_update(units, plot_type, span, buttonReload){
 };
 
 function setup_plots(seriesData, units, options, plot_type, span){
-    //utcoffset = seriesData[0].utcoffset;
-    //console.log(utcoffset);
-    //Highcharts.setOptions({global:{timezoneOffset: - utcoffset,}});
     for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
        options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type));
     return options
@@ -1002,7 +999,6 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false){
                                     display_chart(units, realtimeplot[plot_type][3], 'weekly')}}
         function compare_callback(){return function(){
                                     if (do_realtime) return;
-                                    if (day_plots) return;
                                     epoch  = new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000;
                                     epoch1 = new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000;
                                     chart.showLoading('Loading data from database...');
