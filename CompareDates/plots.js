@@ -217,7 +217,7 @@ function create_common_options(){
                 day: ''
             },
             shared: true,
-            split: false,
+            split: true,
             valueSuffix: ''
         },
         xAxis: [{
@@ -255,7 +255,7 @@ function create_common_options(){
             type: 'datetime',
             opposite: true,
             minRange: 1,
-            linkedTo: 0,
+            //linkedTo: 0,
         }],
         yAxis: [{
             endOnTick: true,
@@ -328,7 +328,11 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     
 function addWeekOptions(obj) {
     if (do_realtime) return obj;
-    if (compare_dates) obj.rangeSelector = {inputEnabled:false };
+    if (compare_dates){
+         obj.rangeSelector = {inputEnabled:false };
+         obj.rangeSelector = {enabled:false };
+         return obj;
+    }
     obj.rangeSelector.buttons = [{
         type: 'hour',
         count: 1,
@@ -353,7 +357,7 @@ function addWeekOptions(obj) {
         type: 'all',
         text: '7d'
     }],
-    obj.rangeSelector.selected = day_plots || compare_dates ? 5 : 3;
+    obj.rangeSelector.selected = day_plots ? 5 : 3;
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.spline.dataGrouping.enabled = false;
     obj.plotOptions.scatter.dataGrouping.enabled = false;
@@ -393,7 +397,7 @@ function custom_tooltip(tooltip, first_line) {
     if (points == undefined) points = [tooltip.point];
     for(i=0; i < points.length; i++){
         j=0;
-        if( order.length ){
+        if(order.length){
             while( points[order[j]] && points[order[j]].y > points[i].y )
                 j++;
         }
@@ -421,10 +425,23 @@ function getTranslation(term){
     return translation.length > 0 ? translation : term;
 };
 
+var renderEnabled = true;
 function create_chart_options(options, type, title, valueSuffix, values, first_line = "date"){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip', 'xAxis'];
     options.series = [];
     options.chart.type = type;
+    if (compare_dates)
+        options.chart.events= {render: function(){
+            if (renderEnabled) {
+                var xAxes = this.xAxis,
+                extremes = xAxes[1].getExtremes(),
+                range = extremes.max - extremes.min;
+                renderEnabled = false;
+                xAxes[0].setExtremes(null, xAxes[0].getExtremes().min + range);
+                renderEnabled = true;
+            }
+        }
+    }
     if (first_line != null)
         options.tooltip.formatter = function() {return custom_tooltip(this, first_line)};
     if (valueSuffix != null) options.tooltip.valueSuffix = valueSuffix;
@@ -452,7 +469,7 @@ function post_create_small_chart(chart, height){
 };
 
 function reinflate_time(utcoffset, series, ts_start = null){
-    series[0][0] = ts_start == null ? (series[0][0] + (utcoffset *60)) *1000 : ts_start; 
+    series[0][0] = (series[0][0] + (utcoffset *60)) *1000; 
     for (var i = 1; i < series.length; i++)
         series[i][0] = series[0][0] + (series[i][0] *1000);
     return series;

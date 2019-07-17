@@ -146,7 +146,7 @@ class highchartsMinRanges(SearchList):
         logdbg2("highchartsMinRanges SLE executed in %0.3f seconds" % (t2 - t1))
 
         # Return our data dict
-        return [self.mr_dict]
+        return [mr_dict]
         
 class highcharts_temp_week(SearchList):
     """SearchList to generate JSON vectors for Highcharts week plots."""
@@ -154,6 +154,13 @@ class highcharts_temp_week(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
         self.search_list_extension = None
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
 
     def get_extension_list(self, timespan, db_lookup):
         """Generate the JSON vectors and return as a list of dictionaries."""
@@ -167,12 +174,12 @@ class highcharts_temp_week(SearchList):
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
 
-        # Get our start time, 7 days ago but aligned with start of day
+        # Get our start time, numDays days ago but aligned with start of day
         # first get the start of today
         _ts = startOfDay(timespan.stop)
-        # then go back 7 days
+        # then go back numDays days
         _ts_dt = datetime.datetime.fromtimestamp(_ts)
-        _start_dt = _ts_dt - datetime.timedelta(days=7)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
         # Get our temperature vector
@@ -235,7 +242,14 @@ class highcharts_bar_rain_week(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
         self.search_list_extension = None
-
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
+                
     def get_extension_list(self, timespan, db_lookup):
         """Generate the JSON vectors and return as a list of dictionaries."""
 
@@ -248,12 +262,12 @@ class highcharts_bar_rain_week(SearchList):
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
 
-        # Get our start time, 7 days ago but aligned with start of day
+        # Get our start time, numDays days ago but aligned with start of day
         # first get the start of today
         _ts = startOfDay(timespan.stop)
-        # then go back 7 days
+        # then go back numDays days
         _ts_dt = datetime.datetime.fromtimestamp(_ts)
-        _start_dt = _ts_dt - datetime.timedelta(days=7)
+        _start_dt = _ts_dt - datetime.timedelta(days=numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
         # Get our barometer vector
@@ -320,6 +334,13 @@ class highcharts_wind_week(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
         self.search_list_extension = None
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
 
     def get_extension_list(self, timespan, db_lookup):
         """Generate the JSON vectors and return as a list of dictionaries."""
@@ -333,12 +354,12 @@ class highcharts_wind_week(SearchList):
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
 
-        # Get our start time, 7 days ago but aligned with start of day
+        # Get our start time, numDays days ago but aligned with start of day
         # first get the start of today
         _ts = startOfDay(timespan.stop)
-        # then go back 7 days
+        # then go back numDays days
         _ts_dt = datetime.datetime.fromtimestamp(_ts)
-        _start_dt = _ts_dt - datetime.timedelta(days=7)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
         # Get our wind speed vector
@@ -405,7 +426,14 @@ class highcharts_solar_week(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
         self.search_list_extension = None
-
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
+                
         # maxSolarRad. First try to get the binding from weewx-WD if installed
         try:
             self.insolation_binding = generator.config_dict['Weewx-WD']['Supplementary'].get('data_binding')
@@ -436,12 +464,12 @@ class highcharts_solar_week(SearchList):
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
 
-        # Get our start time, 7 days ago but aligned with start of day
+        # Get our start time, numDays days ago but aligned with start of day
         # first get the start of today
         _ts = startOfDay(timespan.stop)
-        # then go back 7 days
+        # then go back numDays days
         _ts_dt = datetime.datetime.fromtimestamp(_ts)
-        _start_dt = _ts_dt - datetime.timedelta(days=7)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
         # Get our radiation vector
@@ -520,7 +548,14 @@ class highcharts_indoor_derived_week(SearchList):
     def __init__(self, generator):
         SearchList.__init__(self, generator)
         self.search_list_extension = None
-
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
+                
         # appTemp. First try to get the binding from weewx-WD if installed
         try:
             self.apptemp_binding = generator.config_dict['Weewx-WD'].get('data_binding')
@@ -551,12 +586,12 @@ class highcharts_indoor_derived_week(SearchList):
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
 
-        # Get our start time, 7 days ago but aligned with start of day
+        # Get our start time, numDays days ago but aligned with start of day
         # first get the start of today
         _ts = startOfDay(timespan.stop)
-        # then go back 7 days
+        # then go back numDays days
         _ts_dt = datetime.datetime.fromtimestamp(_ts)
-        _start_dt = _ts_dt - datetime.timedelta(days=7)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
         # Get our temperature vector
