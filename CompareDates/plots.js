@@ -671,9 +671,9 @@ function create_winddir_chart(options, span, seriesData, units){
 function create_windall_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'area', 'Wind Speed/Gust/Direction Max & Averages', units.wind,[['Max Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area'],['Average Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
-        options.series[0].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windmax));
-        options.series[1].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windAvmax));
-        options.series[2].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windaverage));
+        options.series[0].data = reinflate_time(seriesData[0].utcoffset, convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windmax));
+        options.series[1].data = reinflate_time(seriesData[0].utcoffset, convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windAvmax));
+        options.series[2].data = reinflate_time(seriesData[0].utcoffset, convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windaverage));
         options.series[3].data = reinflate_time(seriesData[0].utcoffset, seriesData[0].winddirplot.windDir);
     }
     else if (span[0] == "weekly"){
@@ -681,8 +681,8 @@ function create_windall_chart(options, span, seriesData, units){
             options = create_chart_options(options, 'spline', 'Average Wind Speed/Gust/Direction', units.wind,[['Avg Wind Speed', 'spline'], ['Avg Wind Gust', 'spline'], ['Avg Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
         else
             options = create_chart_options(options, 'scatter', 'Wind Speed/Gust/Direction', units.wind,[['Wind Speed', 'spline'],['Wind Gust', 'spline'],['Wind Direction', 'scatter',1,,,{valueSuffix: '\xB0'}]]);
-        options.series[0].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windSpeed));
-        options.series[1].data = reinflate_time(convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windGust));
+        options.series[0].data = reinflate_time(seriesData[0].utcoffset, convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windSpeed));
+        options.series[1].data = reinflate_time(seriesData[0].utcoffset, convert_wind(seriesData[0].windplot.units, units.wind, seriesData[0].windplot.windGust));
         options.series[2].data = reinflate_time(seriesData[0].utcoffset, seriesData[0].winddirplot.windDir);
     }
     options.tooltip.shared = false;
