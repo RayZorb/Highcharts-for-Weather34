@@ -267,7 +267,7 @@ class highcharts_bar_rain_week(SearchList):
         _ts = startOfDay(timespan.stop)
         # then go back numDays days
         _ts_dt = datetime.datetime.fromtimestamp(_ts)
-        _start_dt = _ts_dt - datetime.timedelta(days=numDays)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
         # Get our barometer vector
