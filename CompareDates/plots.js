@@ -122,6 +122,8 @@ function create_common_options(){
             renderTo: "plot_div",
             spacing: [10, 10, 0, -1],
             zoomType: 'xy',
+            panning: true,
+            panKey: 'shift',
         },
         legend: {
             enabled: true,
