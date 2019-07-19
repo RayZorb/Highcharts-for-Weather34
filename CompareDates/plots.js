@@ -399,28 +399,17 @@ function addYearOptions(obj) {
 };
 
 function custom_tooltip(tooltip, first_line) {
-    var order = [2,3,0,1], i, j, temp = [], temp1 = [], points = tooltip.points;
+    var order = [], i, j, temp = [], temp1 = [], points = tooltip.points;
     if (points == undefined) points = [tooltip.point];
-    if (!compare_dates){
-        order = [];
-        for(i=0; i < points.length; i++){
-            j=0;
-            if(order.length){
-                while( points[order[j]] && points[order[j]].y > points[i].y )
-                    j++;
-            }
-            temp = order.splice(0, j);
-            temp.push(i);
-            order = temp.concat(order);
-        }
-    }
+    for (j = 0; j < points.length; j++)
+        order.push(j);
     if (first_line == "date"){
         temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
         if (compare_dates){
             for (i = 0; i < compare_dates_ts.length; i++)
                 if (compare_dates_ts[i][0] == tooltip.x && compare_dates_ts[i][1] != null){
-                    temp  = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',compare_dates_ts[i][1]) + '</span><br/>';
-                    temp1 = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
+                    temp1  = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',compare_dates_ts[i][1]) + '</span><br/>';
+                    temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
                     break;
                 }
         }
