@@ -88,7 +88,7 @@ var jsonfileforplot = {
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
-var realtimeXscaleFactor = 150/realtimeinterval;
+var realtimeXscaleFactor = 300/realtimeinterval;
 var compare_dates_ts = [];
 var compare_dates = false;
 var do_realtime = false;
@@ -1038,6 +1038,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false){
                                                 buttons[i].text = "Auto Update Chart OFF";
                                     };
                                     auto_update=false;
+                                    realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
                                     display_chart(units, realtimeplot[plot_type][3], 'weekly')}}
         function compare_callback(){return function(){
                                     if (do_realtime) return;
