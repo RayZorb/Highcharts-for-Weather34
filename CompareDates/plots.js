@@ -258,11 +258,12 @@ function create_common_options(){
             minRange: 1,
             visible: false,
             labels: {formatter: function() {
-                    for (i = 0; i < compare_dates_ts[0].length; i++)
-                        if (compare_dates_ts[1][i] != undefined && compare_dates_ts[0][i][0] == this.value){
+                    for (var i = 0; i < compare_dates_ts[0].length; i++){
+                        if (compare_dates_ts[1][i] != undefined && Math.abs(compare_dates_ts[0][i][0] - this.value) < 100000){
                             var date = new Date(compare_dates_ts[1][i][0]);
-                            return date.getHours() == 0 ? Highcharts.dateFormat('%e. %b', date):Highcharts.dateFormat('%H:%M', date);
+                            return date.getHours() == 0 || date.getHours() == 23 || date.getHours() == 1 ? Highcharts.dateFormat('%e. %b', date):Highcharts.dateFormat('%H:%M', date);
                         }
+                    }
                 }
             },
         }],
@@ -361,7 +362,7 @@ function addWeekOptions(obj) {
         text: '36h'
     }, {
         type: 'all',
-        text: compare_dates ? '36h' : '7d'
+        text: compare_dates ? '72h' : '7d'
     }],
     obj.rangeSelector.selected = day_plots || compare_dates ? 5 : 3;
     obj.plotOptions.column.dataGrouping.enabled = false;
@@ -1042,8 +1043,8 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false){
                                     display_chart(units, realtimeplot[plot_type][3], 'weekly')}}
         function compare_callback(){return function(){
                                     if (do_realtime) return;
-                                    epoch  = new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000;
-                                    epoch1 = new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000;
+                                    epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
+                                    epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
                                     chart.showLoading('Loading data from database...');
                                     window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
