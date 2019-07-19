@@ -402,7 +402,8 @@ function addYearOptions(obj) {
 function custom_tooltip(tooltip, first_line) {
     var order = [2,3,0,1], i, j, temp = [], temp1 = [], points = tooltip.points;
     if (points == undefined) points = [tooltip.point];
-    if (!compare_dates)
+    if (!compare_dates){
+        order = [];
         for(i=0; i < points.length; i++){
             j=0;
             if(order.length){
@@ -413,6 +414,7 @@ function custom_tooltip(tooltip, first_line) {
             temp.push(i);
             order = temp.concat(order);
         }
+    }
     if (first_line == "date"){
         if (compare_dates){
             for (i = 0; i < compare_dates_ts[0].length; i++){
@@ -481,7 +483,7 @@ function post_create_small_chart(chart, height){
 };
 
 function reinflate_time(series, ts_start = null){
-    series[0][0] = ts_start == null ? series[0][0] *1000: ts_start; 
+    series[0][0] = ts_start == null ? (series[0][0] + (utcoffset *60)) *1000: ts_start; 
     for (var i = 1; i < series.length; i++)
         series[i][0] = series[0][0] + (series[i][0] *1000);
     return series;
@@ -982,7 +984,7 @@ function do_realtime_update(chart, plot_type, units){
                 chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
         var parts = data.split(" ");
         var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-        var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6])-(utcoffset*60000);
+        var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
         for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
             if (realtimeplot[plot_type][2][j] == null)
                 chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
@@ -1009,7 +1011,6 @@ function do_auto_update(units, plot_type, span, buttonReload){
 
 function setup_plots(seriesData, units, options, plot_type, span){
     utcoffset = seriesData[0].utcoffset;
-    Highcharts.setOptions({global:{timezoneOffset: -utcoffset,}});
     for (var i = 0; i < (span[0] == "weekly" ? createweeklyfunctions[plot_type].length : createyearlyfunctions[plot_type].length); i++)
        options = (span[0] == "weekly" ? createweeklyfunctions[plot_type][i](options, span, seriesData, units, plot_type) : createyearlyfunctions[plot_type][i](options, span, seriesData, units, plot_type));
     return options
@@ -1020,6 +1021,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false){
     console.log(units, plot_type, span, dplots, cdates);
     day_plots = dplots;
     compare_dates = cdates;
+    Highcharts.setOptions({global:{timezoneOffset: 0,}});
     var results, files = [], index = 0;
     if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
     for (var i = 0; i < jsonfileforplot[plot_type][span[0] == "weekly" ? 0 : 1].length; i++,index++)

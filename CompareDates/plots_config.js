@@ -17,6 +17,7 @@ var realtimeinterval = 10;  //This is seconds
 // The (can be empty) entries then must have a plot_type that is another plot type entry with fill in values this is how to display a different plot_type when using real-time data.
 var realtimeplot = {
     temperatureplot:[[2,4],[14,14],['convert_temp','convert_temp'],['temperatureplot']],
+    tempallplot:[[2,4,3],[14,14,-1],['convert_temp','convert_temp',null],['tempallplot']],
     winddirplot:[[7],[13],['convert_wind'],['winddirplot']],
     windplot:[[6],[13],['convert_wind'],['windplot']],
     windallplot:[[5,40,46],[13,13,-1],['convert_wind','convert_wind',null],['windallplot']],
