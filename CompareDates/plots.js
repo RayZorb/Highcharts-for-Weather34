@@ -89,6 +89,7 @@ var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallpl
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
 var realtimeXscaleFactor = 150/realtimeinterval;
+var compare_dates_ts = [];
 var compare_dates = false;
 var do_realtime = false;
 var auto_update = false;
@@ -255,8 +256,15 @@ function create_common_options(){
             type: 'datetime',
             opposite: true,
             minRange: 1,
-            linkedTo: 0,
             visible: false,
+            labels: {formatter: function() {
+                    for (i = 0; i < compare_dates_ts[0].length; i++)
+                        if (compare_dates_ts[1][i] != undefined && compare_dates_ts[0][i][0] == this.value){
+                            var date = new Date(compare_dates_ts[1][i][0]);
+                            return date.getHours() == 0 ? Highcharts.dateFormat('%e. %b', date):Highcharts.dateFormat('%H:%M', date);
+                        }
+                }
+            },
         }],
         yAxis: [{
             endOnTick: true,
@@ -329,11 +337,8 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     
 function addWeekOptions(obj) {
     if (do_realtime) return obj;
-    if (compare_dates){
+    if (compare_dates)
          obj.rangeSelector = {inputEnabled:false };
-         //obj.rangeSelector = {enabled:false };
-        // return obj;
-    }
     obj.rangeSelector.buttons = [{
         type: 'hour',
         count: 1,
@@ -356,9 +361,9 @@ function addWeekOptions(obj) {
         text: '36h'
     }, {
         type: 'all',
-        text: '7d'
+        text: compare_dates ? '36h' : '7d'
     }],
-    obj.rangeSelector.selected = day_plots ? 5 : 3;
+    obj.rangeSelector.selected = day_plots || compare_dates ? 5 : 3;
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.spline.dataGrouping.enabled = false;
     obj.plotOptions.scatter.dataGrouping.enabled = false;
@@ -394,27 +399,36 @@ function addYearOptions(obj) {
 };
 
 function custom_tooltip(tooltip, first_line) {
-    var order = [], i, j, temp = [], points = tooltip.points;
+    var order = [2,3,0,1], i, j, temp = [], temp1 = [], points = tooltip.points;
     if (points == undefined) points = [tooltip.point];
-    for(i=0; i < points.length; i++){
-        j=0;
-        if(order.length){
-            while( points[order[j]] && points[order[j]].y > points[i].y )
-                j++;
+    if (!compare_dates)
+        for(i=0; i < points.length; i++){
+            j=0;
+            if(order.length){
+                while( points[order[j]] && points[order[j]].y > points[i].y )
+                    j++;
+            }
+            temp = order.splice(0, j);
+            temp.push(i);
+            order = temp.concat(order);
         }
-        temp = order.splice(0, j);
-        temp.push(i);
-        order = temp.concat(order);
-    }
-    if (first_line == "date")
-       temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
-    else
+    if (first_line == "date"){
+        if (compare_dates){
+            for (i = 0; i < compare_dates_ts[0].length; i++){
+                if (compare_dates_ts[1][i] != undefined && compare_dates_ts[0][i][0] == tooltip.x){
+                    temp1 = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(compare_dates_ts[1][i][0])) + '</span><br/>';
+                    break;
+                }
+            }
+        }
+        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
+    }else
        temp = '<span style="font-size: 10px">' + first_line[tooltip.x] + '</span><br/>';
-    temps = [];
     $(order).each(function(i,j){
-        if (!temps.includes(points[j].series.name + ': ' + parseFloat(points[j].y.toFixed(1)))){
-            temps.push(points[j].series.name + ': ' + parseFloat(points[j].y.toFixed(1)));
+        if (points[j] != undefined){
             temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + parseFloat(points[j].y.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
+            if (temp1.length > 0 && i == order.length/2 -1)
+                temp += temp1;
         }
     });
     return temp;
@@ -430,7 +444,6 @@ function getTranslation(term){
     return translation.length > 0 ? translation : term;
 };
 
-var renderEnabled = true;
 function create_chart_options(options, type, title, valueSuffix, values, first_line = "date"){
     var fields = ['name', 'type', 'yAxis', 'visible', 'showInLegend', 'tooltip', 'xAxis'];
     options.series = [];
@@ -446,8 +459,10 @@ function create_chart_options(options, type, title, valueSuffix, values, first_l
         for (var j = 0; j < fields.length; j++)
             if (values[i][j] != null){
                 options.series[i][fields[j]] = (fields[j] == 'name' ? getTranslation(values[i][j]) : values[i][j]);  
-                if (fields[j] == 'xAxis')
+                if (fields[j] == 'xAxis'){
                     options[fields[j]][values[i][j]].visible = true;
+                    options[fields[j]][values[i][j]].linkedTo = 0;
+                }
             }
     }
     return options;
@@ -490,10 +505,12 @@ function create_temperature_chart(options, span, seriesData, units){
         if (compare_dates)
             options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false], ['Temperature', 'spline',,,,,1],['Dewpoint','spline',,,,,1],['Feels', 'spline',,false,false,,1]]);
         else
-            options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false]]);
+            options = create_chart_options(options, 'spline', 'Temperature Dewpoint', '\xB0' + units.temp, [['Temperature', 'spline'],['Dewpoint','spline'],['Feels', 'spline',, false, false]])
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTemp));
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.dewpoint));
         if (compare_dates){
+            compare_dates_ts[0] = options.series[0].data;
+            compare_dates_ts[1] = reinflate_time(seriesData[1].temperatureplot.outTemp.map(function(arr){return arr.slice(0);}));
             options.series[3].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.outTemp, options.series[0].data[0][0]));
             options.series[4].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.dewpoint, options.series[0].data[0][0]));
         }
@@ -529,6 +546,8 @@ function create_indoor_chart(options, span, seriesData, units){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTemp));
         options.series[1].data = reinflate_time(seriesData[0].humidityplot.inHumidity);
         if (compare_dates){
+            compare_dates_ts[0] = options.series[0].data;
+            compare_dates_ts[1] = reinflate_time(seriesData[1].temperatureplot.inTemp.map(function(arr){return arr.slice(0);}));
             options.series[2].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.inTemp, options.series[0].data[0][0]));
             options.series[3].data = reinflate_time(seriesData[1].humidityplot.inHumidity, options.series[0].data[0][0]);
         }
@@ -557,6 +576,8 @@ function create_tempall_chart(options, span, seriesData, units){
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.dewpoint));
         options.series[2].data = reinflate_time(seriesData[0].humidityplot.outHumidity);
         if (compare_dates){
+            compare_dates_ts[0] = options.series[0].data;
+            compare_dates_ts[1] = reinflate_time(seriesData[1].temperatureplot.outTemp.map(function(arr){return arr.slice(0);}));
             options.series[3].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.outTemp, options.series[0].data[0][0]));
             options.series[4].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.dewpoint, options.series[0].data[0][0]));
             options.series[5].data = reinflate_time(seriesData[1].humidityplot.outHumidity, options.series[0].data[0][0]);
