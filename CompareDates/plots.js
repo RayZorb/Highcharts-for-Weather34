@@ -258,12 +258,11 @@ function create_common_options(){
             minRange: 1,
             visible: false,
             labels: {formatter: function() {
-                    for (var i = 0; i < compare_dates_ts[0].length; i++){
-                        if (compare_dates_ts[1][i] != undefined && Math.abs(compare_dates_ts[0][i][0] - this.value) < 100000){
-                            var date = new Date(compare_dates_ts[1][i][0]);
-                            return date.getHours() == 0 || date.getHours() == 23 || date.getHours() == 1 ? Highcharts.dateFormat('%e. %b', date):Highcharts.dateFormat('%H:%M', date);
+                    for (var i = 0; i < compare_dates_ts.length; i++)
+                        if (Math.abs(compare_dates_ts[i][0] - this.value) < 100000){
+                            var time = Highcharts.dateFormat('%H:%M', compare_dates_ts[i][1]);
+                            return time.split(":")[0] == 0 || time.split(":")[0] == 23 || time.split(":")[0] == 1 ? Highcharts.dateFormat('%e. %b', compare_dates_ts[i][1]):time;
                         }
-                    }
                 }
             },
         }],
@@ -416,15 +415,15 @@ function custom_tooltip(tooltip, first_line) {
         }
     }
     if (first_line == "date"){
+        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
         if (compare_dates){
-            for (i = 0; i < compare_dates_ts[0].length; i++){
-                if (compare_dates_ts[1][i] != undefined && compare_dates_ts[0][i][0] == tooltip.x){
-                    temp1 = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(compare_dates_ts[1][i][0])) + '</span><br/>';
+            for (i = 0; i < compare_dates_ts.length; i++)
+                if (compare_dates_ts[i][0] == tooltip.x && compare_dates_ts[i][1] != null){
+                    temp  = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',compare_dates_ts[i][1]) + '</span><br/>';
+                    temp1 = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
                     break;
                 }
-            }
         }
-        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
     }else
        temp = '<span style="font-size: 10px">' + first_line[tooltip.x] + '</span><br/>';
     $(order).each(function(i,j){
@@ -482,12 +481,19 @@ function post_create_small_chart(chart, height){
     });
 };
 
-function reinflate_time(series, ts_start = null){
+function reinflate_time(series, ts_start = null, returnDate = false){
     series[0][0] = ts_start == null ? (series[0][0] + (utcoffset *60)) *1000: ts_start; 
     for (var i = 1; i < series.length; i++)
-        series[i][0] = series[0][0] + (series[i][0] *1000);
+        series[i][0] = returnDate ? new Date((series[0][0] + (series[i][0] *1000))) : series[0][0] + (series[i][0] *1000);
+    if (returnDate) series[0][0] = new Date(series[0][0]);
     return series;
 };
+
+function create_compare_days_ts(series, series1){
+    var a = series.map(function(arr){return arr.slice(0,1);});
+    var b = reinflate_time(series1.map(function(arr){return arr.slice(0,1);}),null,true);
+    for(var i=0;i<a.length;i++)compare_dates_ts.push([a[i] == undefined ? null : a[i], b[i] == undefined ? null : b[i]].flat());
+}
 
 function setTempSmall(options) {
     options.chart.marginBottom = 20;
@@ -512,8 +518,7 @@ function create_temperature_chart(options, span, seriesData, units){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTemp));
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.dewpoint));
         if (compare_dates){
-            compare_dates_ts[0] = options.series[0].data;
-            compare_dates_ts[1] = reinflate_time(seriesData[1].temperatureplot.outTemp.map(function(arr){return arr.slice(0);}));
+            create_compare_days_ts(options.series[0].data, seriesData[1].temperatureplot.outTemp);
             options.series[3].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.outTemp, options.series[0].data[0][0]));
             options.series[4].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.dewpoint, options.series[0].data[0][0]));
         }
@@ -549,8 +554,7 @@ function create_indoor_chart(options, span, seriesData, units){
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTemp));
         options.series[1].data = reinflate_time(seriesData[0].humidityplot.inHumidity);
         if (compare_dates){
-            compare_dates_ts[0] = options.series[0].data;
-            compare_dates_ts[1] = reinflate_time(seriesData[1].temperatureplot.inTemp.map(function(arr){return arr.slice(0);}));
+            create_compare_days_ts(options.series[0].data, seriesData[1].temperatureplot.inTemp);
             options.series[2].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.inTemp, options.series[0].data[0][0]));
             options.series[3].data = reinflate_time(seriesData[1].humidityplot.inHumidity, options.series[0].data[0][0]);
         }
@@ -579,8 +583,7 @@ function create_tempall_chart(options, span, seriesData, units){
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.dewpoint));
         options.series[2].data = reinflate_time(seriesData[0].humidityplot.outHumidity);
         if (compare_dates){
-            compare_dates_ts[0] = options.series[0].data;
-            compare_dates_ts[1] = reinflate_time(seriesData[1].temperatureplot.outTemp.map(function(arr){return arr.slice(0);}));
+            create_compare_days_ts(options.series[0].data, seriesData[1].temperatureplot.outTemp);
             options.series[3].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.outTemp, options.series[0].data[0][0]));
             options.series[4].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.dewpoint, options.series[0].data[0][0]));
             options.series[5].data = reinflate_time(seriesData[1].humidityplot.outHumidity, options.series[0].data[0][0]);
@@ -982,14 +985,16 @@ function do_realtime_update(chart, plot_type, units){
         for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
             if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
                 chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-        var parts = data.split(" ");
-        var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-        var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
-        for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-            if (realtimeplot[plot_type][2][j] == null)
-                chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
-            else
-                chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
+        try{
+            var parts = data.split(" ");
+            var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+            var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
+            for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
+                if (realtimeplot[plot_type][2][j] == null)
+                    chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
+                else
+                    chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
+        }catch {}
         setTimeout(do_realtime_update, realtimeinterval*1000, chart, plot_type, units);
     });
 };

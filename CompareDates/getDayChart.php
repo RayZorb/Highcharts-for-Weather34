@@ -39,7 +39,7 @@
           break;
         }
       }
-      for($i = 2; $i < 5; $i++){
+      for($i = 1; $i < 4; $i++){
         $day_epoch = (int)$_GET['epoch'] + (86400 *$i);
         $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time()<$day_epoch?(int)$_GET['epoch']:$day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
         if (file_exists($plot_info[1])) {
