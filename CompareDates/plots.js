@@ -65,9 +65,9 @@ var jsonfileforplot = {
     indoorplot: [['indoor_derived_week.json'],['year.json'],['indoor_derived_week1.json']],
     tempsmallplot: [['temp_week.json'],['year.json'],[null]],
     tempallplot: [['temp_week.json'],['year.json'],['temp_week1.json']],
-    tempderivedplot: [['indoor_derived_week.json'],['year.json'],[null]],
-    dewpointplot: [['temp_week.json'],['year.json'],[null]],
-    humidityplot: [['temp_week.json'],['year.json'],[null]],
+    tempderivedplot: [['indoor_derived_week.json'],['year.json'],['indoor_derived_week1.json']],
+    dewpointplot: [['temp_week.json'],['year.json'],['temp_week1.json']],
+    humidityplot: [['temp_week.json'],['year.json'],['temp_week1.json']],
     barometerplot: [['bar_rain_week.json'],['year.json'],[null]],
     barsmallplot: [['bar_rain_week.json'],['year.json'],[null]],
     windplot: [['wind_week.json'],['year.json'],[null]],
@@ -483,6 +483,7 @@ function reinflate_time(series, ts_start = null, returnDate = false){
 };
 
 function create_compare_days_ts(series, series1){
+    compare_dates_ts = [];
     var a = series.map(function(arr){return arr.slice(0,1);});
     var b = reinflate_time(series1.map(function(arr){return arr.slice(0,1);}),null,true);
     for(var i=0;i<a.length;i++)compare_dates_ts.push([a[i] == undefined ? null : a[i], b[i] == undefined ? null : b[i]].flat());
@@ -602,11 +603,22 @@ function create_tempderived_chart(options, span, seriesData, units){
         }
     }
     else if (span[0] == "weekly"){        
-        options = create_chart_options(options, 'spline', 'Windchill HeatIndex Apparent', '\xB0' + units.temp, [['Windchill', 'spline'],['Heatindex','spline'],['Apparent', 'spline',,false,false]]);
+        if (compare_dates)
+            options = create_chart_options(options, 'spline', 'Windchill HeatIndex Apparent', '\xB0' + units.temp, [['Windchill', 'spline'],['Heatindex','spline'],['Apparent', 'spline',,false,false],['Windchill', 'spline',,,,,1],['Heatindex','spline',,,,,1],['Apparent', 'spline',,false,false,,1]]);
+        else
+            options = create_chart_options(options, 'spline', 'Windchill HeatIndex Apparent', '\xB0' + units.temp, [['Windchill', 'spline'],['Heatindex','spline'],['Apparent', 'spline',,false,false]]);
         options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchill));
         options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.heatindex));
-        if ("appTemp" in seriesData[0].temperatureplot)
+        if (compare_dates){
+            create_compare_days_ts(options.series[0].data, seriesData[1].windchillplot.windchill);
+            options.series[4].data = convert_temp(seriesData[1].windchillplot.units, units.temp, reinflate_time(seriesData[1].windchillplot.windchill, options.series[0].data[0][0]));
+            options.series[5].data = convert_temp(seriesData[1].windchillplot.units, units.temp, reinflate_time(seriesData[1].windchillplot.heatindex, options.series[0].data[0][0]));
+        }
+        if ("appTemp" in seriesData[0].temperatureplot){
             options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.appTemp));
+            if (compare_dates)
+                options.series[6].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.appTemp, options.series[0].data[0][0]));
+        }
     }
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     options.yAxis[0].tickInterval = 10;
@@ -620,8 +632,15 @@ function create_dewpoint_chart(options, span, seriesData, units){
         options.series[1].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointaverage));
     }
     else if (span[0] == "weekly"){                
-        options = create_chart_options(options, 'spline', 'Dewpoint', '\xB0' + units.temp, [['Dewpoint', 'spline']]);
+        if (compare_dates)
+            options = create_chart_options(options, 'spline', 'Dewpoint', '\xB0' + units.temp, [['Dewpoint', 'spline'],['Dewpoint', 'spline',,,,,1]]);
+        else
+            options = create_chart_options(options, 'spline', 'Dewpoint', '\xB0' + units.temp, [['Dewpoint', 'spline']]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.dewpoint));
+        if (compare_dates){
+            create_compare_days_ts(options.series[0].data, seriesData[1].temperatureplot.dewpoint);
+            options.series[1].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.dewpoint, options.series[0].data[0][0]));
+        }
     }
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
     return options;
@@ -634,8 +653,15 @@ function create_humidity_chart(options, span, seriesData, units){
         options.series[1].data = reinflate_time(seriesData[0].humidityplot.outHumidityaverage);
     }
     else if (span[0] == "weekly"){
-        options = create_chart_options(options, 'spline', 'Humidity', null, [['Humidity', 'spline',,,,{valueSuffix: '%'}]]);
+        if (compare_dates)
+            options = create_chart_options(options, 'spline', 'Humidity', null, [['Humidity', 'spline',,,,{valueSuffix: '%'}], ['Humidity', 'spline',,,,{valueSuffix: '%'},1]]);
+        else
+            options = create_chart_options(options, 'spline', 'Humidity', null, [['Humidity', 'spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = reinflate_time(seriesData[0].humidityplot.outHumidity);
+        if (compare_dates){
+            create_compare_days_ts(options.series[0].data, seriesData[1].humidityplot.outHumidity);
+            options.series[1].data = reinflate_time(seriesData[1].humidityplot.outHumidity, options.series[0].data[0][0]);
+        }
     }
     options.yAxis.min = 0;
     options.yAxis.max = 100;
