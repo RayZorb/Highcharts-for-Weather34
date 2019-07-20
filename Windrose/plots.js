@@ -819,6 +819,7 @@ function create_windrose_chart(options, span, seriesData, units){
     Highcharts.setOptions({lang:{rangeSelectorZoom: ""}});
     if (!windrosespans.includes(span[1])) span[1] = windrosespans[0];
     if (span[1] == windrosespans[0]){
+        console.log(seriesData[0].windroseDay.series);
         convertlegend(seriesData[0].windroseDay.series, units);
         options.series = seriesData[0].windroseDay.series;
         options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
@@ -1049,12 +1050,17 @@ function do_realtime_update(chart, plot_type, units){
     $.get(realtimefile, function(data) {
         if (!do_realtime) return;
         try{
+            var parts = data.split(" ");
+            var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+            if (realtimeplot[plot_type][0].length == 0){
+                var x = (Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5])/1000);
+                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+realtimeplot[plot_type][3]+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",true"+"&weewxpathbin="+pathweewxbin+"&epoch="+x;
+                return;
+            }
+            var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
             for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
                 if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
                     chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            var parts = data.split(" ");
-            var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-            var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
             for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
                 if (realtimeplot[plot_type][2][j] == null)
                     chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
@@ -1087,13 +1093,14 @@ function setup_plots(seriesData, units, options, plot_type, span){
     return options
 };
 
-function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null){
+function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null, realtime = false){
     if (!Array.isArray(span)) span = [span];
-    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span);
+    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span), realtime;
     day_plots = dplots;
     compare_dates = cdates;
     reload_plot_type = plot_type;
     reload_span = span;
+    do_realtime = realtime;
     if (reload_plot_type_span != null){
         reload_plot_type = reload_plot_type_span.split(":")[0];
         reload_span = reload_plot_type_span.split(":")[1];
@@ -1120,14 +1127,14 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                     };
                                     auto_update=false;
                                     realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
-                                    display_chart(units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span)}}
+                                    display_chart(units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
         function compare_callback(){return function(){
                                     if (do_realtime) return;
                                     epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
                                     epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
                                     chart.showLoading('Loading data from database...');
-                                    window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+","+reload_plot_type+":"+reload_span+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
+                                    window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false)});
@@ -1139,11 +1146,14 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
     jQuery.getMultipleJSON(...files).done(function(...results){
         var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span);
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
+        if (postcreatefunctions.hasOwnProperty(plot_type))
+            for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
+                postcreatefunctions[plot_type][i](chart);
         if (do_realtime){
             remove_range_selector(chart);           
             for (var j =0; j < realtimeplot[plot_type][0].length; j++)
                 chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            setTimeout(do_realtime_update, 50, chart, plot_type, units);
+            setTimeout(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : 50) , chart, plot_type, units);
             return;
         }
         if (!plotsnoswitch.includes(plot_type)){
@@ -1156,7 +1166,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly'){
                                 chart.showLoading('Loading data from database...');
-                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+"&weewxpathbin="+pathweewxbin+"&epoch="+this.x/1000+"&epoch1=0"
+                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+this.x/1000
                             }
                             else
                                 setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
@@ -1165,9 +1175,6 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
             }
             return;
         }
-        if (postcreatefunctions.hasOwnProperty(plot_type))
-            for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
-                postcreatefunctions[plot_type][i](chart);
     }).fail(function(){
         $("#plot_div").load(pathpws + "404.html");
         return;
