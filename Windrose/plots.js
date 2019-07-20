@@ -1103,7 +1103,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
     do_realtime = realtime;
     if (reload_plot_type_span != null){
         reload_plot_type = reload_plot_type_span.split(":")[0];
-        reload_span = reload_plot_type_span.split(":")[1];
+        reload_span = reload_plot_type_span.split(":")[1].split(",")[0];
     }
     Highcharts.setOptions({global:{timezoneOffset: 0,}});
     var results, files = [], index = 0;
