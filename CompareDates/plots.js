@@ -89,6 +89,8 @@ var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallpl
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
+var reload_plot_type = null;
+var reload_span = null;
 var compare_dates_ts = [];
 var compare_dates = false;
 var do_realtime = false;
@@ -992,7 +994,7 @@ function do_realtime_update(chart, plot_type, units){
 
 function do_auto_update(units, plot_type, span, buttonReload){       
     if (buttonReload){
-        display_chart(units, plot_type, span);
+        display_chart(units, reload_plot_type == null ? plot_type : reload_plot_type, reload_span == null ? span : reload_span);
         return;
     }
     auto_update = do_realtime ? false : !auto_update;
@@ -1012,11 +1014,17 @@ function setup_plots(seriesData, units, options, plot_type, span){
     return options
 };
 
-function display_chart(units, plot_type, span, dplots = false, cdates = false){
+function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null){
     if (!Array.isArray(span)) span = [span];
-    console.log(units, plot_type, span, dplots, cdates);
+    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span);
     day_plots = dplots;
     compare_dates = cdates;
+    reload_plot_type = plot_type;
+    reload_span = span;
+    if (reload_plot_type_span != null){
+        reload_plot_type = reload_plot_type_span.split(":")[0];
+        reload_span = reload_plot_type_span.split(":")[1];
+    }
     Highcharts.setOptions({global:{timezoneOffset: 0,}});
     var results, files = [], index = 0;
     if (!jsonfileforplot.hasOwnProperty(plot_type) || !(span[0] == "weekly" || span[0] == "yearly")){alert("Bad plot_type (" + plot_type + ") or span (" + span[0] + ")"); return};
@@ -1039,14 +1047,14 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false){
                                     };
                                     auto_update=false;
                                     realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
-                                    display_chart(units, realtimeplot[plot_type][3], 'weekly')}}
+                                    display_chart(units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span)}}
         function compare_callback(){return function(){
                                     if (do_realtime) return;
                                     epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
                                     epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
                                     chart.showLoading('Loading data from database...');
-                                    window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
+                                    window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+","+reload_plot_type+":"+reload_span+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false)});
@@ -1075,7 +1083,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false){
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly'){
                                 chart.showLoading('Loading data from database...');
-                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+"&weewxpathbin="+pathweewxbin+"&epoch="+this.x/1000+"&epoch1=0"
+                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+"&weewxpathbin="+pathweewxbin+"&epoch="+this.x/1000+"&epoch1=0"
                             }
                             else
                                 setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
