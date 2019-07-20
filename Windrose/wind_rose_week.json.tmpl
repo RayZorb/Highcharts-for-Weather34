@@ -1,0 +1,38 @@
+##errorCatcher Echo
+##
+##This program is free software; you can redistribute it and/or modify it
+##under the terms of the GNU General Public License as published by the Free
+##Software Foundation; either version 2 of the License, or (at your option)
+##any later version.
+##
+##This program is distributed in the hope that it will be useful, but WITHOUT
+##ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+##FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+##more details.
+##
+##############################################################################
+##                                                                           #
+## Highcharts for weewx Extension                                            #
+##                                                                           #
+## Wind Rose Week observation plots JSON data file template                  #
+##                                                                           #
+## Version: 0.2.1                                     Date: June 2017        #
+##                                                                           #
+##############################################################################
+[{
+"_version": "wind_rose_week.json.tmpl version 1.0.0",
+"utcoffset": $utcOffset,
+"timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
+##
+"windroseDay": {
+"series": $wr86400['windrosejson'],
+"xAxis": {"categories": $wr86400['xAxisCategoriesjson']},
+"yAxis": $wr86400['yAxisjson']
+},
+##
+"windroseWeek": {
+"series": $wr604800['windrosejson'],
+"xAxis": {"categories": $wr604800['xAxisCategoriesjson']},
+"yAxis": $wr604800['yAxisjson']
+}
+}]
