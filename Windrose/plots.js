@@ -97,6 +97,7 @@ var do_realtime = false;
 var auto_update = false;
 var day_plots = false;
 var buttons= null;
+var windrosespan;
 var categories;
 var utcoffset;
 var timer1;
@@ -324,16 +325,16 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[0]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly"]);windrosespan=windrosespans[0];return false;}}
     }, {
         text: windrosespans[1],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[1]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly"]);windrosespan=windrosespans[1];return false;}}
     }, {
         text: windrosespans[2],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[2]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly"]);windrosespan=windrosespans[2];return false;}}
     }, {
         text: windrosespans[3],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[3]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly"]);windrosespan=windrosespans[3];return false;}}
     }];
     options.rangeSelector.selected = 0;
     return options
@@ -817,30 +818,30 @@ function setWindRose(options){
 
 function create_windrose_chart(options, span, seriesData, units){
     Highcharts.setOptions({lang:{rangeSelectorZoom: ""}});
-    if (!windrosespans.includes(span[1])) span[1] = windrosespans[0];
-    if (span[1] == windrosespans[0]){
+    if (!windrosespans.includes(windrosespan)) windrosespan = windrosespans[0];
+    if (windrosespan == windrosespans[0]){
         console.log(seriesData[0].windroseDay.series);
         convertlegend(seriesData[0].windroseDay.series, units);
         options.series = seriesData[0].windroseDay.series;
         options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
     }
-    else if (span[1] == windrosespans[1]){
+    else if (windrosespan == windrosespans[1]){
         convertlegend(seriesData[0].windroseWeek.series, units);
         options.series = seriesData[0].windroseWeek.series;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
-    else if (span[1] == windrosespans[2]){
+    else if (windrosespan == windrosespans[2]){
         convertlegend(seriesData[0].windroseMonth.series, units);
         options.series = seriesData[0].windroseMonth.series;
         options.xAxis.categories = seriesData[0].windroseMonth.xAxis.categories;
     }
-    else if (span[1] == windrosespans[3]){
+    else if (windrosespan == windrosespans[3]){
         convertlegend(seriesData[0].windroseYear.series, units);
         options.series = seriesData[0].windroseYear.series;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     categories = options.xAxis.categories;
-    options.title = {text: getTranslation("Wind Rose ") + span[1]};
+    options.title = {text: getTranslation("Wind Rose ") + windrosespan};
     return options;
 };
 
@@ -1103,7 +1104,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
     do_realtime = realtime;
     if (reload_plot_type_span != null){
         reload_plot_type = reload_plot_type_span.split(":")[0];
-        reload_span = reload_plot_type_span.split(":")[1].split(",")[0];
+        reload_span = reload_plot_type_span.split(":")[1];
     }
     Highcharts.setOptions({global:{timezoneOffset: 0,}});
     var results, files = [], index = 0;
