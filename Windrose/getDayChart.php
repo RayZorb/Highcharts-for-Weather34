@@ -31,9 +31,9 @@
     unlink($plot_info[1]);
     if (isset($_GET['epoch1'])){
       unlink($plot_info[3]);
-      $output = shell_exec(escapeshellcmd($plot_info[2]." ".$_GET['epoch1']." ".$plot_info[1].".tmpl ".getcwd()));
-      rename($plot_info[1], $plot_info[3]);
       $output = shell_exec(escapeshellcmd($plot_info[2]." ".$_GET['epoch']." ".$plot_info[1].".tmpl ".getcwd()));
+      rename($plot_info[1], $plot_info[3]);
+      $output = shell_exec(escapeshellcmd($plot_info[2]." ".$_GET['epoch1']." ".$plot_info[1].".tmpl ".getcwd()));
       echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',false,true,'".$plot_info[4]."',".$plot_info[5].");</script>";
     }
     else {

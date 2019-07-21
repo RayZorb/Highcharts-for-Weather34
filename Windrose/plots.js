@@ -1132,20 +1132,18 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                     var epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
                                     var epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
-                                    for (var i= 0; i < chart.series[0].data.length-2; i++){
-                                        if (chart.series[0].data[i].x/1000 == epoch){
-                                            epoch = (chart.series[0].data[i+2].x/1000);
+                                    for (var i= 0; i < chart.series[0].data.length; i++)
+                                        if (Math.abs(chart.series[0].data[i].x/1000 - epoch) < 100){
+                                            epoch = chart.series[0].data[i].x/1000;
                                             break;
                                         }
-                                    }
                                     var tempepoch = epoch1;
                                     epoch1 = 0;
-                                    for (var i= 0; i < chart.series[0].data.length-2; i++)
-                                        if (chart.series[0].data[i].x/1000 == tempepoch){
-                                            epoch1 = chart.series[0].data[i+2].x/1000;
+                                    for (var i= 0; i < chart.series[0].data.length; i++)
+                                        if (Math.abs(chart.series[0].data[i].x/1000 - tempepoch) < 100){
+                                            epoch1 = chart.series[0].data[i].x/1000;
                                             break;
                                         }
-                                    //console.log(epoch, epoch1);
                                     chart.showLoading('Loading data from database...');
                                     window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
@@ -1179,11 +1177,12 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly'){
                                 var epoch = 0;
-                                for (var i= 0; i <this.series.data.length-2; i++)
+                                for (var i= 0; i <this.series.data.length; i++)
                                     if (this.series.data[i].x == this.x){
-                                       epoch = this.series.data[i+2].x;
+                                       epoch = this.series.data[i].x;
                                        break;
                                      }
+                                console.log(epoch);
                                 chart.showLoading('Loading data from database...');
                                 window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch/1000
                             }
