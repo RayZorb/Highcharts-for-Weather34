@@ -1133,14 +1133,14 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                     var epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
                                     for (var i= 0; i < chart.series[0].data.length; i++)
-                                        if (Math.abs(chart.series[0].data[i].x/1000 - epoch) < 100){
+                                        if (chart.series[0].data[i] != undefined && Math.abs(chart.series[0].data[i].x/1000 - epoch) < 100){
                                             epoch = chart.series[0].data[i].x/1000;
                                             break;
                                         }
                                     var tempepoch = epoch1;
                                     epoch1 = 0;
                                     for (var i= 0; i < chart.series[0].data.length; i++)
-                                        if (Math.abs(chart.series[0].data[i].x/1000 - tempepoch) < 100){
+                                        if (chart.series[0].data[i] != undefined && Math.abs(chart.series[0].data[i].x/1000 - tempepoch) < 100){
                                             epoch1 = chart.series[0].data[i].x/1000;
                                             break;
                                         }
