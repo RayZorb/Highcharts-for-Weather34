@@ -31,31 +31,13 @@
     unlink($plot_info[1]);
     if (isset($_GET['epoch1'])){
       unlink($plot_info[3]);
-      for($i = -2; $i < 1; $i++){
-        $day_epoch = (int)$_GET['epoch1'] + (-86400 *$i);
-        $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time() < $day_epoch ? 0 : $day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
-        if (file_exists($plot_info[1])) {
-          rename($plot_info[1], $plot_info[3]);
-          break;
-        }
-      }
-      for($i = -2; $i < 1; $i++){
-        $day_epoch = (int)$_GET['epoch'] + (-86400 *$i);
-        $output = shell_exec(escapeshellcmd($plot_info[2]." ".$day_epoch." ".$plot_info[1].".tmpl ".getcwd()));
-        if (file_exists($plot_info[1])) {
-          echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',false,true,'".$plot_info[4]."',".$plot_info[5].");</script>";
-          return;
-        }
-      }
+      $output = shell_exec(escapeshellcmd($plot_info[2]." ".$_GET['epoch1']." ".$plot_info[1].".tmpl ".getcwd()));
+      rename($plot_info[1], $plot_info[3]);
+      $output = shell_exec(escapeshellcmd($plot_info[2]." ".$_GET['epoch']." ".$plot_info[1].".tmpl ".getcwd()));
+      echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',false,true,'".$plot_info[4]."',".$plot_info[5].");</script>";
     }
     else {
-      for($i = -2; $i < 1; $i++){
-        $day_epoch = (int)$_GET['epoch'] + (-86400 * $i);
-        $output = shell_exec(escapeshellcmd($plot_info[2]." ".(time() < $day_epoch ? 0 : $day_epoch)." ".$plot_info[1].".tmpl ".getcwd()));
-        if (file_exists($plot_info[1])) {
-          echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',true,false,'".$plot_info[3]."',".$plot_info[4].");</script>";
-          return;
-        }
-      }
+      $output = shell_exec(escapeshellcmd($plot_info[2]." ".$_GET['epoch']." ".$plot_info[1].".tmpl ".getcwd()));
+      echo "<script> display_chart({temp:"."'".$units[0]."',pressure:"."'".$units[1]."',wind:"."'".$units[2]."',rain:"."'".$units[3]."'},'".$plot_info[0]."','weekly',true,false,'".$plot_info[3]."',".$plot_info[4].");</script>";
     }
 ?> 

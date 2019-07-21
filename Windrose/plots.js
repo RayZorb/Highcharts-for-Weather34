@@ -108,7 +108,6 @@ Read multiple json files at the same time found at this URL
 https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-one-getjson-request
 *****************************************************************************/
 jQuery.getMultipleJSON = function(){
-  jQuery.ajaxSetup({timeout:10000});
   return jQuery.when.apply(jQuery, jQuery.map(arguments, function(jsonfile){
     return jQuery.getJSON(jsonfile).fail(function(){
       alert("!!!!NO DATA FOUND in database. Please choose another date!!!! " + jsonfile.split("/")[1]);return true;});
@@ -1048,16 +1047,15 @@ function create_uv_chart(options, span, seriesData, units){
 };
 
 function do_realtime_update(chart, plot_type, units){
+    if (realtimeplot[plot_type][0].length == 0){
+        window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+realtimeplot[plot_type][3]+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",true"+"&weewxpathbin="+pathweewxbin+"&epoch="+0;
+        return;
+    }
     $.get(realtimefile, function(data) {
         if (!do_realtime) return;
         try{
             var parts = data.split(" ");
             var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-            if (realtimeplot[plot_type][0].length == 0){
-                var x = (Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5])/1000);
-                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+realtimeplot[plot_type][3]+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",true"+"&weewxpathbin="+pathweewxbin+"&epoch="+x;
-                return;
-            }
             var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
             for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
                 if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
@@ -1096,7 +1094,7 @@ function setup_plots(seriesData, units, options, plot_type, span){
 
 function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null, realtime = false){
     if (!Array.isArray(span)) span = [span];
-    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span), realtime;
+    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span, realtime);
     day_plots = dplots;
     compare_dates = cdates;
     reload_plot_type = plot_type;
@@ -1131,9 +1129,23 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                     display_chart(units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
         function compare_callback(){return function(){
                                     if (do_realtime) return;
-                                    epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
-                                    epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
+                                    var epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
+                                    var epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
+                                    for (var i= 0; i < chart.series[0].data.length-2; i++){
+                                        if (chart.series[0].data[i].x/1000 == epoch){
+                                            epoch = (chart.series[0].data[i+2].x/1000);
+                                            break;
+                                        }
+                                    }
+                                    var tempepoch = epoch1;
+                                    epoch1 = 0;
+                                    for (var i= 0; i < chart.series[0].data.length-2; i++)
+                                        if (chart.series[0].data[i].x/1000 == tempepoch){
+                                            epoch1 = chart.series[0].data[i+2].x/1000;
+                                            break;
+                                        }
+                                    //console.log(epoch, epoch1);
                                     chart.showLoading('Loading data from database...');
                                     window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
@@ -1166,8 +1178,14 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                             if (day_plots) 
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly'){
+                                var epoch = 0;
+                                for (var i= 0; i <this.series.data.length-2; i++)
+                                    if (this.series.data[i].x == this.x){
+                                       epoch = this.series.data[i+2].x;
+                                       break;
+                                     }
                                 chart.showLoading('Loading data from database...');
-                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+this.x/1000
+                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch/1000
                             }
                             else
                                 setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
