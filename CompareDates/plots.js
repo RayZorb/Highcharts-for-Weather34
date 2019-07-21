@@ -74,7 +74,7 @@ var jsonfileforplot = {
     windsmallplot: [['wind_week.json'],['year.json'],[null]],
     windallplot: [['wind_week.json'],['year.json'],[null]],
     winddirplot: [['wind_week.json'],['year.json'],[null]],
-    windroseplot: [['wind_week.json'],['year.json'],[null]],
+    windroseplot: [['wind_rose_week.json'],['year.json'],[null]],
     rainplot: [['bar_rain_week.json'],['year.json'],[null]],
     rainmonthplot: [['year.json'],['year.json'],[null]],
     rainsmallplot: [['bar_rain_week.json'],['year.json'],[null]],
@@ -97,6 +97,7 @@ var do_realtime = false;
 var auto_update = false;
 var day_plots = false;
 var buttons= null;
+var windrosespan;
 var categories;
 var utcoffset;
 var timer1;
@@ -107,7 +108,6 @@ Read multiple json files at the same time found at this URL
 https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-one-getjson-request
 *****************************************************************************/
 jQuery.getMultipleJSON = function(){
-  jQuery.ajaxSetup({timeout:10000});
   return jQuery.when.apply(jQuery, jQuery.map(arguments, function(jsonfile){
     return jQuery.getJSON(jsonfile).fail(function(){
       alert("!!!!NO DATA FOUND in database. Please choose another date!!!! " + jsonfile.split("/")[1]);return true;});
@@ -324,16 +324,16 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[0]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly"]);windrosespan=windrosespans[0];return false;}}
     }, {
         text: windrosespans[1],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly", windrosespans[1]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly"]);windrosespan=windrosespans[1];return false;}}
     }, {
         text: windrosespans[2],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[2]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly"]);windrosespan=windrosespans[2];return false;}}
     }, {
         text: windrosespans[3],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly", windrosespans[3]]);return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly"]);windrosespan=windrosespans[3];return false;}}
     }];
     options.rangeSelector.selected = 0;
     return options
@@ -817,29 +817,30 @@ function setWindRose(options){
 
 function create_windrose_chart(options, span, seriesData, units){
     Highcharts.setOptions({lang:{rangeSelectorZoom: ""}});
-    if (!windrosespans.includes(span[1])) span[1] = windrosespans[0];
-    if (span[1] == windrosespans[0]){
+    if (!windrosespans.includes(windrosespan)) windrosespan = windrosespans[0];
+    if (windrosespan == windrosespans[0]){
+        console.log(seriesData[0].windroseDay.series);
         convertlegend(seriesData[0].windroseDay.series, units);
         options.series = seriesData[0].windroseDay.series;
         options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
     }
-    else if (span[1] == windrosespans[1]){
+    else if (windrosespan == windrosespans[1]){
         convertlegend(seriesData[0].windroseWeek.series, units);
         options.series = seriesData[0].windroseWeek.series;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
     }
-    else if (span[1] == windrosespans[2]){
+    else if (windrosespan == windrosespans[2]){
         convertlegend(seriesData[0].windroseMonth.series, units);
         options.series = seriesData[0].windroseMonth.series;
         options.xAxis.categories = seriesData[0].windroseMonth.xAxis.categories;
     }
-    else if (span[1] == windrosespans[3]){
+    else if (windrosespan == windrosespans[3]){
         convertlegend(seriesData[0].windroseYear.series, units);
         options.series = seriesData[0].windroseYear.series;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     categories = options.xAxis.categories;
-    options.title = {text: getTranslation("Wind Rose ") + span[1]};
+    options.title = {text: getTranslation("Wind Rose ") + windrosespan};
     return options;
 };
 
@@ -1046,15 +1047,19 @@ function create_uv_chart(options, span, seriesData, units){
 };
 
 function do_realtime_update(chart, plot_type, units){
+    if (realtimeplot[plot_type][0].length == 0){
+        window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+realtimeplot[plot_type][3]+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",true"+"&weewxpathbin="+pathweewxbin+"&epoch="+0;
+        return;
+    }
     $.get(realtimefile, function(data) {
         if (!do_realtime) return;
-        for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-            if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
-                chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
         try{
             var parts = data.split(" ");
             var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
             var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
+            for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
+                if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
+                    chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
             for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
                 if (realtimeplot[plot_type][2][j] == null)
                     chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
@@ -1087,13 +1092,14 @@ function setup_plots(seriesData, units, options, plot_type, span){
     return options
 };
 
-function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null){
+function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null, realtime = false){
     if (!Array.isArray(span)) span = [span];
-    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span);
+    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span, realtime);
     day_plots = dplots;
     compare_dates = cdates;
     reload_plot_type = plot_type;
     reload_span = span;
+    do_realtime = realtime;
     if (reload_plot_type_span != null){
         reload_plot_type = reload_plot_type_span.split(":")[0];
         reload_span = reload_plot_type_span.split(":")[1];
@@ -1120,14 +1126,26 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                     };
                                     auto_update=false;
                                     realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
-                                    display_chart(units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span)}}
+                                    display_chart(units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
         function compare_callback(){return function(){
                                     if (do_realtime) return;
-                                    epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
-                                    epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
+                                    var epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
+                                    var epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
+                                    for (var i= 0; i < chart.series[0].data.length; i++)
+                                        if (Math.abs(chart.series[0].data[i].x/1000 - epoch) < 100){
+                                            epoch = chart.series[0].data[i].x/1000;
+                                            break;
+                                        }
+                                    var tempepoch = epoch1;
+                                    epoch1 = 0;
+                                    for (var i= 0; i < chart.series[0].data.length; i++)
+                                        if (Math.abs(chart.series[0].data[i].x/1000 - tempepoch) < 100){
+                                            epoch1 = chart.series[0].data[i].x/1000;
+                                            break;
+                                        }
                                     chart.showLoading('Loading data from database...');
-                                    window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+","+reload_plot_type+":"+reload_span+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
+                                    window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+pathjsondayfiles+jsonfileforplot[plot_type][2]+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch+"&epoch1="+epoch1}};
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false)});
@@ -1139,11 +1157,14 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
     jQuery.getMultipleJSON(...files).done(function(...results){
         var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span);
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
+        if (postcreatefunctions.hasOwnProperty(plot_type))
+            for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
+                postcreatefunctions[plot_type][i](chart);
         if (do_realtime){
             remove_range_selector(chart);           
             for (var j =0; j < realtimeplot[plot_type][0].length; j++)
                 chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            setTimeout(do_realtime_update, 50, chart, plot_type, units);
+            setTimeout(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : 50) , chart, plot_type, units);
             return;
         }
         if (!plotsnoswitch.includes(plot_type)){
@@ -1155,8 +1176,15 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                             if (day_plots) 
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly'){
+                                var epoch = 0;
+                                for (var i= 0; i <this.series.data.length; i++)
+                                    if (this.series.data[i].x == this.x){
+                                       epoch = this.series.data[i].x;
+                                       break;
+                                     }
+                                console.log(epoch);
                                 chart.showLoading('Loading data from database...');
-                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+"&weewxpathbin="+pathweewxbin+"&epoch="+this.x/1000+"&epoch1=0"
+                                window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch/1000
                             }
                             else
                                 setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
@@ -1165,9 +1193,6 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
             }
             return;
         }
-        if (postcreatefunctions.hasOwnProperty(plot_type))
-            for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
-                postcreatefunctions[plot_type][i](chart);
     }).fail(function(){
         $("#plot_div").load(pathpws + "404.html");
         return;

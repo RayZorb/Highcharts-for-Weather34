@@ -182,6 +182,11 @@ class highcharts_temp_week(SearchList):
         _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+                                
         # Get our temperature vector
         (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'outTemp')
         # Convert our temperature vector
@@ -270,6 +275,11 @@ class highcharts_bar_rain_week(SearchList):
         _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+                
         # Get our barometer vector
         (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
                                                                                 'barometer')
@@ -362,6 +372,11 @@ class highcharts_wind_week(SearchList):
         _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+        
         # Get our wind speed vector
         (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
                                                                                 'windSpeed')
@@ -471,7 +486,12 @@ class highcharts_solar_week(SearchList):
         _ts_dt = datetime.datetime.fromtimestamp(_ts)
         _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
-
+        
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+                
         # Get our radiation vector
         (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
                                                                                 'radiation')
@@ -594,6 +614,11 @@ class highcharts_indoor_derived_week(SearchList):
         _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+        
         # Get our temperature vector
         (time_start_vt, time_stop_vt, inTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'inTemp')
         inTemp_vt = self.generator.converter.convert(inTemp_vt)
@@ -1036,7 +1061,7 @@ class highchartsYear(SearchList):
         # Return our json data
         return [self.search_list_extension]
 
-class highchartsWindRose(SearchList):
+class highcharts_wind_rose_week(SearchList):
     """SearchList to generate JSON vectors for Highcharts windrose plots."""
 
     def __init__(self, generator):
