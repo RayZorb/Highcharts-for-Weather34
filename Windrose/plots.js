@@ -849,7 +849,7 @@ function create_windrose_chart(options, span, seriesData, units){
 function convertlegend(series, units, usey = false){
     if (!usey) windrosespeeds = [];
     for (var i = 0; i < series.length; i++){
-        var percent = 0, newName = "", speed = 0, parts = series[i].name.replace("> ","").split("-");
+        var percent = 0, newName = "", speed = 0, parts = series[i].name.replace("> ","").split("-"), legendname = "";
         for (var j = 0; j < parts.length; j++){
             speed = convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 1);
             if (!usey) 
@@ -859,7 +859,10 @@ function convertlegend(series, units, usey = false){
         }
         for (var j = 0; j < series[i].data.length; j++)
             percent += usey ? series[i].data[j].y : series[i].data[j];
-        series[i].name = (i == 0 ? "> " + speed: newName) + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
+        legendname = (i == 0 ? "> " + speed: newName) + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
+        series[i].name = legendname;
+        if (chart != undefined)
+            chart.series[i].update({name:legendname});
     }
 };
  
@@ -1059,8 +1062,6 @@ function do_realtime_update(chart, plot_type, units){
     $.get(realtimefile, function(data) {
         try{
             var parts = data.split(" ");
-            var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-            var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
             if (plot_type =='windroseplot'){
                 var compassindex = 0, speedindex = 0; speed = 0;
                 for (compassindex = 0; compassindex < categories.length; compassindex++)
@@ -1076,10 +1077,12 @@ function do_realtime_update(chart, plot_type, units){
                         }
                     if (chart.series[speedindex].data[compassindex] != undefined){
                         chart.series[speedindex].data[compassindex].update((chart.series[speedindex].data[compassindex].y/100.0*windrosesamples+1)/windrosesamples*100.0);
-                        convertlegend(chart.series, units, true)
+                        convertlegend(chart.series, units, true);
                     }
                 }
             }else{
+                var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
                 for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
                     if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
                         chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
