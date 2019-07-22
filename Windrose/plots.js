@@ -97,12 +97,12 @@ var do_realtime = false;
 var auto_update = false;
 var day_plots = false;
 var buttons = null;
+var timer1 = null;
 var windrosesamples = 0;
 var windrosespeeds = [];
 var windrosespan;
 var categories;
 var utcoffset;
-var timer1;
 var chart;
 
 /*****************************************************************************
@@ -1223,7 +1223,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         $("#plot_div").load(pathpws + "404.html");
         return;
     });
-    if (auto_update)
+    if (auto_update && timer1 == null)
         timer1 = setInterval(display_chart, autoupdateinterval*1000, units, plot_type, span);
 };
 $.datepicker.setDefaults({
