@@ -1077,7 +1077,7 @@ function do_realtime_update(chart, plot_type, units){
                             break;
                         }
                     if (chart.series[speedindex].data[compassindex] != undefined){
-                        chart.series[speedindex].data[compassindex].update((chart.series[speedindex].data[compassindex].y/100.0*windrosesamples+1)/windrosesamples*100.0);
+                        chart.series[speedindex].data[compassindex].update((chart.series[speedindex].data[compassindex].y/100.0*(windrosesamples-1)+1)/windrosesamples*100.0);
                         convertlegend(chart.series, units, true);
                     }
                 }
@@ -1094,7 +1094,6 @@ function do_realtime_update(chart, plot_type, units){
                         chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
             }
         }catch(err) {console.log(err)}
-        setTimeout(do_realtime_update, realtimeinterval*1000, chart, plot_type, units);
     });
 };
 
@@ -1192,7 +1191,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
             remove_range_selector(chart);           
             for (var j =0; j < realtimeplot[plot_type][0].length; j++)
                 chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            setTimeout(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : 50) , chart, plot_type, units);
+            setInterval(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : realtimeinterval*1000), chart, plot_type, units);
             return;
         }
         if (!plotsnoswitch.includes(plot_type)){
@@ -1225,7 +1224,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         return;
     });
     if (auto_update)
-        timer1 = setTimeout(display_chart, autoupdateinterval*1000, units, plot_type, span);
+        timer1 = setInterval(display_chart, autoupdateinterval*1000, units, plot_type, span);
 };
 $.datepicker.setDefaults({
     dateFormat: 'yy-mm-dd',
