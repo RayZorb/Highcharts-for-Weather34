@@ -326,16 +326,16 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
         text: '24h',
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly"]);windrosespan=windrosespans[0];return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["weekly"]);windrosespan=windrosespans[0];return false;}}
     }, {
         text: windrosespans[1],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["weekly"]);windrosespan=windrosespans[1];return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["weekly"]);windrosespan=windrosespans[1];return false;}}
     }, {
         text: windrosespans[2],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly"]);windrosespan=windrosespans[2];return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["yearly"]);windrosespan=windrosespans[2];return false;}}
     }, {
         text: windrosespans[3],
-        events: {click: function (e) {setTimeout(display_chart, 50, units, plot_type, ["yearly"]);windrosespan=windrosespans[3];return false;}}
+        events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["yearly"]);windrosespan=windrosespans[3];return false;}}
     }];
     options.rangeSelector.selected = 0;
     return options
@@ -825,11 +825,13 @@ function create_windrose_chart(options, span, seriesData, units){
         convertlegend(seriesData[0].windroseDay.series, units);
         options.series = seriesData[0].windroseDay.series;
         options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
+        windrosesamples = seriesData[0].windroseDay.samples;
     }
     else if (windrosespan == windrosespans[1]){
         convertlegend(seriesData[0].windroseWeek.series, units);
         options.series = seriesData[0].windroseWeek.series;
         options.xAxis.categories = seriesData[0].windroseWeek.xAxis.categories;
+        windrosesamples = seriesData[0].windroseWeek.samples;
     }
     else if (windrosespan == windrosespans[2]){
         convertlegend(seriesData[0].windroseMonth.series, units);
@@ -841,7 +843,6 @@ function create_windrose_chart(options, span, seriesData, units){
         options.series = seriesData[0].windroseYear.series;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
-    windrosesamples = seriesData[0].windroseDay.samples;
     categories = options.xAxis.categories;
     options.title = {text: getTranslation("Wind Rose ") + windrosespan};
     return options;
@@ -1201,7 +1202,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                     point: {
                        events: {click: function(e){
                             if (day_plots) 
-                                setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
+                                setTimeout(display_chart, 0, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly'){
                                 var epoch = 0;
                                 for (var i= 0; i < this.series.data.length; i++)
@@ -1213,7 +1214,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                 window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch/1000
                             }
                             else
-                                setTimeout(display_chart, 50, units, plot_type, ['yearly'])}}
+                                setTimeout(display_chart, 0, units, plot_type, ['yearly'])}}
                     }
                 });
             }
