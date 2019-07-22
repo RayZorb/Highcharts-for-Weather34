@@ -793,6 +793,7 @@ function setWindRose(options){
     options.tooltip.shared = false;
     options.tooltip.valueSuffix ='%';
     options.xAxis.tickmarkPlacement = "on";
+    options.xAxis[0].showLastLabel = false;
     options.yAxis= {
         lineWidth: 1,
         minorGridLineWidth: 0,
