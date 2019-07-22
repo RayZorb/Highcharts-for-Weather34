@@ -1255,7 +1255,7 @@ class highcharts_wind_rose_week(SearchList):
         samples = len(time_vec_speed_vt[0])
         # Calc factor to be applied to convert counts to %
         pcentFactor = 100.0/samples
-        #loginf(str(pcentFactor));
+        #loginf(str(samples));
         # Loop through each sample and increment direction counts
         # and speed ranges for each direction as necessary. 'None'
         # direction is counted as 'calm' (or 0 speed) and
@@ -1366,6 +1366,7 @@ class highcharts_wind_rose_week(SearchList):
         # Get our yAxis min/max settings
         wr_dict['yAxisjson'] = '{"max": %f, "min": %f}' % (maxYaxis, -1.0 * bullseyeRadius)
         # Get our stacked column colours in json format
+        wr_dict['samples'] = str(samples)
         wr_dict['coloursjson'] = json.dumps(self.petal_colours)
         # Manually construct our plot title in json format
         wr_dict['titlejson'] = "[\"" + self.title + "\"]"

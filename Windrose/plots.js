@@ -96,7 +96,9 @@ var compare_dates = false;
 var do_realtime = false;
 var auto_update = false;
 var day_plots = false;
-var buttons= null;
+var buttons = null;
+var windrosesamples = 0;
+var windrosespeeds = [];
 var windrosespan;
 var categories;
 var utcoffset;
@@ -819,7 +821,6 @@ function create_windrose_chart(options, span, seriesData, units){
     Highcharts.setOptions({lang:{rangeSelectorZoom: ""}});
     if (!windrosespans.includes(windrosespan)) windrosespan = windrosespans[0];
     if (windrosespan == windrosespans[0]){
-        console.log(seriesData[0].windroseDay.series);
         convertlegend(seriesData[0].windroseDay.series, units);
         options.series = seriesData[0].windroseDay.series;
         options.xAxis.categories = seriesData[0].windroseDay.xAxis.categories;
@@ -839,23 +840,26 @@ function create_windrose_chart(options, span, seriesData, units){
         options.series = seriesData[0].windroseYear.series;
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
+    windrosesamples = seriesData[0].windroseDay.samples;
     categories = options.xAxis.categories;
     options.title = {text: getTranslation("Wind Rose ") + windrosespan};
     return options;
 };
 
-function convertlegend(series, units){
+function convertlegend(series, units, usey = false){
+    if (!usey) windrosespeeds = [];
     for (var i = 0; i < series.length; i++){
-        var percent = 0;
-        var newName = "";
-        var parts = series[i].name.split("-");
+        var percent = 0, newName = "", speed = 0, parts = series[i].name.replace("> ","").split("-");
         for (var j = 0; j < parts.length; j++){
-            newName += convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 1);
-            if (j + 1 < parts.length) newName += "-";
+            speed = convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 1);
+            if (!usey) 
+                windrosespeeds.push(speed);
+            newName += speed;
+            if (j + 1 < parts.length && i != 0) newName += "-";
         }
         for (var j = 0; j < series[i].data.length; j++)
-            percent += series[i].data[j];
-        series[i].name = newName + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
+            percent += usey ? series[i].data[j].y : series[i].data[j];
+        series[i].name = (i == 0 ? "> " + speed: newName) + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
     }
 };
  
@@ -1047,25 +1051,45 @@ function create_uv_chart(options, span, seriesData, units){
 };
 
 function do_realtime_update(chart, plot_type, units){
+    if (!do_realtime) return;
     if (realtimeplot[plot_type][0].length == 0){
         window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+realtimeplot[plot_type][3]+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",true"+"&weewxpathbin="+pathweewxbin+"&epoch="+0;
         return;
     }
     $.get(realtimefile, function(data) {
-        if (!do_realtime) return;
         try{
             var parts = data.split(" ");
             var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
             var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
-            for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-                if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
-                    chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
-                if (realtimeplot[plot_type][2][j] == null)
-                    chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
-                else
-                    chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
-        }catch {}
+            if (plot_type =='windroseplot'){
+                var compassindex = 0, speedindex = 0; speed = 0;
+                for (compassindex = 0; compassindex < categories.length; compassindex++)
+                    if (parts[realtimeplot[plot_type][0][1]] == categories[compassindex])
+                        break;
+                speed = parseFloat(window[realtimeplot[plot_type][2][0]](parts[realtimeplot[plot_type][1][0]],units[realtimeplot[plot_type][2][0].split("_")[1]],parts[realtimeplot[plot_type][0][0]]));
+                windrosesamples += 1;
+                if (speed > 0){;
+                    for (var j = windrosespeeds.length-1; j > -1; j-=2)
+                        if (speed < windrosespeeds[j-1] && speed <= windrosespeeds[j]){
+                            speedindex = (j-1)/2 +1;
+                            break;
+                        }
+                    if (chart.series[speedindex].data[compassindex] != undefined){
+                        chart.series[speedindex].data[compassindex].update((chart.series[speedindex].data[compassindex].y/100.0*windrosesamples+1)/windrosesamples*100.0);
+                        convertlegend(chart.series, units, true)
+                    }
+                }
+            }else{
+                for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
+                    if (chart.series[j].data.length > realtimeinterval*realtimeXscaleFactor)
+                        chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
+                for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
+                    if (realtimeplot[plot_type][2][j] == null)
+                        chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
+                    else 
+                        chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
+            }
+        }catch(err) {console.log(err)}
         setTimeout(do_realtime_update, realtimeinterval*1000, chart, plot_type, units);
     });
 };
@@ -1133,14 +1157,14 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                     var epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
                                     for (var i= 0; i < chart.series[0].data.length; i++)
-                                        if (chart.series[0].data[i] != undefined && Math.abs(chart.series[0].data[i].x/1000 - epoch) < 100){
+                                        if (chart.series[0].data[i] != undefined && Math.abs(chart.series[0].data[i].x/1000 - epoch) < 600){
                                             epoch = chart.series[0].data[i].x/1000;
                                             break;
                                         }
                                     var tempepoch = epoch1;
                                     epoch1 = 0;
                                     for (var i= 0; i < chart.series[0].data.length; i++)
-                                        if (chart.series[0].data[i] != undefined && Math.abs(chart.series[0].data[i].x/1000 - tempepoch) < 100){
+                                        if (chart.series[0].data[i] != undefined && Math.abs(chart.series[0].data[i].x/1000 - tempepoch) < 600){
                                             epoch1 = chart.series[0].data[i].x/1000;
                                             break;
                                         }
@@ -1177,12 +1201,11 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                 setTimeout(display_chart, 50, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly'){
                                 var epoch = 0;
-                                for (var i= 0; i <this.series.data.length; i++)
+                                for (var i= 0; i < this.series.data.length; i++)
                                     if (this.series.data[i].x == this.x){
                                        epoch = this.series.data[i].x;
                                        break;
                                      }
-                                console.log(epoch);
                                 chart.showLoading('Loading data from database...');
                                 window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+plot_type+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+epoch/1000
                             }
