@@ -786,6 +786,7 @@ function setWindRose(options){
         y: 100,
         layout: 'vertical',
         text: getTranslation('Wind Speed'),
+        itemStyle: {font: '16pt Trebuchet MS, Verdana, sans-serif'},
         enabled: true
     };
     options.chart.polar = true;
