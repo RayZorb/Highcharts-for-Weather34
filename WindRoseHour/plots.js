@@ -830,7 +830,7 @@ function create_windrose_chart(options, span, seriesData, units){
         convertlegend(seriesData[0].windroseHour.series, units);
         options.series = seriesData[0].windroseHour.series;
         options.xAxis.categories = seriesData[0].windroseHour.xAxis.categories;
-        windrosesamples = seriesData[0].windroseDay.samples;
+        windrosesamples = seriesData[0].windroseHour.samples;
     }
     else if (windrosespan == windrosespans[1]){
         convertlegend(seriesData[0].windroseDay.series, units);
@@ -1085,6 +1085,7 @@ function do_realtime_update(chart, plot_type, units){
                         break;
                 speed = parseFloat(window[realtimeplot[plot_type][2][0]](parts[realtimeplot[plot_type][1][0]],units[realtimeplot[plot_type][2][0].split("_")[1]],parts[realtimeplot[plot_type][0][0]]));
                 windrosesamples += 1;
+                if (windrosesamples == 60*(60/realtimeinterval)+60) windrosesamples = 60;
                 if (speed > 0){;
                     for (var j = windrosespeeds.length-1; j > -1; j-=2)
                         if (speed < windrosespeeds[j-1] && speed <= windrosespeeds[j]){
@@ -1092,8 +1093,20 @@ function do_realtime_update(chart, plot_type, units){
                             break;
                         }
                     if (chart.series[speedindex].data[compassindex] != undefined){
-                        chart.series[speedindex].data[compassindex].update((chart.series[speedindex].data[compassindex].y/100.0*(windrosesamples-1)+1)/windrosesamples*100.0);
+                        var newdata = [];
+                        for (var i = 0; i < chart.series.length; i++){
+                            newdata[i] = [];
+                            for (var j = 0; j < chart.series[i].data.length; j++)
+                                newdata[i].push(chart.series[i].data[j].y/100.0*(windrosesamples-1));
+                        }
+                        newdata[speedindex][compassindex] += 1;
+                        for (var i = 0; i < newdata.length; i++){
+                            for (var j = 0; j < newdata[i].length; j++)
+                                newdata[i][j] = (newdata[i][j]/windrosesamples*100.0);
+                            chart.series[i].setData(newdata[i]);
+                        }
                         convertlegend(chart.series, units, true);
+                        chart.redraw();
                     }
                 }
             }else{
