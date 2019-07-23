@@ -859,7 +859,7 @@ function create_windrose_chart(options, span, seriesData, units){
 function convertlegend(series, units, usey = false){
     if (!usey) windrosespeeds = [];
     for (var i = 0; i < series.length; i++){
-        var percent = 0, newName = "", speed = 0, parts = series[i].name.replace("> ","").split("-"), legendname = "";
+        var newName = "", speed = 0, parts = series[i].name.replace("> ","").split("-"), legendname = "";
         for (var j = 0; j < parts.length; j++){
             speed = convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 1);
             if (!usey) 
@@ -867,9 +867,7 @@ function convertlegend(series, units, usey = false){
             newName += speed;
             if (j + 1 < parts.length && i != 0) newName += "-";
         }
-        for (var j = 0; j < series[i].data.length; j++)
-            percent += usey ? series[i].data[j].y : series[i].data[j];
-        legendname = (i == 0 ? "> " + speed: newName) + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
+        legendname = (i == 0 ? "> " + speed: newName) + " " + units['wind'];
         series[i].name = legendname;
         if (chart != undefined)
             $(chart.legend.allItems[i].legendItem.element.childNodes).text(legendname)
