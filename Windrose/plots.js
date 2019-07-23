@@ -864,7 +864,7 @@ function convertlegend(series, units, usey = false){
         legendname = (i == 0 ? "> " + speed: newName) + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
         series[i].name = legendname;
         if (chart != undefined)
-            chart.series[i].update({name:legendname});
+            $(chart.legend.allItems[i].legendItem.element.childNodes).text(legendname)
     }
 };
  
