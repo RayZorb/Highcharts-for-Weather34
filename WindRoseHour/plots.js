@@ -786,7 +786,7 @@ function setWindRose(options){
         y: 100,
         layout: 'vertical',
         text: getTranslation('Wind Speed'),
-        itemStyle: {font: '16pt Trebuchet MS, Verdana, sans-serif'},
+        itemStyle: {font: '14pt Trebuchet MS, Verdana, sans-serif'},
         enabled: true
     };
     options.chart.polar = true;
@@ -853,7 +853,7 @@ function create_windrose_chart(options, span, seriesData, units){
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     categories = options.xAxis.categories;
-    options.title = {text: getTranslation("Wind Rose ") + windrosespan};
+    options.title = {text: getTranslation("Wind Rose ") + (do_realtime ? getTranslation('Real Time') : windrosespan)};
     return options;
 };
 
@@ -866,7 +866,7 @@ function convertlegend(series, units, usey = false){
     for (var i = 0; i < series.length; i++){
         var percent = 0, newName = "", speed = 0, parts = series[i].name.replace("> ","").split("-"), legendname = "";
         for (var j = 0; j < parts.length; j++){
-            speed = convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 1);
+            speed = convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 0);
             if (!usey) 
                 windrosespeeds.push(speed);
             newName += speed;
