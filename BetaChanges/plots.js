@@ -125,9 +125,6 @@ function create_common_options(){
         chart: {
             renderTo: "plot_div",
             spacing: [10, 10, 0, -1],
-            zoomType: 'xy',
-            panning: true,
-            panKey: 'shift',
         },
         legend: {
             enabled: true,
@@ -1206,6 +1203,9 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
     jQuery.getMultipleJSON(...files).done(function(...results){
         var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span);
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
+        chart.options.zoomType = 'x';
+        chart.pointer.zoomX = true;
+        chart.pointer.zoomHor = true;
         if (postcreatefunctions.hasOwnProperty(plot_type))
             for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
                 postcreatefunctions[plot_type][i](chart);
