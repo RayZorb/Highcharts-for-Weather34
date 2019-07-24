@@ -331,13 +331,13 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
         text: '24h',
         events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["weekly"]);windrosespan=windrosespans[1];return false;}}
     }, {
-        text: windrosespans[2],
+        text: getTranslation(windrosespans[2]),
         events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["weekly"]);windrosespan=windrosespans[2];return false;}}
     }, {
-        text: windrosespans[3],
+        text: getTranslation(windrosespans[3]),
         events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["yearly"]);windrosespan=windrosespans[3];return false;}}
     }, {
-        text: windrosespans[4],
+        text: getTranslation(windrosespans[4]),
         events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["yearly"]);windrosespan=windrosespans[4];return false;}}
     }];
     options.rangeSelector.selected = 0;
@@ -853,7 +853,7 @@ function create_windrose_chart(options, span, seriesData, units){
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     categories = options.xAxis.categories;
-    options.title = {text: getTranslation("Wind Rose ") + windrosespan};
+    options.title = {text: getTranslation("Wind Rose ") + (do_realtime ? getTranslation('Real Time') : windrosespan)};
     return options;
 };
 
