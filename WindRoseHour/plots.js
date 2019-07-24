@@ -853,7 +853,7 @@ function create_windrose_chart(options, span, seriesData, units){
         options.xAxis.categories = seriesData[0].windroseYear.xAxis.categories;
     }
     categories = options.xAxis.categories;
-    options.title = {text: getTranslation("Wind Rose ") + (do_realtime ? getTranslation('Real Time') : windrosespan)};
+    options.title = {text: getTranslation("Wind Rose ") + windrosespan};
     return options;
 };
 
