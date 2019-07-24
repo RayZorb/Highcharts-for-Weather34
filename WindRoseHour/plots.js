@@ -874,8 +874,7 @@ function convertlegend(series, units, usey = false){
         }
         for (var j = 0; j < series[i].data.length; j++)
             percent += usey ? series[i].data[j].y : series[i].data[j];
-        legendname = (i == 0 ? "> " + speed: newName) + " " + units['wind'] + " (" + percent.toFixed(1) + "%)";
-        legendname = (i == 0 ? "> " + speed: newName) + " " + units['wind'] + " (" + ((percent/totalPercent)*100.0).toFixed(1) + "%)";
+        legendname = (i == 0 ? "> " + speed: newName) + " " + units['wind'] + " (" + (totalPercent == 0 ? "0.0" : ((percent/totalPercent)*100.0).toFixed(1)) + "%)";
         series[i].name = legendname;
         if (chart != undefined)
             $(chart.legend.allItems[i].legendItem.element.childNodes).text(legendname)
