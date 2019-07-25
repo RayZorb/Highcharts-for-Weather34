@@ -93,6 +93,7 @@ def get_ago(dt, d_years=0, d_months=0):
     # Calculate and return date object
     _eom = calendar.monthrange(_y + _a, _m + 1)[1]
     return date(_y + _a, _m + 1, _d if _d <= _eom else _eom)
+    
 def getDaySummaryVectors(db_manager, sql_type, timespan, agg_list='max'):
     """ Return a vector of specified stats from weewx daily summaries.
 
@@ -184,62 +185,6 @@ def getDaySummaryVectors(db_manager, sql_type, timespan, agg_list='max'):
         _return[agg]=ValueTuple(_vec[agg_list.index(agg)], t, g)
     # Return our time vector and dictionary of aggregate vectors
     return (ValueTuple(_time_vec, _time_type, _time_group), _return)
-    
-class w34highchartsMinRanges(SearchList):
-    """SearchList to return y-axis minimum range values for each plot."""
-
-    def __init__(self, generator):
-        SearchList.__init__(self, generator)
-        self.mr_dict = None
-
-    def get_extension_list(self, timespan, db_lookup):
-        """Obatin y-axis minimum range values and return as a list of
-           dictionaries.
-
-        Parameters:
-          timespan: An instance of weeutil.weeutil.TimeSpan. This will
-                    hold the start and stop times of the domain of
-                    valid times.
-
-          db_lookup: This is a function that, given a data binding
-                     as its only parameter, will return a database manager
-                     object.
-         """
-
-        if (self.mr_dict != None):
-                return [self.mr_dict]
-        
-        t1 = time.time()
-
-        mr_dict = {}
-        # get our MinRange config dict if it exists
-        mr_config_dict = self.generator.skin_dict['Extras'].get('MinRange') if self.generator.skin_dict.has_key('Extras') else None
-        # if we have a config dict then loop through any key/value pairs
-        # discarding any pairs that are non numeric
-        if mr_config_dict:
-            for _key, _value in mr_config_dict.iteritems():
-                _value_list = option_as_list(_value)
-                if len(_value_list) > 1:
-                    try:
-                        _group = _getUnitGroup(_key)
-                        _value_vt = ValueTuple(float(_value_list[0]), _value_list[1], _group)
-                    except ValueError, KeyError:
-                        continue
-                    else:
-                        _range = self.generator.converter.convert(_value_vt).value
-                else:
-                    try:
-                        _range = float(_value)
-                    except ValueError:
-                        continue
-                mr_dict[_key + '_min_range'] = _range
-
-        self.mr_dict = mr_dict
-        t2 = time.time()
-        logdbg2("w34highchartsMinRanges SLE executed in %0.3f seconds" % (t2 - t1))
-
-        # Return our data dict
-        return [mr_dict]
         
 class w34highcharts_temp_week(SearchList):
     """SearchList to generate JSON vectors for w34highcharts week plots."""
