@@ -1091,7 +1091,7 @@ function do_realtime_update(chart, plot_type, units){
                     return;
                 }
                 if (speed > 0){
-                    chart.setTitle(null,{text: speed +" "+units[realtimeplot[plot_type][2][0].split("_")[1]]});
+                    chart.setTitle(null,{text: speed +" "+units[realtimeplot[plot_type][2][0].split("_")[1]] + " " + categories[compassindex]});
                     for (var j = windrosespeeds.length-1; j > -1; j-=2)
                         if (speed < windrosespeeds[j-1] && speed <= windrosespeeds[j]){
                             speedindex = (j-1)/2 +1;
