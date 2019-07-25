@@ -98,6 +98,7 @@ var auto_update = false;
 var day_plots = false;
 var buttons = null;
 var timer1 = null;
+var timer2 = null;
 var windrosesamples = 0;
 var windrosespeeds = [];
 var windrosespan;
@@ -1078,7 +1079,11 @@ function do_realtime_update(chart, plot_type, units){
                         break;
                 speed = parseFloat(window[realtimeplot[plot_type][2][0]](parts[realtimeplot[plot_type][1][0]],units[realtimeplot[plot_type][2][0].split("_")[1]],parts[realtimeplot[plot_type][0][0]]));
                 windrosesamples += 1;
-                if (windrosesamples == 60*(60/realtimeinterval)+60) windrosesamples = 60;
+                if (windrosesamples == 60*(60/realtimeinterval)+60){
+                    clearTimeout(timer2);
+                    setTimeout(display_chart, 0, units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true);
+                    return;
+                }
                 if (speed > 0){
                     chart.setTitle(null,{text: speed +" "+units[realtimeplot[plot_type][2][0].split("_")[1]]});
                     for (var j = windrosespeeds.length-1; j > -1; j-=2)
@@ -1121,7 +1126,7 @@ function do_realtime_update(chart, plot_type, units){
 
 function do_auto_update(units, plot_type, span, buttonReload){       
     if (buttonReload){
-        display_chart(units, reload_plot_type == null ? plot_type : reload_plot_type, reload_span == null ? span : reload_span);
+        setTimeout(display_chart, 0, units, reload_plot_type == null ? plot_type : reload_plot_type, reload_span == null ? span : reload_span);
         return;
     }
     auto_update = do_realtime ? false : !auto_update;
@@ -1130,7 +1135,7 @@ function do_auto_update(units, plot_type, span, buttonReload){
            buttons[i].text = "Auto Update Chart " + (auto_update ? "ON" : "OFF");
     if (auto_update){
         timer1 = null;
-        display_chart(units, plot_type, span);
+        setTimeout(display_chart, 0, units, plot_type, span);
     }
 };
 
@@ -1175,7 +1180,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                     };
                                     auto_update=false;
                                     realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
-                                    display_chart(units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
+                                    setTimeout(display_chart, 0, units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
         function compare_callback(){return function(){
                                     if (do_realtime) return;
                                     var epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
@@ -1216,7 +1221,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
             remove_range_selector(chart);           
             for (var j =0; j < realtimeplot[plot_type][0].length; j++)
                 chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            setInterval(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : realtimeinterval*1000), chart, plot_type, units);
+            timer2 = setInterval(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : realtimeinterval*1000), chart, plot_type, units);
             return;
         }
         if (!plotsnoswitch.includes(plot_type)){
