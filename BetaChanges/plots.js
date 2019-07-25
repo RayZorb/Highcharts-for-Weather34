@@ -1079,7 +1079,8 @@ function do_realtime_update(chart, plot_type, units){
                 speed = parseFloat(window[realtimeplot[plot_type][2][0]](parts[realtimeplot[plot_type][1][0]],units[realtimeplot[plot_type][2][0].split("_")[1]],parts[realtimeplot[plot_type][0][0]]));
                 windrosesamples += 1;
                 if (windrosesamples == 60*(60/realtimeinterval)+60) windrosesamples = 60;
-                if (speed > 0){;
+                if (speed > 0){
+                    chart.setTitle(null,{text: speed +" "+units[realtimeplot[plot_type][2][0].split("_")[1]]});
                     for (var j = windrosespeeds.length-1; j > -1; j-=2)
                         if (speed < windrosespeeds[j-1] && speed <= windrosespeeds[j]){
                             speedindex = (j-1)/2 +1;
@@ -1101,7 +1102,7 @@ function do_realtime_update(chart, plot_type, units){
                         convertlegend(chart.series, units, true);
                         chart.redraw();
                     }
-                }
+                }else chart.setTitle(null,{text: getTranslation("Calm")});
             }else{
                 var tparts = (parts[0]+" "+parts[1]).match(/(\d{2})\/(\d{2})\/(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
                 var x = Date.UTC(+"20"+tparts[3],tparts[2]-1,+tparts[1],+tparts[4],+tparts[5],+tparts[6]) + (utcoffset *60);
