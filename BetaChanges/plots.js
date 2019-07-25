@@ -125,6 +125,7 @@ function create_common_options(){
         chart: {
             renderTo: "plot_div",
             spacing: [10, 10, 0, -1],
+            boost: {useGPUTranslations: false},
         },
         legend: {
             enabled: true,
