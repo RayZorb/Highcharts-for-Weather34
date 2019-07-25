@@ -1064,7 +1064,13 @@ function create_uv_chart(options, span, seriesData, units){
 };
 
 function do_realtime_update(chart, plot_type, units){
-    if (!do_realtime) return;
+    if (!do_realtime){
+        if (timer2 != null){
+            clearInterval(timer2);
+            timer2 = null;
+        }
+        return;
+    }
     if (realtimeplot[plot_type][0].length == 0){
         window.location.href= dayplotsurl+"?units="+units.temp+","+units.pressure+","+units.wind+","+units.rain+"&plot_type="+realtimeplot[plot_type][3]+","+pathjsondayfiles+jsonfileforplot[plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",true"+"&weewxpathbin="+pathweewxbin+"&epoch="+0;
         return;
@@ -1125,18 +1131,10 @@ function do_realtime_update(chart, plot_type, units){
 };
 
 function do_auto_update(units, plot_type, span, buttonReload){       
-    if (buttonReload){
+    if (buttonReload)
         setTimeout(display_chart, 0, units, reload_plot_type == null ? plot_type : reload_plot_type, reload_span == null ? span : reload_span);
-        return;
-    }
-    auto_update = do_realtime ? false : !auto_update;
-    for (var i = 0; i < buttons.length;i++)
-       if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
-           buttons[i].text = "Auto Update Chart " + (auto_update ? "ON" : "OFF");
-    if (auto_update){
-        timer1 = null;
+    else
         setTimeout(display_chart, 0, units, plot_type, span);
-    }
 };
 
 function setup_plots(seriesData, units, options, plot_type, span){
@@ -1167,21 +1165,31 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         if (compare_dates && jsonfileforplot[plot_type][2] != null)
             files[index] = pathjsondayfiles + jsonfileforplot[plot_type][2][i];
     if (buttons == null){
-        function callback(units, plot_type, span, buttonReload){return function(){do_realtime=false;do_auto_update(units, plot_type, span, buttonReload)}}
-        function realtime_callback(){return function(){
-                                    if (do_realtime) return;
-                                    do_realtime = true;
+        function callback(units, plot_type, span, buttonReload){return function(){
+                                    if (buttonReload){
+                                        do_realtime = false;
+                                        auto_update = false;
+                                    }
+                                    else {
+                                        if (do_realtime) return;
+                                        auto_update = !auto_update;
+                                    }
+                                    for (var i = 0; i < buttons.length;i++)
+                                        if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
+                                            buttons[i].text = "Auto Update Chart " + (auto_update ? "ON" : "OFF");
                                     if (timer1 != null){
                                         clearTimeout(timer1);
                                         timer1 = null;
-                                        for (var i = 0; i < buttons.length;i++)
-                                            if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
-                                                buttons[i].text = "Auto Update Chart OFF";
-                                    };
-                                    auto_update=false;
+                                    }                                
+                                    setTimeout(display_chart, 0, units, plot_type,span,false,false,reload_plot_type+":"+reload_span, false)}}
+        function realtime_callback(){return function(){
+                                    if (do_realtime) return;
+                                    if (auto_update) return;
+                                    do_realtime = true;
                                     realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
                                     setTimeout(display_chart, 0, units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
         function compare_callback(){return function(){
+                                    if (auto_update) return;
                                     if (do_realtime) return;
                                     var epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
                                     var epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
@@ -1224,6 +1232,10 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
             timer2 = setInterval(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : realtimeinterval*1000), chart, plot_type, units);
             return;
         }
+        if (auto_update && timer1 == null){
+            timer1 = setInterval(do_auto_update, autoupdateinterval*1000, units, plot_type, span, false);
+            return;
+        }
         if (!plotsnoswitch.includes(plot_type)){
             for (var i = 0; i < chart.series.length; i++){
                 chart.series[i].update({
@@ -1253,8 +1265,6 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         $("#plot_div").load(pathpws + "404.html");
         return;
     });
-    if (auto_update && timer1 == null)
-        timer1 = setInterval(display_chart, autoupdateinterval*1000, units, plot_type, span);
 };
 $.datepicker.setDefaults({
     dateFormat: 'yy-mm-dd',
