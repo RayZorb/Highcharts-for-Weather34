@@ -864,9 +864,9 @@ function convertlegend(series, units, usey = false){
         for (var j = 0; j < series[i].data.length; j++)
             totalPercent += usey ? series[i].data[j].y : series[i].data[j];
     for (var i = 0; i < series.length; i++){
-        var percent = 0, newName = "", speed = 0, prevspeed = 0, parts = series[i].name.replace("> ","").split("-"), legendname = "";
+        var percent = 0, newName = "", speed = 0, firstspeed = 0, parts = series[i].name.replace("> ","").split("-"), legendname = "";
         for (var j = 0; j < parts.length; j++){
-            prevspeed = speed;
+            firstspeed = usey ? windrosespeeds[0] : speed;
             speed = convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 0);
             if (!usey) 
                 windrosespeeds.push(speed);
@@ -875,7 +875,7 @@ function convertlegend(series, units, usey = false){
         }
         for (var j = 0; j < series[i].data.length; j++)
             percent += usey ? series[i].data[j].y : series[i].data[j];
-        legendname = (i == 0 ? "> " + prevspeed: newName) + " " + units['wind'] + " (" + (totalPercent == 0 ? "0.0" : ((percent/totalPercent)*100.0).toFixed(1)) + "%)";
+        legendname = (i == 0 ? "> " + firstspeed: newName) + " " + units['wind'] + " (" + (totalPercent == 0 ? "0.0" : ((percent/totalPercent)*100.0).toFixed(1)) + "%)";
         series[i].name = legendname;
         if (chart != undefined)
             $(chart.legend.allItems[i].legendItem.element.childNodes).text(legendname)
