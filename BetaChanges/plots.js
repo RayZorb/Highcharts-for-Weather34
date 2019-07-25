@@ -163,7 +163,8 @@ function create_common_options(){
                     enabled: true,
                     units: [['day',[1]], ['week',[1]]]},
             },
-            series: {states: {hover: {halo: {size: 0,}}}
+            series: {states: {hover: {halo: {size: 0,}}}, 
+                turboThreshold:100
             },
             scatter: {
                 dataGrouping: {
