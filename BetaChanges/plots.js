@@ -1192,8 +1192,8 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                             timer2 = null;
                                         }
                                         do_realtime = true;
-                                        realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
                                     }
+                                    realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
                                     setTimeout(display_chart, 0, units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
         function compare_callback(){return function(){
                                     if (auto_update) return;
@@ -1234,8 +1234,15 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                 postcreatefunctions[plot_type][i](chart);
         if (do_realtime){
             remove_range_selector(chart);           
-            for (var j =0; j < realtimeplot[plot_type][0].length; j++)
+            for (var j =0; j < realtimeplot[plot_type][0].length; j++){
+                if (options.series[j] == undefined) {
+                    do_realtime = false;
+                    chart.showLoading('!!!! No Data For Realtime !!!');
+                    setTimeout(display_chart, 2000, units, plot_type,span,false,false,reload_plot_type+":"+reload_span, false);
+                    return;
+                }
                 chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
+            }
             timer2 = setInterval(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : realtimeinterval*1000), chart, plot_type, units);
             return;
         }
