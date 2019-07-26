@@ -338,9 +338,9 @@ class w34highcharts_bar_rain_week(SearchList):
         # If we do then set the last time in the time vector to the hour
         # Avoids display issues with the column chart
         # Need to make sure we have at least 2 records though
-        if len(time_stop_vt[0]) > 1:
-            if time_stop_vt[0][-1] < time_stop_vt[0][-2] + 3600:
-                time_stop_vt[0][-1] = time_stop_vt[0][-2] + 3600
+        #if len(time_stop_vt[0]) > 1:
+        #   if time_stop_vt[0][-1] < time_stop_vt[0][-2] + 3600:
+        #        time_stop_vt[0][-1] = time_stop_vt[0][-2] + 3600
         # Convert our rain vector
         rain_vt = self.generator.converter.convert(rain_vt)
         rainRate_vt = self.generator.converter.convert(rainRate_vt)

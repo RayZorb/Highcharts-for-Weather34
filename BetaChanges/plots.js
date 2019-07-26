@@ -89,6 +89,7 @@ var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallpl
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
+var realtimeinterval = 2;
 var reload_plot_type = null;
 var reload_span = null;
 var compare_dates_ts = [];
@@ -99,6 +100,7 @@ var day_plots = false;
 var buttons = null;
 var timer1 = null;
 var timer2 = null;
+var prevrealtime = "";
 var windrosesamples = 0;
 var windrosespeeds = [];
 var windrosespan;
@@ -166,7 +168,7 @@ function create_common_options(){
                     units: [['day',[1]], ['week',[1]]]},
             },
             series: {states: {hover: {halo: {size: 0,}}}, 
-                turboThreshold:100
+                turboThreshold:100,
             },
             scatter: {
                 dataGrouping: {
@@ -908,16 +910,12 @@ function create_rain_chart(options, span, seriesData, units){
         options.plotOptions.column.dataGrouping.dateTimeLabelFormats.hour = ['%e %B %Y', '%e %B %Y %H:%M', '-%H:%M'];
     }
     if (span[0] == "weekly"){
-        if (do_realtime){
-            options = create_chart_options(options, 'spline', 'RainRate', units.rain,[['RainRate', 'spline']], null);
-            options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainRate));
-        }else{
-            options = create_chart_options(options, 'column', 'RainFall', units.rain,[['RainFall', 'column'], ['RainRate', 'spline', 1]], null);
-            options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rain));
-            options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainRate));
-            options.yAxis[1].title.text = "(" + units.rain + ")";
-            options.yAxis[1].min = 0;
-        }
+        options = create_chart_options(options, 'column', 'RainFall', units.rain,[['RainFall', 'column'], ['RainRate', 'spline', 1]], null);
+        options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rain));
+        options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainRate));
+        options.yAxis[1].title.text = "(" + units.rain + ")";
+        options.yAxis[1].min = 0;
+        if (do_realtime) realtimeplot['rainplot'][5] = [0];
     }
     options.yAxis[0].title.text = "(" + units.rain + ")";
     options.yAxis[0].min = 0;
@@ -1080,6 +1078,8 @@ function do_realtime_update(chart, plot_type, units){
     $.get(realtimefile, function(data) {
         try{
             var parts = data.split(" ");
+            if (parts[0] + parts[1] == prevrealtime) return;
+            else prevrealtime = parts[0] + parts[1];
             if (plot_type =='windroseplot'){
                 var compassindex = 0, speedindex = 0; speed = 0;
                 for (compassindex = 0; compassindex < categories.length; compassindex++)
@@ -1124,14 +1124,23 @@ function do_realtime_update(chart, plot_type, units){
                         chart.series[j].setData(chart.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
                 for (var j = 0; j < realtimeplot[plot_type][0].length; j++)
                     if (realtimeplot[plot_type][2][j] == null)
-                        chart.series[j].addPoint([x, parseFloat(parts[realtimeplot[plot_type][0][j]])], true, true);
-                    else 
-                        chart.series[j].addPoint([x, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]]))], true, true);
+                        chart.series[j].addPoint([x, check_for_delta_change(plot_type, j, parseFloat(parts[realtimeplot[plot_type][0][j]]))], true, true);
+                    else
+                        chart.series[j].addPoint([x, check_for_delta_change(plot_type, j, parseFloat(window[realtimeplot[plot_type][2][j]](parts[realtimeplot[plot_type][1][j]],units[realtimeplot[plot_type][2][j].split("_")[1]],parts[realtimeplot[plot_type][0][j]])))], true, true);
             }
         }catch(err) {console.log(err)}
     });
 };
 
+function check_for_delta_change(plot_type, index, value){
+    var ret_value = value;
+    if (realtimeplot[plot_type][5] != undefined && realtimeplot[plot_type][5][index] != undefined){
+        ret_value = value - realtimeplot[plot_type][5][index];
+        realtimeplot[plot_type][5][index] = value;
+    }
+    return ret_value;
+}
+    
 function do_auto_update(units, plot_type, span, buttonReload){       
     if (buttonReload)
         setTimeout(display_chart, 0, units, reload_plot_type == null ? plot_type : reload_plot_type, reload_span == null ? span : reload_span);
@@ -1234,15 +1243,8 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                 postcreatefunctions[plot_type][i](chart);
         if (do_realtime){
             remove_range_selector(chart);           
-            for (var j =0; j < realtimeplot[plot_type][0].length; j++){
-                if (options.series[j] == undefined) {
-                    do_realtime = false;
-                    chart.showLoading('!!!! No Data For Realtime !!!');
-                    setTimeout(display_chart, 2000, units, plot_type,span,false,false,reload_plot_type+":"+reload_span, false);
-                    return;
-                }
+            for (var j =0; j < realtimeplot[plot_type][0].length; j++)
                 chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            }
             timer2 = setInterval(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : realtimeinterval*1000), chart, plot_type, units);
             return;
         }
