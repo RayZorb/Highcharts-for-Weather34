@@ -866,7 +866,8 @@ function convertlegend(series, units, usey = false){
     for (var i = 0; i < series.length; i++){
         var percent = 0, newName = "", speed = 0, firstspeed = 0, parts = series[i].name.replace("> ","").split("-"), legendname = "";
         for (var j = 0; j < parts.length; j++){
-            firstspeed = usey ? windrosespeeds[0] : speed;
+            firstspeed = speed;
+            if (usey) firstspeed = windrosespeeds[0];
             speed = convert_wind(series[i].name.replace(/[0-9-.]/g,''), units['wind'], parseInt(parts[j]), 0);
             if (!usey) 
                 windrosespeeds.push(speed);
@@ -1179,15 +1180,20 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                         if (buttons[i].hasOwnProperty("text") && buttons[i].text.indexOf("Auto") == 0)
                                             buttons[i].text = "Auto Update Chart " + (auto_update ? "ON" : "OFF");
                                     if (timer1 != null){
-                                        clearTimeout(timer1);
+                                        clearInterval(timer1);
                                         timer1 = null;
                                     }                                
                                     setTimeout(display_chart, 0, units, plot_type,span,false,false,reload_plot_type+":"+reload_span, false)}}
         function realtime_callback(){return function(){
-                                    if (do_realtime) return;
                                     if (auto_update) return;
-                                    do_realtime = true;
-                                    realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
+                                    if (do_realtime){
+                                        if (timer2 != null){
+                                            clearInterval(timer2);
+                                            timer2 = null;
+                                        }
+                                        do_realtime = true;
+                                        realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
+                                    }
                                     setTimeout(display_chart, 0, units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
         function compare_callback(){return function(){
                                     if (auto_update) return;
