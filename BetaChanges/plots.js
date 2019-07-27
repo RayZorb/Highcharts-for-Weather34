@@ -915,7 +915,13 @@ function create_rain_chart(options, span, seriesData, units){
         options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].rainplot.rainRate));
         options.yAxis[1].title.text = "(" + units.rain + ")";
         options.yAxis[1].min = 0;
-        if (do_realtime) realtimeplot['rainplot'][5] = [0];
+        if (do_realtime){
+            realtimeplot['rainplot'][5] = [0];
+            for (var i = options.series[0].data.length-1; i > 0; i--)
+                if (options.series[0].data[options.series[0].data.length-1][0] -3600 < options.series[0].data[i][0])
+                    realtimeplot['rainplot'][5][0] += options.series[0].data[i][1];
+                else break;
+        }
     }
     options.yAxis[0].title.text = "(" + units.rain + ")";
     options.yAxis[0].min = 0;
