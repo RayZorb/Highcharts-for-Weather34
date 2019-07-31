@@ -918,7 +918,7 @@ function create_rain_chart(options, span, seriesData, units){
         if (do_realtime){
             realtimeplot['rainplot'][5] = [0];
             for (var i = options.series[0].data.length-1; i > 0; i--)
-                if (options.series[0].data[options.series[0].data.length-1][0] -3600 < options.series[0].data[i][0])
+                if (options.series[0].data[options.series[0].data.length-1][0] -3600*1000 < options.series[0].data[i][0])
                     realtimeplot['rainplot'][5][0] += options.series[0].data[i][1];
                 else break;
         }
