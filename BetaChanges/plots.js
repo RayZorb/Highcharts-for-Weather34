@@ -324,6 +324,19 @@ function remove_range_selector(chart){
     });
 };
 
+function add_realtime_button(units,plot_type){
+    if (auto_update) return;
+    if (do_realtime){
+        if (timer2 != null){
+            clearInterval(timer2);
+            timer2 = null;
+        }
+        do_realtime = true;
+    }
+    realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
+    setTimeout(display_chart, 0, units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true);
+}
+
 function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     options.rangeSelector = {inputEnabled:false };
     options.rangeSelector.buttons = [{
@@ -341,12 +354,15 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
     }, {
         text: getTranslation(windrosespans[4]),
         events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["yearly"]);windrosespan=windrosespans[4];return false;}}
+    }, {
+        text: getTranslation("Real"),
+        events: {click: function (e) {add_realtime_button(units, plot_type)}}
     }];
     options.rangeSelector.selected = 0;
     return options
 };
     
-function addWeekOptions(obj) {
+function addWeekOptions(obj, span, seriesData, units, plot_type) {
     if (do_realtime) return obj;
     if (compare_dates)
          obj.rangeSelector = {inputEnabled:false };
@@ -373,7 +389,11 @@ function addWeekOptions(obj) {
     }, {
         type: 'all',
         text: compare_dates ? '72h' : '7d'
-    }],
+    }]
+    if (realtimeplot.hasOwnProperty(plot_type)){obj.rangeSelector.buttons.push({
+        text: getTranslation("Real"),
+        events: {click: function (e) {add_realtime_button(units, plot_type)}}})
+    }
     obj.rangeSelector.selected = day_plots || compare_dates ? 5 : 3;
     obj.plotOptions.column.dataGrouping.enabled = false;
     obj.plotOptions.spline.dataGrouping.enabled = false;
@@ -1200,17 +1220,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                         timer1 = null;
                                     }                                
                                     setTimeout(display_chart, 0, units, plot_type,span,false,false,reload_plot_type+":"+reload_span, false)}}
-        function realtime_callback(){return function(){
-                                    if (auto_update) return;
-                                    if (do_realtime){
-                                        if (timer2 != null){
-                                            clearInterval(timer2);
-                                            timer2 = null;
-                                        }
-                                        do_realtime = true;
-                                    }
-                                    realtimeXscaleFactor = realtimeplot[plot_type][4]/realtimeinterval;
-                                    setTimeout(display_chart, 0, units, realtimeplot[plot_type][3], 'weekly',false,false,reload_plot_type+":"+reload_span, true)}}
+        function realtime_callback(){return function(){add_realtime_button(units, plot_type)}}
         function compare_callback(){return function(){
                                     if (auto_update) return;
                                     if (do_realtime) return;
