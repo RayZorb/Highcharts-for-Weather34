@@ -355,7 +355,7 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
         text: getTranslation(windrosespans[4]),
         events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["yearly"]);windrosespan=windrosespans[4];return false;}}
     }, {
-        text: getTranslation("Real"),
+        text: getTranslation("RT"),
         events: {click: function (e) {add_realtime_button(units, plot_type)}}
     }];
     options.rangeSelector.selected = 0;
@@ -391,7 +391,7 @@ function addWeekOptions(obj, span, seriesData, units, plot_type) {
         text: compare_dates ? '72h' : '7d'
     }]
     if (realtimeplot.hasOwnProperty(plot_type)){obj.rangeSelector.buttons.push({
-        text: getTranslation("Real"),
+        text: getTranslation("RT"),
         events: {click: function (e) {add_realtime_button(units, plot_type)}}})
     }
     obj.rangeSelector.selected = day_plots || compare_dates ? 5 : 3;
