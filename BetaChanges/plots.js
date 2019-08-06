@@ -1035,6 +1035,7 @@ function create_raduv_chart(options, span, seriesData, units){
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
     options.yAxis[1].title.text = "(" + seriesData[0].uvplot.units + ")";
     options.yAxis[0].min = 0;
+    options.yAxis[1].max = 20;
     return options;
 };
 
