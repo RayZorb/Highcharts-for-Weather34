@@ -42,6 +42,7 @@ var createyearlyfunctions = {
     rainplot: [addYearOptions, create_rain_chart],
     rainmonthplot: [create_rain_month_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
+    lightningplot: [create_lightning_month_chart],
     radiationplot: [addYearOptions, create_radiation_chart],
     raduvplot: [addYearOptions, create_raduv_chart],
     radsmallplot: [addYearOptions, setRadSmall, create_radiation_chart],
@@ -78,6 +79,7 @@ var jsonfileforplot = {
     rainplot: [['bar_rain_week.json'],['year.json'],[null]],
     rainmonthplot: [['year.json'],['year.json'],[null]],
     rainsmallplot: [['bar_rain_week.json'],['year.json'],[null]],
+    lightningplot: [['year.json'],['year.json'],[null]],
     radiationplot: [['solar_week.json'],['year.json'],['solar_week1.json']],
     raduvplot: [['solar_week.json'],['year.json'],['solar_week1.json']],
     radsmallplot: [['solar_week.json'],['year.json'],[null]],
@@ -977,6 +979,45 @@ function create_rain_month_chart(options, span, seriesData, units){
     options.yAxis[0].min = 0;
     options.yAxis[0].tickInterval = 1;
     options.yAxis[0].allowDecimals = true;
+    options.xAxis.minTickInterval =0;
+    options.xAxis.type ='category';
+    options.xAxis.labels = {formatter: function (){return month_name[this.value]}};
+    return options;
+};
+
+function create_lightning_month_chart(options, span, seriesData, units){
+    var data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].lightningplot.avg_distance));
+    var index = 0;
+    var month_data = [];
+    var month_name = [];
+    month_name[index] = getTranslation(monthNames[new Date(data[0][0]).getMonth()]);
+    month_data[index] = data[0][1];
+    for (var i = 1; i < data.length; i++){
+        var new_month = getTranslation(monthNames[new Date(data[i][0]).getMonth()]);
+        if (month_name[index] != new_month){
+            index  +=1;
+            month_name[index] = new_month;
+            month_data[index] = data[i][1];
+        }
+        else
+           month_data[index] +=  data[i][1];
+    }
+    options = create_chart_options(options, 'column', 'Monthly Lightning', units.rain,[['Avg Storm Distance', 'column'], ['Strikes', 'column', 1]], month_name);
+    options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data);
+    options.series[1].data = reinflate_time(seriesData[0].lightingplot.lightning_strikes));
+    options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
+    options.plotOptions.column.dataGrouping.enabled = true;
+    options.plotOptions.column.marker = {enabled: false,};
+    options.plotOptions.series.pointPadding = 0;
+    options.plotOptions.series.groupPadding = 0;
+    options.plotOptions.series.borderWidth = 0;
+    options.yAxis[0].title.text = "Average Distance";
+    options.yAxis[0].min = 0;
+    options.yAxis[0].tickInterval = 1;
+    options.yAxis[0].allowDecimals = true;
+    options.yAxis[1].title.text = "Number of Strikes";
+    options.yAxis[1].tickInterval = 1;
+    options.yAxis[1].min = 0;
     options.xAxis.minTickInterval =0;
     options.xAxis.type ='category';
     options.xAxis.labels = {formatter: function (){return month_name[this.value]}};
