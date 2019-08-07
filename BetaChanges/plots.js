@@ -1004,7 +1004,7 @@ function create_lightning_month_chart(options, span, seriesData, units){
     }
     options = create_chart_options(options, 'column', 'Monthly Lightning', units.rain,[['Avg Storm Distance', 'column'], ['Strikes', 'column', 1]], month_name);
     options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data);
-    options.series[1].data = reinflate_time(seriesData[0].lightingplot.lightning_strikes));
+    options.series[1].data = reinflate_time(seriesData[0].lightingplot.lightning_strikes);
     options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
     options.plotOptions.column.dataGrouping.enabled = true;
     options.plotOptions.column.marker = {enabled: false,};
