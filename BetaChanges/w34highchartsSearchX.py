@@ -990,6 +990,8 @@ class w34highchartsYear(SearchList):
         uvMaxRound = [roundNone(x,uvPlaces) for x in uv_dict['max'][0]]
         uvAvgRound = [roundNone(x,uvPlaces) for x in uv_dict['avg'][0]]
 
+        avgDistance_json = None
+        strikeCount_json = None
         # Produce our JSON strings
         outTempMinMax_json = json.dumps(zip(time_ms, outTempMinRound, outTempMaxRound))
         outTempMin_json = json.dumps(zip(time_ms, outTempMinRound))
@@ -1061,6 +1063,8 @@ class w34highchartsYear(SearchList):
                                  'appTempMin_json' : appTempMin_json,
                                  'appTempMax_json' : appTempMax_json,
                                  'appTempAvg_json' : appTempAvg_json,
+                                 'strikeCount_json' : strikeCount_json,
+                                 'avgDistance_json' : avgDistance_json,
                                  'dewpointMinMax_json' : dewpointMinMax_json,
                                  'dewpointAvg_json' : dewpointAvg_json,
                                  'windchillMinMax_json' : windchillMinMax_json,
