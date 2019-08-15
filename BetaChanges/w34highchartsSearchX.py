@@ -1052,11 +1052,60 @@ class w34highchartsYear(SearchList):
         uvMax_json = json.dumps(zip(time_ms, uvMaxRound))
         uvAvg_json = json.dumps(zip(time_ms, uvAvgRound))
 
+        # Get uva json
+        try:
+                (uva_time_vt, uva_dict) = getDaySummaryVectors(db_lookup(), 'uva', timespan,['max', 'avg'])
+                uvaPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(uva_dict['max'][1], "1f")[-2])
+                uvaMaxRound = [roundNone(x,uvaPlaces) for x in uva_dict['max'][0]]
+                uvaAvgRound = [roundNone(x,uvaPlaces) for x in uva_dict['avg'][0]]
+                uvaMax_json = json.dumps(zip(time_ms, uvaMaxRound))
+                uvaAvg_json = json.dumps(zip(time_ms, uvaAvgRound))
+        except:
+                uvaMax_json = None
+                uvaAvg_json = None
+                
+        # Get uvb json
+        try:
+                (uvb_time_vt, uvb_dict) = getDaySummaryVectors(db_lookup(), 'uvb', timespan,['max', 'avg'])
+                uvbPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(uvb_dict['max'][1], "1f")[-2])
+                uvbMaxRound = [roundNone(x,uvbPlaces) for x in uvb_dict['max'][0]]
+                uvbAvgRound = [roundNone(x,uvbPlaces) for x in uvb_dict['avg'][0]]
+                uvbMax_json = json.dumps(zip(time_ms, uvbMaxRound))
+                uvbAvg_json = json.dumps(zip(time_ms, uvbAvgRound))
+        except:
+                uvbMax_json = None
+                uvbAvg_json = None
+                
+        # Get uvaWm json
+        try:
+                (uvaWm_time_vt, uvaWm_dict) = getDaySummaryVectors(db_lookup(), 'uvaWm', timespan,['max', 'avg'])
+                uvaWmPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(uvaWm_dict['max'][1], "1f")[-2])
+                uvaWmMaxRound = [roundNone(x,uvaWmPlaces) for x in uvaWm_dict['max'][0]]
+                uvaWmAvgRound = [roundNone(x,uvaWmPlaces) for x in uvaWm_dict['avg'][0]]
+                uvaWmMax_json = json.dumps(zip(time_ms, uvaWmMaxRound))
+                uvaWmAvg_json = json.dumps(zip(time_ms, uvaWmAvgRound))
+        except:
+                uvaWmMax_json = None
+                uvaWmAvg_json = None
+                
+        # Get uvbWm json
+        try:
+                (uvbWm_time_vt, uvbWm_dict) = getDaySummaryVectors(db_lookup(), 'uvbWm', timespan,['max', 'avg'])
+                uvbWmPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(uvbWm_dict['max'][1], "1f")[-2])
+                uvbWmMaxRound = [roundNone(x,uvbWmPlaces) for x in uvbWm_dict['max'][0]]
+                uvbWmAvgRound = [roundNone(x,uvbWmPlaces) for x in uvbWm_dict['avg'][0]]
+                uvbWmMax_json = json.dumps(zip(time_ms, uvbWmMaxRound))
+                uvbWmAvg_json = json.dumps(zip(time_ms, uvbWmAvgRound))
+        except:
+                uvbWmMax_json = None
+                uvbWmAvg_json = None
+                                            
         # Get energy json
         try:
                 (energy_time_vt, energy_dict) = getDaySummaryVectors(db_lookup(), 'energy', timespan,['max', 'avg'])
                 energyPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(energy_dict['max'][1], "1f")[-2])
                 energyMaxRound = [roundNone(x,energyPlaces) for x in energy_dict['max'][0]]
+                energyAvgRound = [roundNone(x,energyPlaces) for x in energy_dict['avg'][0]]
                 energyMax_json = json.dumps(zip(time_ms, energyMaxRound))
                 energyAvg_json = json.dumps(zip(time_ms, energyAvgRound))
         except:
@@ -1068,6 +1117,7 @@ class w34highchartsYear(SearchList):
                 (distance_time_vt, distance_dict) = getDaySummaryVectors(db_lookup(), 'avg_distance', timespan,['max', 'avg'])
                 distancePlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(distance_dict['max'][1], "1f")[-2])
                 distanceMaxRound = [roundNone(x,distancePlaces) for x in distance_dict['max'][0]]
+                distanceAvgRound = [roundNone(x,distancePlaces) for x in distance_dict['avg'][0]]
                 distanceMax_json = json.dumps(zip(time_ms, distanceMaxRound))
                 distanceAvg_json = json.dumps(zip(time_ms, distanceAvgRound))
         except:
@@ -1076,9 +1126,10 @@ class w34highchartsYear(SearchList):
                 
         # Get strikes json
         try:
-                (strikes_time_vt, distance_dict) = getDaySummaryVectors(db_lookup(), 'avg_distance', timespan,['max', 'avg'])
+                (strikes_time_vt, strikes_dict) = getDaySummaryVectors(db_lookup(), 'lightning_strikes', timespan,['max', 'avg'])
                 strikesPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(strikes_dict['max'][1], "1f")[-2])
                 strikesMaxRound = [roundNone(x,strikesPlaces) for x in strikes_dict['max'][0]]
+                strikesAvgRound = [roundNone(x,strikesPlaces) for x in strikes_dict['avg'][0]]
                 strikesMax_json = json.dumps(zip(time_ms, strikesMaxRound))
                 strikesAvg_json = json.dumps(zip(time_ms, strikesAvgRound))
         except:
@@ -1122,6 +1173,14 @@ class w34highchartsYear(SearchList):
                                  'radiationAvg_json' : radiationAvg_json,
                                  'uvMax_json' : uvMax_json,
                                  'uvAvg_json' : uvAvg_json,
+                                 'uvaMax_json' : uvaMax_json,
+                                 'uvaAvg_json' : uvaAvg_json,
+                                 'uvbMax_json' : uvbMax_json,
+                                 'uvbAvg_json' : uvbAvg_json,
+                                 'uvaWmMax_json' : uvaWmMax_json,
+                                 'uvaWmAvg_json' : uvaWmAvg_json,
+                                 'uvbWmMax_json' : uvbWmMax_json,
+                                 'uvbWmAvg_json' : uvbWmAvg_json,
                                  'strikesMax_json' : strikesMax_json,
                                  'strikesAvg_json' : strikesAvg_json,
                                  'distanceMax_json' : distanceMax_json ,

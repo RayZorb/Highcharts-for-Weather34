@@ -102,7 +102,31 @@
 }, 
 "uvplot": {
 "uvmax": $uvMax_json, 
-"uvaverage": $uvAvg_json, 
+"uvaverage": $uvAvg_json,
+#if $uvaMax_json is not None
+"uvaMax": $uvaMax_json, 
+#end if
+#if $uvaAvg_json is not None
+"uvaAvg": $uvaAvg_json, 
+#end if
+#if $uvbMax_json is not None
+"uvbMax": $uvbMax_json, 
+#end if
+#if $uvbAvg_json is not None
+"uvbAvg": $uvbAvg_json, 
+#end if
+#if $uvaWmMax_json is not None
+"uvaWmMax": $uvaWmMax_json, 
+#end if
+#if $uvaWmAvg_json is not None
+"uvaWmAvg": $uvaWmAvg_json, 
+#end if
+#if $uvbWmMax_json is not None
+"uvbWmMax": $uvbWmMax_json, 
+#end if
+#if $uvbWmAvg_json is not None
+"uvbWmAvg": $uvbWmAvg_json, 
+#end if
 "units": "$unit.label.UV"#slurp
 }, 
 "windroseMonth": {#slurp
