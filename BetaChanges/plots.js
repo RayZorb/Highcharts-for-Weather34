@@ -986,25 +986,29 @@ function create_rain_month_chart(options, span, seriesData, units){
 };
 
 function create_lightning_month_chart(options, span, seriesData, units){
-    var data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].lightningplot.distanceAverage));
+    var data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].lightningplot.avgDistance));
+    var data1 = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].lightningplot.lightningStrikes));
     var index = 0;
-    var month_data = [];
     var month_name = [];
+    var month_data = [];
+    var month_data1 = [];
     month_name[index] = getTranslation(monthNames[new Date(data[0][0]).getMonth()]);
     month_data[index] = data[0][1];
+    month_data1[index] = data1[0][1];
     for (var i = 1; i < data.length; i++){
         var new_month = getTranslation(monthNames[new Date(data[i][0]).getMonth()]);
         if (month_name[index] != new_month){
             index  +=1;
             month_name[index] = new_month;
             month_data[index] = data[i][1];
+            month_data1[index] = data1[i][1];
         }
         else
            month_data[index] +=  data[i][1];
     }
     options = create_chart_options(options, 'column', 'Monthly Lightning', units.rain,[['Avg Storm Distance', 'column'], ['Strikes', 'column', 1]], month_name);
     options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data);
-    options.series[1].data = reinflate_time(seriesData[0].lightingplot.strikecount);
+    options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data1);
     options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
     options.plotOptions.column.dataGrouping.enabled = true;
     options.plotOptions.column.marker = {enabled: false,};
@@ -1108,9 +1112,29 @@ function setUvSmall(options) {
 
 function create_uv_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'column', 'UV Index Maximum & Average', null, [['UV Maximum Index', 'column'], ['UV Average Index', 'spline']]);
+        options = create_chart_options(options, 'column', 'UV Index Maximum & Average', null, [['UV Max', 'column'], ['UV Avg', 'column'], ['UVA Max', 'column',, false, false], ['UVA Avg', 'column',, false, false], ['UVB Max', 'column',, false, false], ['UVB Avg', 'column',, false, false]]);
         options.series[0].data = reinflate_time(seriesData[0].uvplot.uvmax);
         options.series[1].data = reinflate_time(seriesData[0].uvplot.uvaverage);
+        if ("uvaMax" in seriesData[0].uvplot){
+            options.series[2].data = reinflate_time(seriesData[0].uvplot.uvaMax);
+            options.series[2].visible = true;
+            options.series[2].showInLegend = true;
+        }
+        if ("uvaAvg" in seriesData[0].uvplot){
+            options.series[3].data = reinflate_time(seriesData[0].uvplot.uvaAvg);
+            options.series[3].visible = true;
+            options.series[3].showInLegend = true;
+        }
+        if ("uvbMax" in seriesData[0].uvplot){
+            options.series[4].data = reinflate_time(seriesData[0].uvplot.uvbMax);
+            options.series[4].visible = true;
+            options.series[4].showInLegend = true;
+        }
+        if ("uvbAvg" in seriesData[0].uvplot){
+            options.series[5].data = reinflate_time(seriesData[0].uvplot.uvbAvg);
+            options.series[5].visible = true;
+            options.series[5].showInLegend = true;
+        }
     }
     else if (span[0] == "weekly"){
         if (compare_dates)
