@@ -1006,11 +1006,11 @@ function create_rain_month_chart(options, span, seriesData, units){
 };
 
 function create_lightning_chart(options, span, seriesData, units){
-    options = create_chart_options(options, 'column', 'Lightning Distance/Strikes/Energy Max & Avg', null, [['Distance Max', 'column'], ['Distance Avg', 'column'], ['Strikes Max', 'column',1], ['Strikes Avg', 'column',1], ['Energy Max', 'column',2], ['Energy Avg', 'column',2]]);
+    options = create_chart_options(options, 'column', 'Lightning Distance/Strikes/Energy Max & Avg/Sum', null, [['Distance Max', 'column'], ['Distance Avg', 'column'], ['Strikes Max', 'column',1], ['Strikes Sum', 'column',1], ['Energy Max', 'column',2], ['Energy Avg', 'column',2]]);
     options.series[0].data = reinflate_time(seriesData[0].lightningplot.distanceMax);
     options.series[1].data = reinflate_time(seriesData[0].lightningplot.distanceAvg);
     options.series[2].data = reinflate_time(seriesData[0].lightningplot.strikesMax);
-    options.series[3].data = reinflate_time(seriesData[0].lightningplot.strikesAvg);
+    options.series[3].data = reinflate_time(seriesData[0].lightningplot.strikesSum);
     options.series[4].data = reinflate_time(seriesData[0].lightningplot.energyMax);
     options.series[5].data = reinflate_time(seriesData[0].lightningplot.energyAvg);
     options.yAxis[0].title.text = "Average Distance";
