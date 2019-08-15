@@ -42,7 +42,7 @@ var createyearlyfunctions = {
     rainplot: [addYearOptions, create_rain_chart],
     rainmonthplot: [create_rain_month_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
-    lightningplot: [create_lightning_month_chart],
+    lightningplot: [addYearOptions, create_lightning_chart],
     radiationplot: [addYearOptions, create_radiation_chart],
     raduvplot: [addYearOptions, create_raduv_chart],
     radsmallplot: [addYearOptions, setRadSmall, create_radiation_chart],
@@ -313,8 +313,26 @@ function create_common_options(){
             tickPosition: 'outside',
             tickWidth: 1,
             title: {
-                text: ''
-            }
+                text: ''}
+            }, {
+            labels: {
+                x: 4,
+                y: 4,
+            },
+            lineWidth: 1,
+            minorGridLineWidth: 0,
+            minorTickLength: 2,
+            minorTickPosition: 'outside',
+            minorTickWidth: 1,
+            showLastLabel: true,
+            opposite: true,
+            startOnTick: true,
+            endOnTick: true,
+            tickLength: 4,
+            tickPosition: 'outside',
+            tickWidth: 1,
+            title: {
+                text: ''}
         }],
     };
     return commonOptions;
@@ -985,36 +1003,14 @@ function create_rain_month_chart(options, span, seriesData, units){
     return options;
 };
 
-function create_lightning_month_chart(options, span, seriesData, units){
-    var data = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].lightningplot.avgDistance));
-    var data1 = convert_rain(seriesData[0].rainplot.units, units.rain, reinflate_time(seriesData[0].lightningplot.lightningStrikes));
-    var index = 0;
-    var month_name = [];
-    var month_data = [];
-    var month_data1 = [];
-    month_name[index] = getTranslation(monthNames[new Date(data[0][0]).getMonth()]);
-    month_data[index] = data[0][1];
-    month_data1[index] = data1[0][1];
-    for (var i = 1; i < data.length; i++){
-        var new_month = getTranslation(monthNames[new Date(data[i][0]).getMonth()]);
-        if (month_name[index] != new_month){
-            index  +=1;
-            month_name[index] = new_month;
-            month_data[index] = data[i][1];
-            month_data1[index] = data1[i][1];
-        }
-        else
-           month_data[index] +=  data[i][1];
-    }
-    options = create_chart_options(options, 'column', 'Monthly Lightning', units.rain,[['Avg Storm Distance', 'column'], ['Strikes', 'column', 1]], month_name);
-    options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data);
-    options.series[1].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data1);
-    options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
-    options.plotOptions.column.dataGrouping.enabled = true;
-    options.plotOptions.column.marker = {enabled: false,};
-    options.plotOptions.series.pointPadding = 0;
-    options.plotOptions.series.groupPadding = 0;
-    options.plotOptions.series.borderWidth = 0;
+function create_lightning_chart(options, span, seriesData, units){
+    options = create_chart_options(options, 'column', 'Lightning Distance/Strikes/Energy Max & Avg', null, [['Distance Max', 'column'], ['Distance Avg', 'column'], ['Strikes Max', 'column',1], ['Strikes Avg', 'column',1], ['Energy Max', 'column',2], ['Energy Avg', 'column',2]]);
+    options.series[0].data = reinflate_time(seriesData[0].lightningplot.distanceMax);
+    options.series[1].data = reinflate_time(seriesData[0].lightningplot.distanceAvg);
+    options.series[2].data = reinflate_time(seriesData[0].lightningplot.strikesMax);
+    options.series[3].data = reinflate_time(seriesData[0].lightningplot.strikesAvg);
+    options.series[4].data = reinflate_time(seriesData[0].lightningplot.energyMax);
+    options.series[5].data = reinflate_time(seriesData[0].lightningplot.energyAvg);
     options.yAxis[0].title.text = "Average Distance";
     options.yAxis[0].min = 0;
     options.yAxis[0].tickInterval = 1;
@@ -1022,9 +1018,10 @@ function create_lightning_month_chart(options, span, seriesData, units){
     options.yAxis[1].title.text = "Number of Strikes";
     options.yAxis[1].tickInterval = 1;
     options.yAxis[1].min = 0;
+    options.yAxis[2].title.text = "Energy";
+    options.yAxis[2].tickInterval = 1;
+    options.yAxis[2].min = 0;
     options.xAxis.minTickInterval =0;
-    options.xAxis.type ='category';
-    options.xAxis.labels = {formatter: function (){return month_name[this.value]}};
     return options;
 };
 
@@ -1036,9 +1033,29 @@ function setRadSmall(options) {
 
 function create_radiation_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'column', 'Max Solar Radiation','W/m\u00B2', [['Max Solar Radiation', 'column'], ["Average Solar Radiation", 'spline']]);
+        options = create_chart_options(options, 'column', 'Solar Radiation Maximum & Average','W/m\u00B2', [['Max Solar Radiation', 'column'], ["Avg Solar Radiation", 'column'], ['Max UVAWm', 'column',,false,false], ["Avg UVAWm", 'column',,false,false], ['Max UVBWm', 'column',,false,false], ["Avg UVBWm", 'column',,false,false]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiationmax);
         options.series[1].data = reinflate_time(seriesData[0].radiationplot.radiationaverage);
+        if ("uvaWmMax" in seriesData[0].radiationplot){
+            options.series[2].data = reinflate_time(seriesData[0].radiationplot.uvaWmMax);
+            options.series[2].visible = true;
+            options.series[2].showInLegend = true;
+        }
+        if ("uvaWmAvg" in seriesData[0].radiationplot){
+            options.series[3].data = reinflate_time(seriesData[0].radiationplot.uvaWmAvg);
+            options.series[3].visible = true;
+            options.series[3].showInLegend = true;
+        }
+        if ("uvbWmMax" in seriesData[0].radiationplot){
+            options.series[4].data = reinflate_time(seriesData[0].radiationplot.uvbWmMax);
+            options.series[4].visible = true;
+            options.series[4].showInLegend = true;
+        }
+        if ("uvbWmAvg" in seriesData[0].radiationplot){
+            options.series[5].data = reinflate_time(seriesData[0].radiationplot.uvbWmAvg);
+            options.series[5].visible = true;
+            options.series[5].showInLegend = true;
+        }
     }
     else if (span[0] == "weekly"){
         if (compare_dates)
