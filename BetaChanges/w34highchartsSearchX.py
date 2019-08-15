@@ -1135,7 +1135,43 @@ class w34highchartsYear(SearchList):
         except:
                 strikesMax_json = None
                 strikesAvg_json = None
-                                
+
+        # Get full_spectrum json
+        try:
+                (full_spectrum_time_vt, full_spectrum_dict) = getDaySummaryVectors(db_lookup(), 'full_spectrum', timespan,['max', 'avg'])
+                full_spectrumPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(full_spectrum_dict['max'][1], "1f")[-2])
+                full_spectrumMaxRound = [roundNone(x,full_spectrumPlaces) for x in full_spectrum_dict['max'][0]]
+                full_spectrumAvgRound = [roundNone(x,full_spectrumPlaces) for x in full_spectrum_dict['avg'][0]]
+                full_spectrumMax_json = json.dumps(zip(time_ms, full_spectrumMaxRound))
+                full_spectrumAvg_json = json.dumps(zip(time_ms, full_spectrumAvgRound))
+        except:
+                full_spectrumMax_json = None
+                full_spectrumAvg_json = None
+                
+        # Get visible json
+        try:
+                (visible_time_vt, visible_dict) = getDaySummaryVectors(db_lookup(), 'visible', timespan,['max', 'avg'])
+                visiblePlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(visible_dict['max'][1], "1f")[-2])
+                visibleMaxRound = [roundNone(x,visiblePlaces) for x in visible_dict['max'][0]]
+                visibleAvgRound = [roundNone(x,visiblePlaces) for x in visible_dict['avg'][0]]
+                visibleMax_json = json.dumps(zip(time_ms, visibleMaxRound))
+                visibleAvg_json = json.dumps(zip(time_ms, visibleAvgRound))
+        except:
+                visibleMax_json = None
+                visibleAvg_json = None
+
+        # Get infrared json
+        try:
+                (infrared_time_vt, infrared_dict) = getDaySummaryVectors(db_lookup(), 'infrared', timespan,['max', 'avg'])
+                infraredPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(infrared_dict['max'][1], "1f")[-2])
+                infraredMaxRound = [roundNone(x,infraredPlaces) for x in infrared_dict['max'][0]]
+                infraredAvgRound = [roundNone(x,infraredPlaces) for x in infrared_dict['avg'][0]]
+                infraredMax_json = json.dumps(zip(time_ms, infraredMaxRound))
+                infraredAvg_json = json.dumps(zip(time_ms, infraredAvgRound))
+        except:
+                infraredMax_json = None
+                infraredAvg_json = None
+                
         # Put into a dictionary to return
         self.search_list_extension = {'outTempMinMax_json' : outTempMinMax_json,
                                  'outTempAvg_json' : outTempAvg_json,
@@ -1187,10 +1223,15 @@ class w34highchartsYear(SearchList):
                                  'distanceAvg_json' : distanceAvg_json,
                                  'energyMax_json' : energyMax_json,
                                  'energyAvg_json' : energyAvg_json,
+                                 'full_spectrumMax_json' : full_spectrumMax_json,
+                                 'full_spectrumAvg_json' : full_spectrumAvg_json,
+                                 'visibleMax_json' : visibleMax_json,
+                                 'visibleAvg_json' : visibleAvg_json,
+                                 'infraredMax_json' : infraredMax_json,
+                                 'infraredAvg_json' : infraredAvg_json,
                                  'utcOffset': utc_offset,
                                  'yearPlotStart' : _timespan.start * 1000,
                                  'yearPlotEnd' : _timespan.stop * 1000}
-
         t2 = time.time()
         logdbg2("w34highchartsYear SLE executed in %0.3f seconds" % (t2 - t1))
 
