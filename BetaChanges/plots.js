@@ -43,6 +43,7 @@ var createyearlyfunctions = {
     rainmonthplot: [create_rain_month_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
     lightningplot: [addYearOptions, create_lightning_chart],
+    luminosityplot: [addYearOptions, create_luminosity_chart],
     radiationplot: [addYearOptions, create_radiation_chart],
     raduvplot: [addYearOptions, create_raduv_chart],
     radsmallplot: [addYearOptions, setRadSmall, create_radiation_chart],
@@ -80,6 +81,7 @@ var jsonfileforplot = {
     rainmonthplot: [['year.json'],['year.json'],[null]],
     rainsmallplot: [['bar_rain_week.json'],['year.json'],[null]],
     lightningplot: [['year.json'],['year.json'],[null]],
+    luminosityplot: [['year.json'],['year.json'],[null]],
     radiationplot: [['solar_week.json'],['year.json'],['solar_week1.json']],
     raduvplot: [['solar_week.json'],['year.json'],['solar_week1.json']],
     radsmallplot: [['solar_week.json'],['year.json'],[null]],
@@ -87,7 +89,7 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json'],[null]]
 };
 
-var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
+var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot', 'luminosityplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
@@ -1021,6 +1023,22 @@ function create_lightning_chart(options, span, seriesData, units){
     options.yAxis[2].title.text = "Energy";
     options.yAxis[2].tickInterval = 1;
     options.yAxis[2].min = 0;
+    options.xAxis.minTickInterval =0;
+    return options;
+};
+
+function create_luminosity_chart(options, span, seriesData, units){
+    options = create_chart_options(options, 'column', 'Luminosity Spectrum/Visible/Infrared Max & Avg', null, [['Spectrum Max', 'column'], ['Spectrum Avg', 'column'], ['Visible Max', 'column'], ['Visible Avg', 'column'], ['Infrared Max', 'column'], ['Infrared Avg', 'column']]);
+    options.series[0].data = reinflate_time(seriesData[0].uvplot.full_spectrumMax);
+    options.series[1].data = reinflate_time(seriesData[0].uvplot.full_spectrumAvg);
+    options.series[2].data = reinflate_time(seriesData[0].uvplot.visibleMax);
+    options.series[3].data = reinflate_time(seriesData[0].uvplot.visibleAvg);
+    options.series[4].data = reinflate_time(seriesData[0].uvplot.infraredMax);
+    options.series[5].data = reinflate_time(seriesData[0].uvplot.infraredAvg);
+    options.yAxis[0].title.text = "Lux";
+    options.yAxis[0].min = 0;
+    options.yAxis[0].tickInterval = 1;
+    options.yAxis[0].allowDecimals = true;
     options.xAxis.minTickInterval =0;
     return options;
 };
