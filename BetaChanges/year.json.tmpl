@@ -75,11 +75,23 @@
 "units": "$unit.label.rain"#slurp
 },
 "lightningplot": {
-#if $avgDistance_json is not None
-"distanceAverage": $avgDistance_json, 
+#if $distanceMax_json is not None
+"distanceMax": $distanceMax_json, 
 #end if
-#if $strikeCount_json is not None
-"strikeCount": $strikeCount_json, 
+#if $distanceAvg_json is not None
+"distanceAvg": $distanceAvg_json, 
+#end if
+#if $strikesMax_json is not None
+"strikesMax": $strikesMax_json, 
+#end if
+#if $strikesAvg_json is not None
+"strikesAvg": $strikesAvg_json, 
+#end if
+#if $energyMax_json is not None
+"energyMax": $energyMax_json, 
+#end if
+#if $energyAvg_json is not None
+"energyAvg": $energyAvg_json, 
 #end if
 "units": "$unit.label.rain"#slurp
 }, 

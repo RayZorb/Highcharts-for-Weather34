@@ -926,7 +926,7 @@ class w34highchartsYear(SearchList):
                                                      'UV',
                                                      _timespan,
                                                      ['min', 'max', 'avg'])
-
+        
         # Get no of decimal places to use when formatting results
         tempPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(outTempMin_vt[1], "1f")[-2])
         outHumidityPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_dict['min'][1], "1f")[-2])
@@ -990,8 +990,6 @@ class w34highchartsYear(SearchList):
         uvMaxRound = [roundNone(x,uvPlaces) for x in uv_dict['max'][0]]
         uvAvgRound = [roundNone(x,uvPlaces) for x in uv_dict['avg'][0]]
 
-        avgDistance_json = None
-        strikeCount_json = None
         # Produce our JSON strings
         outTempMinMax_json = json.dumps(zip(time_ms, outTempMinRound, outTempMaxRound))
         outTempMin_json = json.dumps(zip(time_ms, outTempMinRound))
@@ -1054,6 +1052,39 @@ class w34highchartsYear(SearchList):
         uvMax_json = json.dumps(zip(time_ms, uvMaxRound))
         uvAvg_json = json.dumps(zip(time_ms, uvAvgRound))
 
+        # Get energy json
+        try:
+                (energy_time_vt, energy_dict) = getDaySummaryVectors(db_lookup(), 'energy', timespan,['max', 'avg'])
+                energyPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(energy_dict['max'][1], "1f")[-2])
+                energyMaxRound = [roundNone(x,energyPlaces) for x in energy_dict['max'][0]]
+                energyMax_json = json.dumps(zip(time_ms, energyMaxRound))
+                energyAvg_json = json.dumps(zip(time_ms, energyAvgRound))
+        except:
+                energyMax_json = None
+                energyAvg_json = None
+                
+        # Get distance json
+        try:
+                (distance_time_vt, distance_dict) = getDaySummaryVectors(db_lookup(), 'avg_distance', timespan,['max', 'avg'])
+                distancePlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(distance_dict['max'][1], "1f")[-2])
+                distanceMaxRound = [roundNone(x,distancePlaces) for x in distance_dict['max'][0]]
+                distanceMax_json = json.dumps(zip(time_ms, distanceMaxRound))
+                distanceAvg_json = json.dumps(zip(time_ms, distanceAvgRound))
+        except:
+                distanceMax_json = None
+                distanceAvg_json = None
+                
+        # Get strikes json
+        try:
+                (strikes_time_vt, distance_dict) = getDaySummaryVectors(db_lookup(), 'avg_distance', timespan,['max', 'avg'])
+                strikesPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(strikes_dict['max'][1], "1f")[-2])
+                strikesMaxRound = [roundNone(x,strikesPlaces) for x in strikes_dict['max'][0]]
+                strikesMax_json = json.dumps(zip(time_ms, strikesMaxRound))
+                strikesAvg_json = json.dumps(zip(time_ms, strikesAvgRound))
+        except:
+                strikesMax_json = None
+                strikesAvg_json = None
+                                
         # Put into a dictionary to return
         self.search_list_extension = {'outTempMinMax_json' : outTempMinMax_json,
                                  'outTempAvg_json' : outTempAvg_json,
@@ -1063,8 +1094,6 @@ class w34highchartsYear(SearchList):
                                  'appTempMin_json' : appTempMin_json,
                                  'appTempMax_json' : appTempMax_json,
                                  'appTempAvg_json' : appTempAvg_json,
-                                 'strikeCount_json' : strikeCount_json,
-                                 'avgDistance_json' : avgDistance_json,
                                  'dewpointMinMax_json' : dewpointMinMax_json,
                                  'dewpointAvg_json' : dewpointAvg_json,
                                  'windchillMinMax_json' : windchillMinMax_json,
@@ -1093,6 +1122,12 @@ class w34highchartsYear(SearchList):
                                  'radiationAvg_json' : radiationAvg_json,
                                  'uvMax_json' : uvMax_json,
                                  'uvAvg_json' : uvAvg_json,
+                                 'strikesMax_json' : strikesMax_json,
+                                 'strikesAvg_json' : strikesAvg_json,
+                                 'distanceMax_json' : distanceMax_json ,
+                                 'distanceAvg_json' : distanceAvg_json,
+                                 'energyMax_json' : energyMax_json,
+                                 'energyAvg_json' : energyAvg_json,
                                  'utcOffset': utc_offset,
                                  'yearPlotStart' : _timespan.start * 1000,
                                  'yearPlotEnd' : _timespan.stop * 1000}
