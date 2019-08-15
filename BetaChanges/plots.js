@@ -1036,7 +1036,7 @@ function create_luminosity_chart(options, span, seriesData, units){
     options.series[5].data = reinflate_time(seriesData[0].uvplot.infraredAvg);
     options.yAxis[0].title.text = "Lux";
     options.yAxis[0].min = 0;
-    options.yAxis[0].tickInterval = 1;
+    options.yAxis[0].tickInterval = 20;
     options.yAxis[0].allowDecimals = true;
     options.xAxis.minTickInterval =0;
     return options;
