@@ -1126,14 +1126,11 @@ class w34highchartsYear(SearchList):
                 
         # Create strikes json
         try:
-                (strikes_time_vt, strikes_dict) = getDaySummaryVectors(db_lookup(), 'lightning_strikes', timespan,['max', 'sum'])
-                strikesPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(strikes_dict['max'][1], "1f")[-2])
-                strikesMaxRound = [roundNone(x,strikesPlaces) for x in strikes_dict['max'][0]]
+                (strikes_time_vt, strikes_dict) = getDaySummaryVectors(db_lookup(), 'lightning_strikes', timespan,['sum'])
+                strikesPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(strikes_dict['sum'][1], "1f")[-2])
                 strikesSumRound = [roundNone(x,strikesPlaces) for x in strikes_dict['sum'][0]]
-                strikesMax_json = json.dumps(zip(time_ms, strikesMaxRound))
                 strikesSum_json = json.dumps(zip(time_ms, strikesSumRound))
         except:
-                strikesMax_json = None
                 strikesSum_json = None
 
         # Create full_spectrum json
@@ -1217,7 +1214,6 @@ class w34highchartsYear(SearchList):
                                  'uvaWmAvg_json' : uvaWmAvg_json,
                                  'uvbWmMax_json' : uvbWmMax_json,
                                  'uvbWmAvg_json' : uvbWmAvg_json,
-                                 'strikesMax_json' : strikesMax_json,
                                  'strikesSum_json' : strikesSum_json,
                                  'distanceMax_json' : distanceMax_json ,
                                  'distanceAvg_json' : distanceAvg_json,
