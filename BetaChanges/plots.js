@@ -666,8 +666,13 @@ function create_tempderived_chart(options, span, seriesData, units){
         }
         if ("appTemp" in seriesData[0].temperatureplot){
             options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.appTemp));
-            if (compare_dates)
+            options.series[2].visible = true;
+            options.series[2].showInLegend = true;
+            if (compare_dates){
                 options.series[6].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.appTemp, options.series[0].data[0][0]));
+                options.series[6].visible = true;
+                options.series[6].showInLegend = true;
+            }
         }
     }
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
