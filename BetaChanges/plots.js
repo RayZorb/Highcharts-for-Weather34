@@ -1077,10 +1077,22 @@ function create_radiation_chart(options, span, seriesData, units){
     else if (span[0] == "weekly"){
         if (compare_dates)
             options = create_chart_options(options, 'spline', 'Solar Radiation','W/m\u00B2', [['Solar Radiation', 'spline'], ["Insolation", 'area',,false,false],['Solar Radiation', 'spline',,,,,1], ["Insolation", 'area',,false,false,,1]]);
-        else
-            options = create_chart_options(options, 'spline', 'Solar Radiation','W/m\u00B2', [['Solar Radiation', 'spline'], ["Insolation", 'area',,false,false]]);
-        options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiation);
+        else{
+            options = create_chart_options(options, 'spline', 'Solar Radiation','W/m\u00B2', [['Solar Radiation', 'spline'], ["Insolation", 'spline',,false,false],["UVAWm", 'spline',,false,false],["UVBWm", 'spline',,false,false]]);
+            options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiation);
+            if ("uvaWmWeek" in seriesData[0].radiationplot){
+                options.series[2].data = reinflate_time(seriesData[0].radiationplot.uvaWmWeek);
+                options.series[2].visible = true;
+                options.series[2].showInLegend = true;
+            }
+            if ("uvbWmWeek" in seriesData[0].radiationplot){
+                options.series[3].data = reinflate_time(seriesData[0].radiationplot.uvbWmWeek);
+                options.series[3].visible = true;
+                options.series[3].showInLegend = true;
+            }
+        }
         if (compare_dates){
+            options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiation);
             create_compare_days_ts(options.series[0].data, seriesData[1].radiationplot.radiation);
             options.series[2].data = reinflate_time(seriesData[1].radiationplot.radiation, options.series[0].data[0][0]);
         }
@@ -1173,10 +1185,22 @@ function create_uv_chart(options, span, seriesData, units){
     else if (span[0] == "weekly"){
         if (compare_dates)
             options = create_chart_options(options, 'spline', 'UV Index', null, [['UV Index', 'spline'], ['UV Index', 'spline',,,,,1]]);
-        else
-            options = create_chart_options(options, 'spline', 'UV Index', null, [['UV Index', 'spline']]);
-        options.series[0].data = reinflate_time(seriesData[0].uvplot.uv);
+        else{
+            options = create_chart_options(options, 'spline', 'UV Index', null, [['UV Index', 'spline'],['UVA Index', 'spline',,false,false],['UVB Index', 'spline',,false,false]]);
+            options.series[0].data = reinflate_time(seriesData[0].uvplot.uv);
+            if ("uvaWeek" in seriesData[0].uvplot){
+                options.series[1].data = reinflate_time(seriesData[0].uvplot.uvaWeek);
+                options.series[1].visible = true;
+                options.series[1].showInLegend = true;
+            }
+            if ("uvbWeek" in seriesData[0].uvplot){
+                options.series[2].data = reinflate_time(seriesData[0].uvplot.uvbWeek);
+                options.series[2].visible = true;
+                options.series[2].showInLegend = true;
+            }
+        }
         if (compare_dates){
+            options.series[0].data = reinflate_time(seriesData[0].uvplot.uv);
             create_compare_days_ts(options.series[0].data, seriesData[1].uvplot.uv);
             options.series[1].data = reinflate_time(seriesData[1].uvplot.uv, options.series[0].data[0][0]);
         }

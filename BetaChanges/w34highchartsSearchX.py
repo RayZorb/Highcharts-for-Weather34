@@ -585,10 +585,54 @@ class w34highcharts_solar_week(SearchList):
             insolation_json = None
         uv_json = json.dumps(zip(UV_time_ms, uvRound_vt))
 
+        # Create uva json
+        try:
+                (time_start_vt, time_stop_vt, uva_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'uva')
+                uvaRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uva_vt[1], "1f")[-2])
+                uvaRound_vt =  [roundNone(x,uvaRound) for x in uva_vt[0]]
+                uva_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                uva_json = json.dumps(zip(uva_time_ms, uvaRound_vt))
+        except:
+                uva_json = None
+                
+        # Create uvb json
+        try:
+                (time_start_vt, time_stop_vt, uvb_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'uvb')
+                uvbRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uvb_vt[1], "1f")[-2])
+                uvbRound_vt =  [roundNone(x,uvbRound) for x in uvb_vt[0]]
+                uvb_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                uvb_json = json.dumps(zip(uvb_time_ms, uvbRound_vt))
+        except:
+                uvb_json = None
+                
+        # Create uvaWm json
+        try:
+                (time_start_vt, time_stop_vt, uvaWm_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'uvaWm')
+                uvaWmRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uvaWm_vt[1], "1f")[-2])
+                uvaWmRound_vt =  [roundNone(x,uvaWmRound) for x in uvaWm_vt[0]]
+                uvaWm_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                uvaWm_json = json.dumps(zip(uvaWm_time_ms, uvaWmRound_vt))
+        except:
+                uvaWm_json = None
+                
+        # Create uvbWm json
+        try:
+                (time_start_vt, time_stop_vt, uvbWm_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'uvbWm')
+                uvbWmRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uvbWm_vt[1], "1f")[-2])
+                uvbWmRound_vt =  [roundNone(x,uvbWmRound) for x in uvbWm_vt[0]]
+                uvbWm_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                uvbWm_json = json.dumps(zip(uvbWm_time_ms, uvbWmRound_vt))
+        except:
+                uvbWm_json = None
+                
         # Put into a dictionary to return
         self.search_list_extension = {
                                  'radiationWeekjson' : radiation_json,
                                  'insolationWeekjson' : insolation_json,
+                                 'uvaWeek_json' : uva_json,
+                                 'uvbWeek_json' : uvb_json,
+                                 'uvaWmWeek_json' : uvaWm_json,
+                                 'uvbWmWeek_json' : uvbWm_json,
                                  'uvWeekjson' : uv_json,
                                  'utcOffset': utc_offset,
                                  'weekPlotStart' : _start_ts * 1000,
