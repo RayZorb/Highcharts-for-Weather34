@@ -48,6 +48,15 @@
 #if $uvbWeek_json is not None
 "uvbWeek": $uvbWeek_json, 
 #end if
+#if $full_spectrumWeek_json is not None
+"full_spectrumWeek": $full_spectrumWeek_json, 
+#end if
+#if $visibleWeek_json is not None
+"visibleWeek": $visibleWeek_json, 
+#end if
+#if $infraredWeek_json is not None
+"infraredWeek": $infraredWeek_json, 
+#end if
 "units": "$unit.label.UV"#slurp
 }
 }]

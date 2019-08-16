@@ -625,6 +625,36 @@ class w34highcharts_solar_week(SearchList):
         except:
                 uvbWm_json = None
                 
+        # Create full spectrum json
+        try:
+                (time_start_vt, time_stop_vt, spectrum_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'full_spectrum')
+                spectrumRound = int(self.generator.skin_dict['Units']['StringFormats'].get(spectrum_vt[1], "1f")[-2])
+                spectrumRound_vt =  [roundNone(x,spectrumRound) for x in spectrum_vt[0]]
+                spectrum_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                spectrum_json = json.dumps(zip(spectrum_time_ms, spectrumRound_vt))
+        except:
+                spectrum_json = None    
+ 
+         # Create visible json
+        try:
+                (time_start_vt, time_stop_vt, visible_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'visible')
+                visibleRound = int(self.generator.skin_dict['Units']['StringFormats'].get(visible_vt[1], "1f")[-2])
+                visibleRound_vt =  [roundNone(x,visibleRound) for x in visible_vt[0]]
+                visible_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                visible_json = json.dumps(zip(visible_time_ms, visibleRound_vt))
+        except:
+                visible_json = None  
+                  
+        # Create infrared json
+        try:
+                (time_start_vt, time_stop_vt, infrared_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'infrared')
+                infraredRound = int(self.generator.skin_dict['Units']['StringFormats'].get(infrared_vt[1], "1f")[-2])
+                infraredRound_vt =  [roundNone(x,infraredRound) for x in infrared_vt[0]]
+                infrared_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                infrared_json = json.dumps(zip(infrared_time_ms, infraredRound_vt))
+        except:
+                infrared_json = None    
+                                                       
         # Put into a dictionary to return
         self.search_list_extension = {
                                  'radiationWeekjson' : radiation_json,
@@ -634,6 +664,9 @@ class w34highcharts_solar_week(SearchList):
                                  'uvaWmWeek_json' : uvaWm_json,
                                  'uvbWmWeek_json' : uvbWm_json,
                                  'uvWeekjson' : uv_json,
+                                 'full_spectrumWeek_json' : spectrum_json,
+                                 'visibleWeek_json' : visible_json,
+                                 'infraredWeek_json' : infrared_json,
                                  'utcOffset': utc_offset,
                                  'weekPlotStart' : _start_ts * 1000,
                                  'weekPlotEnd' : timespan.stop * 1000}
