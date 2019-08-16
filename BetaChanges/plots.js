@@ -1149,25 +1149,15 @@ function create_raduv_chart(options, span, seriesData, units){
     }
     else if (span[0] == "weekly"){
         if (compare_dates)
-            options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ["Insolation", 'area',,false,false], ['Solar Radiation', 'spline',,,,,1], ['UV Index', 'spline',1,,,,1], ["Insolation", 'area',,false,false,,1]]);
+            options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ['Solar Radiation', 'spline',,,,,1], ['UV Index', 'spline',1,,,,1]]);
         else
-            options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ["Insolation", 'area',,false,false]]);
+            options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiation);
         options.series[1].data = reinflate_time(seriesData[0].uvplot.uv);
         if (compare_dates){
             create_compare_days_ts(options.series[0].data, seriesData[1].radiationplot.radiation);
-            options.series[3].data = reinflate_time(seriesData[1].radiationplot.radiation, options.series[0].data[0][0]);
-            options.series[4].data = reinflate_time(seriesData[1].uvplot.uv, options.series[0].data[0][0]);
-        }
-        if ("insolation" in seriesData[0].radiationplot) {
-            options.series[2].data = reinflate_time(seriesData[0].radiationplot.insolation);
-            options.series[2].visible = true;
-            options.series[2].showInLegend = true;
-            if (compare_dates){
-                options.series[5].data = reinflate_time(seriesData[1].radiationplot.insolation, options.series[0].data[0][0]);
-                options.series[5].visible = true;
-                options.series[5].showInLegend = true;
-            }
+            options.series[2].data = reinflate_time(seriesData[1].radiationplot.radiation, options.series[0].data[0][0]);
+            options.series[3].data = reinflate_time(seriesData[1].uvplot.uv, options.series[0].data[0][0]);
         }
     }
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
