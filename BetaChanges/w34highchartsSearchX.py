@@ -635,15 +635,15 @@ class w34highcharts_solar_week(SearchList):
         except:
                 spectrum_json = None    
  
-         # Create visible json
+         # Create lux json
         try:
-                (time_start_vt, time_stop_vt, visible_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'visible')
-                visibleRound = int(self.generator.skin_dict['Units']['StringFormats'].get(visible_vt[1], "1f")[-2])
-                visibleRound_vt =  [roundNone(x,visibleRound) for x in visible_vt[0]]
-                visible_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-                visible_json = json.dumps(zip(visible_time_ms, visibleRound_vt))
+                (time_start_vt, time_stop_vt, lux_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'lux')
+                luxRound = int(self.generator.skin_dict['Units']['StringFormats'].get(lux_vt[1], "1f")[-2])
+                luxRound_vt =  [roundNone(x,luxRound) for x in lux_vt[0]]
+                lux_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                lux_json = json.dumps(zip(lux_time_ms, luxRound_vt))
         except:
-                visible_json = None  
+                lux_json = None  
                   
         # Create infrared json
         try:
@@ -665,7 +665,7 @@ class w34highcharts_solar_week(SearchList):
                                  'uvbWmWeek_json' : uvbWm_json,
                                  'uvWeekjson' : uv_json,
                                  'full_spectrumWeek_json' : spectrum_json,
-                                 'visibleWeek_json' : visible_json,
+                                 'luxWeek_json' : lux_json,
                                  'infraredWeek_json' : infrared_json,
                                  'utcOffset': utc_offset,
                                  'weekPlotStart' : _start_ts * 1000,
@@ -1222,17 +1222,17 @@ class w34highchartsYear(SearchList):
                 full_spectrumMax_json = None
                 full_spectrumAvg_json = None
                 
-        # Create visible json
+        # Create lux json
         try:
-                (visible_time_vt, visible_dict) = getDaySummaryVectors(db_lookup(), 'visible', timespan,['max', 'avg'])
-                visiblePlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(visible_dict['max'][1], "1f")[-2])
-                visibleMaxRound = [roundNone(x,visiblePlaces) for x in visible_dict['max'][0]]
-                visibleAvgRound = [roundNone(x,visiblePlaces) for x in visible_dict['avg'][0]]
-                visibleMax_json = json.dumps(zip(time_ms, visibleMaxRound))
-                visibleAvg_json = json.dumps(zip(time_ms, visibleAvgRound))
+                (lux_time_vt, lux_dict) = getDaySummaryVectors(db_lookup(), 'lux', timespan,['max', 'avg'])
+                luxPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(lux_dict['max'][1], "1f")[-2])
+                luxMaxRound = [roundNone(x,luxPlaces) for x in lux_dict['max'][0]]
+                luxAvgRound = [roundNone(x,luxPlaces) for x in lux_dict['avg'][0]]
+                luxMax_json = json.dumps(zip(time_ms, luxMaxRound))
+                luxAvg_json = json.dumps(zip(time_ms, luxAvgRound))
         except:
-                visibleMax_json = None
-                visibleAvg_json = None
+                luxMax_json = None
+                luxAvg_json = None
 
         # Create infrared json
         try:
@@ -1298,8 +1298,8 @@ class w34highchartsYear(SearchList):
                                  'energyAvg_json' : energyAvg_json,
                                  'full_spectrumMax_json' : full_spectrumMax_json,
                                  'full_spectrumAvg_json' : full_spectrumAvg_json,
-                                 'visibleMax_json' : visibleMax_json,
-                                 'visibleAvg_json' : visibleAvg_json,
+                                 'luxMax_json' : luxMax_json,
+                                 'luxAvg_json' : luxAvg_json,
                                  'infraredMax_json' : infraredMax_json,
                                  'infraredAvg_json' : infraredAvg_json,
                                  'utcOffset': utc_offset,

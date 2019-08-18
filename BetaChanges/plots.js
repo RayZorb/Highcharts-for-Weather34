@@ -1029,25 +1029,25 @@ function create_lightning_chart(options, span, seriesData, units){
 
 function create_luminosity_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'column', 'Luminosity Spectrum/Visible/Infrared Max & Avg', null, [['Spectrum Max', 'column'], ['Spectrum Avg', 'column'], ['Visible Max', 'column'], ['Visible Avg', 'column'], ['Infrared Max', 'column'], ['Infrared Avg', 'column']]);
+        options = create_chart_options(options, 'column', 'Luminosity Spectrum/Lux/Infrared Max & Avg', null, [['Spectrum Max', 'column'], ['Spectrum Avg', 'column'], ['Lux Max', 'column'], ['Lux Avg', 'column'], ['Infrared Max', 'column'], ['Infrared Avg', 'column']]);
         options.series[0].data = reinflate_time(seriesData[0].uvplot.full_spectrumMax);
         options.series[1].data = reinflate_time(seriesData[0].uvplot.full_spectrumAvg);
-        options.series[2].data = reinflate_time(seriesData[0].uvplot.visibleMax);
-        options.series[3].data = reinflate_time(seriesData[0].uvplot.visibleAvg);
+        options.series[2].data = reinflate_time(seriesData[0].uvplot.luxMax);
+        options.series[3].data = reinflate_time(seriesData[0].uvplot.luxAvg);
         options.series[4].data = reinflate_time(seriesData[0].uvplot.infraredMax);
         options.series[5].data = reinflate_time(seriesData[0].uvplot.infraredAvg);
     }else if (span[0] == "weekly"){
         if (compare_dates)
-            options = create_chart_options(options, 'spline', 'Luminosity Spectrum/Visible/Infrared', null, [['Spectrum', 'spline'], ['Visible', 'spline'], ['Infrared', 'spline'],['Spectrum', 'spline',,,,,1], ['Visible', 'spline',,,,,1], ['Infrared', 'spline',,,,,1]]);
+            options = create_chart_options(options, 'spline', 'Luminosity Spectrum/Lux/Infrared', null, [['Spectrum', 'spline'], ['Lux', 'spline'], ['Infrared', 'spline'],['Spectrum', 'spline',,,,,1], ['Lux', 'spline',,,,,1], ['Infrared', 'spline',,,,,1]]);
         else
-            options = create_chart_options(options, 'spline', 'Luminosity Spectrum/Visible/Infrared', null, [['Spectrum', 'spline'], ['Visible', 'spline'], ['Infrared', 'spline']]);
+            options = create_chart_options(options, 'spline', 'Luminosity Spectrum/Lux/Infrared', null, [['Spectrum', 'spline'], ['Lux', 'spline'], ['Infrared', 'spline']]);
         options.series[0].data = reinflate_time(seriesData[0].uvplot.full_spectrumWeek);
-        options.series[1].data = reinflate_time(seriesData[0].uvplot.visibleWeek);
+        options.series[1].data = reinflate_time(seriesData[0].uvplot.luxWeek);
         options.series[2].data = reinflate_time(seriesData[0].uvplot.infraredWeek);
         if (compare_dates){
             create_compare_days_ts(options.series[0].data, seriesData[1].uvplot.full_spectrumWeek);
             options.series[3].data = reinflate_time(seriesData[1].uvplot.full_spectrumWeek, options.series[0].data[0][0]);
-            options.series[4].data = reinflate_time(seriesData[1].uvplot.visibleWeek, options.series[0].data[0][0]);
+            options.series[4].data = reinflate_time(seriesData[1].uvplot.luxWeek, options.series[0].data[0][0]);
             options.series[5].data = reinflate_time(seriesData[1].uvplot.infraredWeek, options.series[0].data[0][0]);
         }
     }
