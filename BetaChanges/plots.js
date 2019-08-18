@@ -1051,9 +1051,7 @@ function create_luminosity_chart(options, span, seriesData, units){
             options.series[5].data = reinflate_time(seriesData[1].uvplot.infraredWeek, options.series[0].data[0][0]);
         }
     }
-    options.yAxis[0].title.text = "Lux";
     options.yAxis[0].min = 0;
-    options.yAxis[0].tickInterval = 20;
     options.yAxis[0].allowDecimals = true;
     options.xAxis[0].minTickInterval =0;
     return options;
