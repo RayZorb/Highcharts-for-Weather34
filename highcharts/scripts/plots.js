@@ -19,6 +19,7 @@ var createweeklyfunctions = {
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
     rainplot: [addWeekOptions, create_rain_chart],
     rainmonthplot: [create_rain_month_chart],
+    luminosityplot: [addWeekOptions, create_luminosity_chart],
     radiationplot: [addWeekOptions, create_radiation_chart],
     raduvplot: [addWeekOptions, create_raduv_chart],
     uvplot: [addWeekOptions, create_uv_chart]
@@ -42,6 +43,8 @@ var createyearlyfunctions = {
     rainplot: [addYearOptions, create_rain_chart],
     rainmonthplot: [create_rain_month_chart],
     rainsmallplot: [addYearOptions, setRainSmall, create_rain_chart],
+    lightningplot: [addYearOptions, create_lightning_chart],
+    luminosityplot: [addYearOptions, create_luminosity_chart],
     radiationplot: [addYearOptions, create_radiation_chart],
     raduvplot: [addYearOptions, create_raduv_chart],
     radsmallplot: [addYearOptions, setRadSmall, create_radiation_chart],
@@ -78,6 +81,8 @@ var jsonfileforplot = {
     rainplot: [['bar_rain_week.json'],['year.json'],[null]],
     rainmonthplot: [['year.json'],['year.json'],[null]],
     rainsmallplot: [['bar_rain_week.json'],['year.json'],[null]],
+    lightningplot: [['year.json'],['year.json'],[null]],
+    luminosityplot: [['solar_week.json'],['year.json'],['solar_week1.json']],
     radiationplot: [['solar_week.json'],['year.json'],['solar_week1.json']],
     raduvplot: [['solar_week.json'],['year.json'],['solar_week1.json']],
     radsmallplot: [['solar_week.json'],['year.json'],[null]],
@@ -85,7 +90,7 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json'],[null]]
 };
 
-var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot'];
+var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
@@ -311,8 +316,26 @@ function create_common_options(){
             tickPosition: 'outside',
             tickWidth: 1,
             title: {
-                text: ''
-            }
+                text: ''}
+            }, {
+            labels: {
+                x: 4,
+                y: 4,
+            },
+            lineWidth: 1,
+            minorGridLineWidth: 0,
+            minorTickLength: 2,
+            minorTickPosition: 'outside',
+            minorTickWidth: 1,
+            showLastLabel: true,
+            opposite: true,
+            startOnTick: true,
+            endOnTick: true,
+            tickLength: 4,
+            tickPosition: 'outside',
+            tickWidth: 1,
+            title: {
+                text: ''}
         }],
     };
     return commonOptions;
@@ -355,7 +378,7 @@ function addWindRoseOptions(options, span, seriesData, units, plot_type) {
         text: getTranslation(windrosespans[4]),
         events: {click: function (e) {setTimeout(display_chart, 0, units, plot_type, ["yearly"]);windrosespan=windrosespans[4];return false;}}
     }, {
-        text: getTranslation("Real"),
+        text: getTranslation("RT"),
         events: {click: function (e) {add_realtime_button(units, plot_type)}}
     }];
     options.rangeSelector.selected = 0;
@@ -391,7 +414,7 @@ function addWeekOptions(obj, span, seriesData, units, plot_type) {
         text: compare_dates ? '72h' : '7d'
     }]
     if (realtimeplot.hasOwnProperty(plot_type)){obj.rangeSelector.buttons.push({
-        text: getTranslation("Real"),
+        text: getTranslation("RT"),
         events: {click: function (e) {add_realtime_button(units, plot_type)}}})
     }
     obj.rangeSelector.selected = day_plots || compare_dates ? 5 : 3;
@@ -643,8 +666,13 @@ function create_tempderived_chart(options, span, seriesData, units){
         }
         if ("appTemp" in seriesData[0].temperatureplot){
             options.series[2].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.appTemp));
-            if (compare_dates)
+            options.series[2].visible = true;
+            options.series[2].showInLegend = true;
+            if (compare_dates){
                 options.series[6].data = convert_temp(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.appTemp, options.series[0].data[0][0]));
+                options.series[6].visible = true;
+                options.series[6].showInLegend = true;
+            }
         }
     }
     options.yAxis[0].title.text = "(\xB0" + units.temp + ")";
@@ -967,19 +995,65 @@ function create_rain_month_chart(options, span, seriesData, units){
     }
     options = create_chart_options(options, 'column', 'Monthly Rainfall', units.rain,[['Rainfall', 'column']], month_name);
     options.series[0].data = convert_rain(seriesData[0].rainplot.units, units.rain, month_data);
-    options.plotOptions.column.dataGrouping.groupPixelWidth = 50;
-    options.plotOptions.column.dataGrouping.enabled = true;
-    options.plotOptions.column.marker = {enabled: false,};
-    options.plotOptions.series.pointPadding = 0;
-    options.plotOptions.series.groupPadding = 0;
-    options.plotOptions.series.borderWidth = 0;
+    options.plotOptions.column.pointWidth = 50;
     options.yAxis[0].title.text = "(" + units.rain + ")";
     options.yAxis[0].min = 0;
     options.yAxis[0].tickInterval = 1;
     options.yAxis[0].allowDecimals = true;
-    options.xAxis.minTickInterval =0;
-    options.xAxis.type ='category';
-    options.xAxis.labels = {formatter: function (){return month_name[this.value]}};
+    options.xAxis[0].minTickInterval =0;
+    options.xAxis[0].type ='category';
+    options.xAxis[0].labels = {formatter: function (){return month_name[this.value]}};
+    return options;
+};
+
+function create_lightning_chart(options, span, seriesData, units){
+    options = create_chart_options(options, 'column', 'Lightning Distance/Strikes/Energy Max & Avg/Sum', null, [['Distance Max', 'column'], ['Distance Avg', 'column'], ['Strikes Sum', 'column',1], ['Energy Max', 'column',2], ['Energy Avg', 'column',2]]);
+    options.series[0].data = reinflate_time(seriesData[0].lightningplot.distanceMax);
+    options.series[1].data = reinflate_time(seriesData[0].lightningplot.distanceAvg);
+    options.series[2].data = reinflate_time(seriesData[0].lightningplot.strikesSum);
+    options.series[3].data = reinflate_time(seriesData[0].lightningplot.energyMax);
+    options.series[4].data = reinflate_time(seriesData[0].lightningplot.energyAvg);
+    options.yAxis[0].title.text = "Average Distance";
+    options.yAxis[0].min = 0;
+    options.yAxis[0].tickInterval = 1;
+    options.yAxis[0].allowDecimals = true;
+    options.yAxis[1].title.text = "Number of Strikes";
+    options.yAxis[1].tickInterval = 1;
+    options.yAxis[1].min = 0;
+    options.yAxis[2].title.text = "Energy";
+    options.yAxis[2].tickInterval = 1;
+    options.yAxis[2].min = 0;
+    options.xAxis[0].minTickInterval =0;
+    return options;
+};
+
+function create_luminosity_chart(options, span, seriesData, units){
+    if (span[0] == "yearly"){
+        options = create_chart_options(options, 'column', 'Luminosity Spectrum/Lux/Infrared Max & Avg', null, [['Spectrum Max', 'column'], ['Spectrum Avg', 'column'], ['Lux Max', 'column'], ['Lux Avg', 'column'], ['Infrared Max', 'column'], ['Infrared Avg', 'column']]);
+        options.series[0].data = reinflate_time(seriesData[0].uvplot.full_spectrumMax);
+        options.series[1].data = reinflate_time(seriesData[0].uvplot.full_spectrumAvg);
+        options.series[2].data = reinflate_time(seriesData[0].uvplot.luxMax);
+        options.series[3].data = reinflate_time(seriesData[0].uvplot.luxAvg);
+        options.series[4].data = reinflate_time(seriesData[0].uvplot.infraredMax);
+        options.series[5].data = reinflate_time(seriesData[0].uvplot.infraredAvg);
+    }else if (span[0] == "weekly"){
+        if (compare_dates)
+            options = create_chart_options(options, 'spline', 'Luminosity Spectrum/Lux/Infrared', null, [['Spectrum', 'spline'], ['Lux', 'spline'], ['Infrared', 'spline'],['Spectrum', 'spline',,,,,1], ['Lux', 'spline',,,,,1], ['Infrared', 'spline',,,,,1]]);
+        else
+            options = create_chart_options(options, 'spline', 'Luminosity Spectrum/Lux/Infrared', null, [['Spectrum', 'spline'], ['Lux', 'spline'], ['Infrared', 'spline']]);
+        options.series[0].data = reinflate_time(seriesData[0].uvplot.full_spectrumWeek);
+        options.series[1].data = reinflate_time(seriesData[0].uvplot.luxWeek);
+        options.series[2].data = reinflate_time(seriesData[0].uvplot.infraredWeek);
+        if (compare_dates){
+            create_compare_days_ts(options.series[0].data, seriesData[1].uvplot.full_spectrumWeek);
+            options.series[3].data = reinflate_time(seriesData[1].uvplot.full_spectrumWeek, options.series[0].data[0][0]);
+            options.series[4].data = reinflate_time(seriesData[1].uvplot.luxWeek, options.series[0].data[0][0]);
+            options.series[5].data = reinflate_time(seriesData[1].uvplot.infraredWeek, options.series[0].data[0][0]);
+        }
+    }
+    options.yAxis[0].min = 0;
+    options.yAxis[0].allowDecimals = true;
+    options.xAxis[0].minTickInterval =0;
     return options;
 };
 
@@ -991,28 +1065,69 @@ function setRadSmall(options) {
 
 function create_radiation_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'column', 'Max Solar Radiation','W/m\u00B2', [['Max Solar Radiation', 'column'], ["Average Solar Radiation", 'spline']]);
+        options = create_chart_options(options, 'column', 'Solar Radiation Maximum & Average','W/m\u00B2', [['Max Solar Radiation', 'column'], ["Avg Solar Radiation", 'column'], ['Max UVAWm', 'column',,false,false], ["Avg UVAWm", 'column',,false,false], ['Max UVBWm', 'column',,false,false], ["Avg UVBWm", 'column',,false,false]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiationmax);
         options.series[1].data = reinflate_time(seriesData[0].radiationplot.radiationaverage);
+        if ("uvaWmMax" in seriesData[0].radiationplot){
+            options.series[2].data = reinflate_time(seriesData[0].radiationplot.uvaWmMax);
+            options.series[2].visible = true;
+            options.series[2].showInLegend = true;
+        }
+        if ("uvaWmAvg" in seriesData[0].radiationplot){
+            options.series[3].data = reinflate_time(seriesData[0].radiationplot.uvaWmAvg);
+            options.series[3].visible = true;
+            options.series[3].showInLegend = true;
+        }
+        if ("uvbWmMax" in seriesData[0].radiationplot){
+            options.series[4].data = reinflate_time(seriesData[0].radiationplot.uvbWmMax);
+            options.series[4].visible = true;
+            options.series[4].showInLegend = true;
+        }
+        if ("uvbWmAvg" in seriesData[0].radiationplot){
+            options.series[5].data = reinflate_time(seriesData[0].radiationplot.uvbWmAvg);
+            options.series[5].visible = true;
+            options.series[5].showInLegend = true;
+        }
     }
     else if (span[0] == "weekly"){
         if (compare_dates)
-            options = create_chart_options(options, 'spline', 'Solar Radiation','W/m\u00B2', [['Solar Radiation', 'spline'], ["Insolation", 'area',,false,false],['Solar Radiation', 'spline',,,,,1], ["Insolation", 'area',,false,false,,1]]);
+            options = create_chart_options(options, 'spline', 'Solar Radiation','W/m\u00B2', [['Solar Radiation', 'spline'], ["Insolation", 'spline',,false,false],["UVAWm", 'spline',,false,false],["UVBWm", 'spline',,false,false],['Solar Radiation', 'spline',,,,,1], ["Insolation", 'spline',,false,false,,1],["UVAWm", 'spline',,false,false,,1],["UVBWm", 'spline',,false,false,,1]]);
         else
-            options = create_chart_options(options, 'spline', 'Solar Radiation','W/m\u00B2', [['Solar Radiation', 'spline'], ["Insolation", 'area',,false,false]]);
+            options = create_chart_options(options, 'spline', 'Solar Radiation','W/m\u00B2', [['Solar Radiation', 'spline'], ["Insolation", 'spline',,false,false],["UVAWm", 'spline',,false,false],["UVBWm", 'spline',,false,false]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiation);
-        if (compare_dates){
-            create_compare_days_ts(options.series[0].data, seriesData[1].radiationplot.radiation);
-            options.series[2].data = reinflate_time(seriesData[1].radiationplot.radiation, options.series[0].data[0][0]);
-        }
         if ("insolation" in seriesData[0].radiationplot) {
             options.series[1].data = reinflate_time(seriesData[0].radiationplot.insolation);
             options.series[1].visible = true;
             options.series[1].showInLegend = true;
-            if (compare_dates){
-                options.series[3].data = reinflate_time(seriesData[1].radiationplot.insolation, options.series[0].data[0][0]);
-                options.series[3].visible = true;
-                options.series[3].showInLegend = true;
+        }
+        if ("uvaWmWeek" in seriesData[0].radiationplot){
+            options.series[2].data = reinflate_time(seriesData[0].radiationplot.uvaWmWeek);
+            options.series[2].visible = true;
+            options.series[2].showInLegend = true;
+        }
+        if ("uvbWmWeek" in seriesData[0].radiationplot){
+            options.series[3].data = reinflate_time(seriesData[0].radiationplot.uvbWmWeek);
+            options.series[3].visible = true;
+            options.series[3].showInLegend = true;
+        }
+        if (compare_dates){
+            options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiation);
+            create_compare_days_ts(options.series[0].data, seriesData[1].radiationplot.radiation);
+            options.series[4].data = reinflate_time(seriesData[1].radiationplot.radiation, options.series[0].data[0][0]);
+            if ("insolation" in seriesData[1].radiationplot) {
+                options.series[5].data = reinflate_time(seriesData[1].radiationplot.insolation, options.series[0].data[0][0]);
+                options.series[5].visible = true;
+                options.series[5].showInLegend = true;
+            }
+            if ("uvaWmWeek" in seriesData[1].radiationplot){
+                options.series[6].data = reinflate_time(seriesData[1].radiationplot.uvaWmWeek, options.series[0].data[0][0]);
+                options.series[6].visible = true;
+                options.series[6].showInLegend = true;
+            }
+            if ("uvbWmWeek" in seriesData[1].radiationplot){
+                options.series[7].data = reinflate_time(seriesData[1].radiationplot.uvbWmWeek, options.series[0].data[0][0]);
+                options.series[7].visible = true;
+                options.series[7].showInLegend = true;
             }
         }
     }
@@ -1031,25 +1146,15 @@ function create_raduv_chart(options, span, seriesData, units){
     }
     else if (span[0] == "weekly"){
         if (compare_dates)
-            options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ["Insolation", 'area',,false,false], ['Solar Radiation', 'spline',,,,,1], ['UV Index', 'spline',1,,,,1], ["Insolation", 'area',,false,false,,1]]);
+            options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ['Solar Radiation', 'spline',,,,,1], ['UV Index', 'spline',1,,,,1]]);
         else
-            options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1], ["Insolation", 'area',,false,false]]);
+            options = create_chart_options(options, 'spline', 'Solar Radiation UV Index', null, [['Solar Radiation', 'spline'], ['UV Index', 'spline',1]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiation);
         options.series[1].data = reinflate_time(seriesData[0].uvplot.uv);
         if (compare_dates){
             create_compare_days_ts(options.series[0].data, seriesData[1].radiationplot.radiation);
-            options.series[3].data = reinflate_time(seriesData[1].radiationplot.radiation, options.series[0].data[0][0]);
-            options.series[4].data = reinflate_time(seriesData[1].uvplot.uv, options.series[0].data[0][0]);
-        }
-        if ("insolation" in seriesData[0].radiationplot) {
-            options.series[2].data = reinflate_time(seriesData[0].radiationplot.insolation);
-            options.series[2].visible = true;
-            options.series[2].showInLegend = true;
-            if (compare_dates){
-                options.series[5].data = reinflate_time(seriesData[1].radiationplot.insolation, options.series[0].data[0][0]);
-                options.series[5].visible = true;
-                options.series[5].showInLegend = true;
-            }
+            options.series[2].data = reinflate_time(seriesData[1].radiationplot.radiation, options.series[0].data[0][0]);
+            options.series[3].data = reinflate_time(seriesData[1].uvplot.uv, options.series[0].data[0][0]);
         }
     }
     options.yAxis[0].title.text = "(" + seriesData[0].radiationplot.units + ")";
@@ -1067,19 +1172,59 @@ function setUvSmall(options) {
 
 function create_uv_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'column', 'UV Index Maximum & Average', null, [['UV Maximum Index', 'column'], ['UV Average Index', 'spline']]);
+        options = create_chart_options(options, 'column', 'UV Index Maximum & Average', null, [['UV Max', 'column'], ['UV Avg', 'column'], ['UVA Max', 'column',, false, false], ['UVA Avg', 'column',, false, false], ['UVB Max', 'column',, false, false], ['UVB Avg', 'column',, false, false]]);
         options.series[0].data = reinflate_time(seriesData[0].uvplot.uvmax);
         options.series[1].data = reinflate_time(seriesData[0].uvplot.uvaverage);
+        if ("uvaMax" in seriesData[0].uvplot){
+            options.series[2].data = reinflate_time(seriesData[0].uvplot.uvaMax);
+            options.series[2].visible = true;
+            options.series[2].showInLegend = true;
+        }
+        if ("uvaAvg" in seriesData[0].uvplot){
+            options.series[3].data = reinflate_time(seriesData[0].uvplot.uvaAvg);
+            options.series[3].visible = true;
+            options.series[3].showInLegend = true;
+        }
+        if ("uvbMax" in seriesData[0].uvplot){
+            options.series[4].data = reinflate_time(seriesData[0].uvplot.uvbMax);
+            options.series[4].visible = true;
+            options.series[4].showInLegend = true;
+        }
+        if ("uvbAvg" in seriesData[0].uvplot){
+            options.series[5].data = reinflate_time(seriesData[0].uvplot.uvbAvg);
+            options.series[5].visible = true;
+            options.series[5].showInLegend = true;
+        }
     }
     else if (span[0] == "weekly"){
         if (compare_dates)
-            options = create_chart_options(options, 'spline', 'UV Index', null, [['UV Index', 'spline'], ['UV Index', 'spline',,,,,1]]);
+            options = create_chart_options(options, 'spline', 'UV Index', null, [['UV Index', 'spline'], ['UVA Index', 'spline',,false,false],['UVB Index', 'spline',,false,false], ['UV Index', 'spline',,,,,1],['UVA Index', 'spline',,false,false,,1],['UVB Index', 'spline',,false,false,,1]]);
         else
-            options = create_chart_options(options, 'spline', 'UV Index', null, [['UV Index', 'spline']]);
+            options = create_chart_options(options, 'spline', 'UV Index', null, [['UV Index', 'spline'],['UVA Index', 'spline',,false,false],['UVB Index', 'spline',,false,false]]);
         options.series[0].data = reinflate_time(seriesData[0].uvplot.uv);
+        if ("uvaWeek" in seriesData[0].uvplot){
+            options.series[1].data = reinflate_time(seriesData[0].uvplot.uvaWeek);
+            options.series[1].visible = true;
+            options.series[1].showInLegend = true;
+        }
+        if ("uvbWeek" in seriesData[0].uvplot){
+            options.series[2].data = reinflate_time(seriesData[0].uvplot.uvbWeek);
+            options.series[2].visible = true;
+            options.series[2].showInLegend = true;
+        }
         if (compare_dates){
             create_compare_days_ts(options.series[0].data, seriesData[1].uvplot.uv);
-            options.series[1].data = reinflate_time(seriesData[1].uvplot.uv, options.series[0].data[0][0]);
+            options.series[3].data = reinflate_time(seriesData[1].uvplot.uv, options.series[0].data[0][0]);
+            if ("uvaWeek" in seriesData[1].uvplot){
+                options.series[4].data = reinflate_time(seriesData[1].uvplot.uvaWeek, options.series[0].data[0][0]);
+                options.series[4].visible = true;
+                options.series[4].showInLegend = true;
+            }
+            if ("uvbWeek" in seriesData[1].uvplot){
+                options.series[5].data = reinflate_time(seriesData[1].uvplot.uvbWeek, options.series[0].data[0][0]);
+                options.series[5].visible = true;
+                options.series[5].showInLegend = true;
+            }
         }
     }
     options.yAxis[0].min = 0;
