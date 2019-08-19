@@ -73,15 +73,75 @@
 "rainplot": {
 "rainsum": $rainSum_json, 
 "units": "$unit.label.rain"#slurp
+},
+"lightningplot": {
+#if $distanceMax_json is not None
+"distanceMax": $distanceMax_json, 
+#end if
+#if $distanceAvg_json is not None
+"distanceAvg": $distanceAvg_json, 
+#end if
+#if $strikesSum_json is not None
+"strikesSum": $strikesSum_json, 
+#end if
+#if $energyMax_json is not None
+"energyMax": $energyMax_json, 
+#end if
+#if $energyAvg_json is not None
+"energyAvg": $energyAvg_json, 
+#end if
+"units": "$unit.label.rain"#slurp
 }, 
 "radiationplot": {
 "radiationmax": $radiationMax_json, 
 "radiationaverage": $radiationAvg_json, 
+#if $uvaWmMax_json is not None
+"uvaWmMax": $uvaWmMax_json, 
+#end if
+#if $uvaWmAvg_json is not None
+"uvaWmAvg": $uvaWmAvg_json, 
+#end if
+#if $uvbWmMax_json is not None
+"uvbWmMax": $uvbWmMax_json, 
+#end if
+#if $uvbWmAvg_json is not None
+"uvbWmAvg": $uvbWmAvg_json, 
+#end if
 "units": "$unit.label.radiation"#slurp
 }, 
 "uvplot": {
 "uvmax": $uvMax_json, 
-"uvaverage": $uvAvg_json, 
+"uvaverage": $uvAvg_json,
+#if $uvaMax_json is not None
+"uvaMax": $uvaMax_json, 
+#end if
+#if $uvaAvg_json is not None
+"uvaAvg": $uvaAvg_json, 
+#end if
+#if $uvbMax_json is not None
+"uvbMax": $uvbMax_json, 
+#end if
+#if $uvbAvg_json is not None
+"uvbAvg": $uvbAvg_json, 
+#end if
+#if $full_spectrumMax_json is not None
+"full_spectrumMax": $full_spectrumMax_json, 
+#end if
+#if $full_spectrumAvg_json is not None
+"full_spectrumAvg": $full_spectrumAvg_json, 
+#end if
+#if $luxMax_json is not None
+"luxMax": $luxMax_json, 
+#end if
+#if $luxAvg_json is not None
+"luxAvg": $luxAvg_json, 
+#end if
+#if $infraredMax_json is not None
+"infraredMax": $infraredMax_json, 
+#end if
+#if $infraredAvg_json is not None
+"infraredAvg": $infraredAvg_json, 
+#end if
 "units": "$unit.label.UV"#slurp
 }, 
 "windroseMonth": {#slurp
