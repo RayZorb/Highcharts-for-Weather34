@@ -10,7 +10,7 @@
 # details.
 #
 # Search List Extension classes to support generation of JSON data file for
-# use by Highcharts to plot weewx observations.
+# use by w34highcharts to plot weewx observations.
 #
 # Version: 0.2.1                                    Date: 16 May 2017
 #
@@ -22,7 +22,7 @@
 #       - Removed hard coding of weeWX-WD bindings for appTemp and Insolation
 #         data. Now attempts to otain bindings for each from weeWX-WD, if
 #         weeWX-WD is not installed bindings are sought in weewx.conf
-#         [StdReport][[Highcharts]]. If no binding can be found appTemp and
+#         [StdReport][[w34highcharts]]. If no binding can be found appTemp and
 #         insolation data is omitted.
 #   22 November 2016    v0.1.0
 #       - initial implementation
@@ -34,15 +34,17 @@ import json
 import syslog
 import time
 import weewx
+import math
+import weeutil.weeutil
 
+from weewx.units import getStandardUnitType, ValueTuple
 from datetime import date
-from user.highcharts import getDaySummaryVectors
 from weewx.cheetahgenerator import SearchList
 from weewx.units import ValueTuple, getStandardUnitType, convert, _getUnitGroup
 from weeutil.weeutil import TimeSpan, genMonthSpans, startOfInterval, option_as_list, startOfDay
 
 def logmsg(level, msg):
-    syslog.syslog(level, 'highchartsSearchX: %s' % msg)
+    syslog.syslog(level, 'w34highchartsSearchX: %s' % msg)
 
 def logdbg(msg):
     logmsg(syslog.LOG_DEBUG, msg)
@@ -91,131 +93,138 @@ def get_ago(dt, d_years=0, d_months=0):
     # Calculate and return date object
     _eom = calendar.monthrange(_y + _a, _m + 1)[1]
     return date(_y + _a, _m + 1, _d if _d <= _eom else _eom)
-
-class highchartsMinRanges(SearchList):
-    """SearchList to return y-axis minimum range values for each plot."""
-
-    def __init__(self, generator):
-        SearchList.__init__(self, generator)
-
-    def get_extension_list(self, timespan, db_lookup):
-        """Obatin y-axis minimum range values and return as a list of
-           dictionaries.
+    
+def getDaySummaryVectors(db_manager, sql_type, timespan, agg_list='max'):
+    """ Return a vector of specified stats from weewx daily summaries.
 
         Parameters:
-          timespan: An instance of weeutil.weeutil.TimeSpan. This will
-                    hold the start and stop times of the domain of
-                    valid times.
+          db_manager: A database manager object for the weewx archive.
 
-          db_lookup: This is a function that, given a data binding
-                     as its only parameter, will return a database manager
-                     object.
-         """
+          sql_type:   A statistical type, such as 'outTemp' 'barometer' etc.
 
-        t1 = time.time()
+          startstamp: The start time of the vector required.
 
-        mr_dict = {}
-        # get our MinRange config dict if it exists
-        mr_config_dict = self.generator.skin_dict['Extras'].get('MinRange') if self.generator.skin_dict.has_key('Extras') else None
-        # if we have a config dict then loop through any key/value pairs
-        # discarding any pairs that are non numeric
-        if mr_config_dict:
-            for _key, _value in mr_config_dict.iteritems():
-                _value_list = option_as_list(_value)
-                if len(_value_list) > 1:
-                    try:
-                        _group = _getUnitGroup(_key)
-                        _value_vt = ValueTuple(float(_value_list[0]), _value_list[1], _group)
-                    except ValueError, KeyError:
-                        continue
+          stopstamp:  The stop time of the vector required.
+
+          agg_list:   A list of the aggregates required eg ['max', 'min'].
+                      Member elements can be any of 'min', 'max', 'mintime',
+                      'maxtime', 'gustdir', 'sum', 'count', 'avg', 'rms',
+                      'vecavg' or 'vecdir'.
+       """
+
+    # Get our interpolation dictionary for the query
+    interDict = {'start'        : weeutil.weeutil.startOfDay(timespan.start),
+                 'stop'         : timespan.stop,
+                 'table_name'   : 'archive_day_%s' % sql_type}
+    # Setup up a list of lists for our vectors
+    _vec = [list() for x in range(len(agg_list))]
+    # Initialise each list in the list of lists
+    for agg in agg_list:
+        _vec[agg_list.index(agg)] = list()
+    # Setup up our time vector list
+    _time_vec = list()
+    # Initialise a dictionary for our results
+    _return = {}
+    # Get the unit system in use
+    _row = db_manager.getSql("SELECT usUnits FROM %s LIMIT 1;" % db_manager.table_name)
+    std_unit_system = _row[0] if _row is not None else None
+    # Get a cursor object for our query
+    _cursor=db_manager.connection.cursor()
+    try:
+        # Put together our SQL query string
+        sql_str = "SELECT * FROM %(table_name)s  WHERE dateTime >= %(start)s AND dateTime < %(stop)s" % interDict
+        # Loop through each record our query returns
+        for _rec in _cursor.execute(sql_str):
+            # Loop through each aggregate we have been asked for
+            for agg in agg_list:
+                # Calculate the aggregate
+                if agg == 'min':
+                    _result = _rec[1]
+                elif agg == 'max':
+                    _result = _rec[3]
+                elif agg == 'sum':
+                    _result = _rec[5]
+                elif agg == 'gustdir':
+                    _result = _rec[7]
+                elif agg == 'mintime':
+                    _result = int(_rec[2]) if _rec[2] else None
+                elif agg == 'maxtime':
+                    _result = int(_rec[4]) if _rec[4] else None
+                elif agg == 'count':
+                    _result = int(_rec[6]) if _rec[6] else None
+                elif agg == 'avg' :
+                    _result = _rec[5]/_rec[6] if (_rec[5] and _rec[6]) else None
+                elif agg == 'rms' :
+                    _result =  math.sqrt(_rec[10]/_rec[11]) if (_rec[10] and _rec[11]) else None
+                elif agg == 'vecavg' :
+                    _result = math.sqrt((_rec[8]**2 + _rec[9]**2) / _rec[6]**2) if (_rec[6] and _rec[8] and _rec[9]) else None
+                elif agg == 'vecdir' :
+                    if _rec[8] == 0.0 and _rec[9] == 0.0:
+                        _result = None
+                    elif _rec[8] and _rec[9]:
+                        deg = 90.0 - math.degrees(math.atan2(_rec[9], _rec[8]))
+                        _result = deg if deg >= 0.0 else deg + 360.0
                     else:
-                        _range = self.generator.converter.convert(_value_vt).value
+                        _result = None
+                # If we have not found it then return None
                 else:
-                    try:
-                        _range = float(_value)
-                    except ValueError:
-                        continue
-                mr_dict[_key + '_min_range'] = _range
-
-        t2 = time.time()
-        logdbg2("highchartsMinRanges SLE executed in %0.3f seconds" % (t2 - t1))
-
-        # Return our data dict
-        return [mr_dict]
-
-class highchartsWeek(SearchList):
-    """SearchList to generate JSON vectors for Highcharts week plots."""
+                    _result = None
+                # Add the aggregate to our vector
+                _vec[agg_list.index(agg)].append(_result)
+            # Add the time to our time vector
+            _time_vec.append(_rec[0])
+    finally:
+        # Close our cursor
+        _cursor.close()
+    # Get unit type and group for time
+    (_time_type, _time_group) = weewx.units.getStandardUnitType(std_unit_system, 'dateTime')
+    # Loop through each aggregate we were asked for getting unit and group and producing a ValueTuple
+    # and adding to our result dictionary
+    for agg in agg_list:
+        (t,g) = weewx.units.getStandardUnitType(std_unit_system, sql_type, agg)
+        _return[agg]=ValueTuple(_vec[agg_list.index(agg)], t, g)
+    # Return our time vector and dictionary of aggregate vectors
+    return (ValueTuple(_time_vec, _time_type, _time_group), _return)
+        
+class w34highcharts_temp_week(SearchList):
+    """SearchList to generate JSON vectors for w34highcharts week plots."""
 
     def __init__(self, generator):
         SearchList.__init__(self, generator)
-
-        # Do we have bindings for maxSolarRad and appTemp? weewx-WD can provide
-        # these (if installed) or the user can specify in
-        # [StdReport][[Highcharts]] or failing this we will ignore maxSolarRad
-        # and appTemp.
-
-        # maxSolarRad. First try to get the binding from weewx-WD if installed
+        self.search_list_extension = None
         try:
-            self.insolation_binding = generator.config_dict['Weewx-WD']['Supplementary'].get('data_binding')
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
         except KeyError:
-            # Likely weewx-WD is not installed so set to None
-            self.insolation_binding = None
-        if self.insolation_binding is None:
-            # Try [StdReport][[Highcharts]]
-            try:
-                self.insolation_binding = generator.config_dict['StdReport']['Highcharts'].get('insolation_binding')
-                # Just in case insolation_binding is included but not set
-                if self.insolation_binding == '':
-                    self.insolation_binding = None
-            except KeyError:
-                # Should only occur if the user chnaged the name of
-                # [[Highcharts]] in [StdReport]
-                self.insolation_binding = None
-        # appTemp. First try to get the binding from weewx-WD if installed
-        try:
-            self.apptemp_binding = generator.config_dict['Weewx-WD'].get('data_binding')
-        except KeyError:
-            # Likely weewx-WD is not installed so set to None
-            self.apptemp_binding = None
-        if self.apptemp_binding is None:
-            # Try [StdReport][[Highcharts]]
-            try:
-                self.apptemp_binding = generator.config_dict['StdReport']['Highcharts'].get('apptemp_binding')
-                # Just in case apptemp_binding is included but not set
-                if self.apptemp_binding == '':
-                    self.apptemp_binding = None
-            except KeyError:
-                # Should only occur if the user chnaged the name of
-                # [[Highcharts]] in [StdReport]
-                self.apptemp_binding = None
+                self.numDays = 7
 
     def get_extension_list(self, timespan, db_lookup):
-        """Generate the JSON vectors and return as a list of dictionaries.
+        """Generate the JSON vectors and return as a list of dictionaries."""
 
-        Parameters:
-          timespan: An instance of weeutil.weeutil.TimeSpan. This will
-                    hold the start and stop times of the domain of
-                    valid times.
-
-          db_lookup: This is a function that, given a data binding
-                     as its only parameter, will return a database manager
-                     object.
-         """
-
+        if (self.search_list_extension != None):
+                return [self.search_list_extension]
+        
         t1 = time.time()
 
         # Get UTC offset
         stop_struct = time.localtime(timespan.stop)
         utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
 
-        # Get our start time, 7 days ago but aligned with start of day
+        # Get our start time, numDays days ago but aligned with start of day
         # first get the start of today
         _ts = startOfDay(timespan.stop)
-        # then go back 7 days
+        # then go back numDays days
         _ts_dt = datetime.datetime.fromtimestamp(_ts)
-        _start_dt = _ts_dt - datetime.timedelta(days=7)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
         _start_ts = time.mktime(_start_dt.timetuple())
 
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+                                
         # Get our temperature vector
         (time_start_vt, time_stop_vt, outTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'outTemp')
         # Convert our temperature vector
@@ -225,17 +234,10 @@ class highchartsWeek(SearchList):
         tempRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outTemp_vt[1], "1f")[-2])
         # Do the rounding
         outTempRound_vt =  [roundNone(x,tempRound) for x in outTemp_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
+        # Get our time vector in ms (w34highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        #outTemp_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         outTemp_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
         
-        (time_start_vt, time_stop_vt, inTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'inTemp')
-        inTemp_vt = self.generator.converter.convert(inTemp_vt)
-        tempRound = int(self.generator.skin_dict['Units']['StringFormats'].get(inTemp_vt[1], "1f")[-2])
-        inTempRound_vt =  [roundNone(x,tempRound) for x in inTemp_vt[0]]
-        inTemp_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-
         # Get our dewpoint vector
         (time_start_vt, time_stop_vt, dewpoint_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'dewpoint')
         dewpoint_vt = self.generator.converter.convert(dewpoint_vt)
@@ -244,10 +246,500 @@ class highchartsWeek(SearchList):
         dewpointRound = int(self.generator.skin_dict['Units']['StringFormats'].get(dewpoint_vt[1], "1f")[-2])
         # Do the rounding
         dewpointRound_vt =  [roundNone(x,dewpointRound) for x in dewpoint_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
+        # Get our time vector in ms (w34highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         dewpoint_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #dewpoint_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
+
+        # Get our humidity vector
+        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'outHumidity')
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        outHumidityRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_vt[1], "1f")[-2])
+        # Do the rounding
+        outHumidityRound_vt =  [roundNone(x,outHumidityRound) for x in outHumidity_vt[0]]
+        # Get our time vector in ms (w34highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        outHumidity_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+        # Format our vectors in json format. Need the zip() to get time/value pairs
+        # Assumes all vectors have the same number of elements
+        outTemp_json = json.dumps(zip(outTemp_time_ms, outTempRound_vt))
+        dewpoint_json = json.dumps(zip(dewpoint_time_ms, dewpointRound_vt))
+        outHumidity_json = json.dumps(zip(outHumidity_time_ms, outHumidityRound_vt))
+        # Put into a dictionary to return
+        self.search_list_extension = {
+                                 'outTempWeekjson' : outTemp_json,
+                                 'dewpointWeekjson' : dewpoint_json,
+                                 'outHumidityWeekjson' : outHumidity_json,
+                                 'utcOffset': utc_offset,
+                                 'weekPlotStart' : _start_ts * 1000,
+                                 'weekPlotEnd' : timespan.stop * 1000}
+        t2 = time.time()
+        logdbg2("w34highcharts_temp_week SLE executed in %0.3f seconds" % (t2 - t1))
+
+        # Return our json data
+        return [self.search_list_extension]
+
+class w34highcharts_bar_rain_week(SearchList):
+    """SearchList to generate JSON vectors for w34highcharts week plots."""
+
+    def __init__(self, generator):
+        SearchList.__init__(self, generator)
+        self.search_list_extension = None
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
+                
+    def get_extension_list(self, timespan, db_lookup):
+        """Generate the JSON vectors and return as a list of dictionaries."""
+
+        if (self.search_list_extension != None):
+                return [self.search_list_extension]
+        
+        t1 = time.time()
+
+        # Get UTC offset
+        stop_struct = time.localtime(timespan.stop)
+        utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
+
+        # Get our start time, numDays days ago but aligned with start of day
+        # first get the start of today
+        _ts = startOfDay(timespan.stop)
+        # then go back numDays days
+        _ts_dt = datetime.datetime.fromtimestamp(_ts)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
+        _start_ts = time.mktime(_start_dt.timetuple())
+
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+                
+        # Get our barometer vector
+        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
+                                                                                'barometer')
+        barometer_vt = self.generator.converter.convert(barometer_vt)
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        barometerRound = int(self.generator.skin_dict['Units']['StringFormats'].get(barometer_vt[1], "1f")[-2])
+        # Do the rounding
+        barometerRound_vt =  [roundNone(x,barometerRound) for x in barometer_vt[0]]
+        # Get our time vector in ms (w34highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        barometer_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+
+        # Get our rain vector, need to sum over the hour
+        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'rain')
+        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'rainRate')
+        # Check if we have a partial hour at the end
+        # If we do then set the last time in the time vector to the hour
+        # Avoids display issues with the column chart
+        # Need to make sure we have at least 2 records though
+        #if len(time_stop_vt[0]) > 1:
+        #   if time_stop_vt[0][-1] < time_stop_vt[0][-2] + 3600:
+        #        time_stop_vt[0][-1] = time_stop_vt[0][-2] + 3600
+        # Convert our rain vector
+        rain_vt = self.generator.converter.convert(rain_vt)
+        rainRate_vt = self.generator.converter.convert(rainRate_vt)
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        rainRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rain_vt[1], "1f")[-2])
+        rainRateRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rainRate_vt[1], "1f")[-2])
+        # Do the rounding
+        rainRound_vt =  [roundNone(x,rainRound) for x in rain_vt[0]]
+        rainRateRound_vt =  [roundNone(x,rainRateRound) for x in rainRate_vt[0]]
+        # Get our time vector in ms (w34highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        timeRain_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+
+        # Format our vectors in json format. Need the zip() to get time/value pairs
+        # Assumes all vectors have the same number of elements
+        barometer_json = json.dumps(zip(barometer_time_ms, barometerRound_vt))
+        rain_json = json.dumps(zip(timeRain_ms, rainRound_vt))
+        rainRate_json = json.dumps(zip(timeRain_ms, rainRateRound_vt))
+
+        # Put into a dictionary to return
+        self.search_list_extension = {
+                                 'barometerWeekjson' : barometer_json,
+                                 'rainWeekjson' : rain_json,
+                                 'rainRateWeekjson' : rainRate_json,
+                                 'utcOffset': utc_offset,
+                                 'weekPlotStart' : _start_ts * 1000,
+                                 'weekPlotEnd' : timespan.stop * 1000}
+
+        t2 = time.time()
+        logdbg2("w34highcharts_bar_rain_week SLE executed in %0.3f seconds" % (t2 - t1))
+
+        # Return our json data
+        return [self.search_list_extension]
+  
+class w34highcharts_wind_week(SearchList):
+    """SearchList to generate JSON vectors for w34highcharts week plots."""
+
+    def __init__(self, generator):
+        SearchList.__init__(self, generator)
+        self.search_list_extension = None
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
+
+    def get_extension_list(self, timespan, db_lookup):
+        """Generate the JSON vectors and return as a list of dictionaries."""
+
+        if (self.search_list_extension != None):
+                return [self.search_list_extension]
+        
+        t1 = time.time()
+
+        # Get UTC offset
+        stop_struct = time.localtime(timespan.stop)
+        utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
+
+        # Get our start time, numDays days ago but aligned with start of day
+        # first get the start of today
+        _ts = startOfDay(timespan.stop)
+        # then go back numDays days
+        _ts_dt = datetime.datetime.fromtimestamp(_ts)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
+        _start_ts = time.mktime(_start_dt.timetuple())
+
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+        
+        # Get our wind speed vector
+        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
+                                                                                'windSpeed')
+        windSpeed_vt = self.generator.converter.convert(windSpeed_vt)
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        windspeedRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windSpeed_vt[1], "1f")[-2])
+        # Do the rounding
+        windSpeedRound_vt =  [roundNone(x,windspeedRound) for x in windSpeed_vt[0]]
+        # Get our time vector in ms (w34highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        windSpeed_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+
+        # Get our wind gust vector
+        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
+                                                                               'windGust')
+        windGust_vt = self.generator.converter.convert(windGust_vt)
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        windgustRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windGust_vt[1], "1f")[-2])
+        # Do the rounding
+        windGustRound_vt =  [roundNone(x,windgustRound) for x in windGust_vt[0]]
+        # Get our time vector in ms (w34highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        windGust_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+
+        # Get our wind direction vector
+        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'windDir')
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        windDirRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windDir_vt[1], "1f")[-2])
+        # Do the rounding
+        windDirRound_vt =  [roundNone(x,windDirRound) for x in windDir_vt[0]]
+        # Get our time vector in ms (w34highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        windDir_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+
+        # Format our vectors in json format. Need the zip() to get time/value pairs
+        # Assumes all vectors have the same number of elements
+        windSpeed_json = json.dumps(zip(windSpeed_time_ms, windSpeedRound_vt))
+        windGust_json = json.dumps(zip(windGust_time_ms, windGustRound_vt))
+        windDir_json = json.dumps(zip(windDir_time_ms, windDirRound_vt))
+
+        # Put into a dictionary to return
+        self.search_list_extension = {
+                                 'windSpeedWeekjson' : windSpeed_json,
+                                 'windGustWeekjson' : windGust_json,
+                                 'windDirWeekjson' : windDir_json,
+                                 'utcOffset': utc_offset,
+                                 'weekPlotStart' : _start_ts * 1000,
+                                 'weekPlotEnd' : timespan.stop * 1000}
+
+        t2 = time.time()
+        logdbg2("w34highcharts_wind_week SLE executed in %0.3f seconds" % (t2 - t1))
+
+        # Return our json data
+        return [self.search_list_extension]
+        
+class w34highcharts_solar_week(SearchList):
+    """SearchList to generate JSON vectors for w34highcharts week plots."""
+
+    def __init__(self, generator):
+        SearchList.__init__(self, generator)
+        self.search_list_extension = None
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
+                
+        # maxSolarRad. First try to get the binding from weewx-WD if installed
+        try:
+            self.insolation_binding = generator.config_dict['Weewx-WD']['Supplementary'].get('data_binding')
+        except KeyError:
+            # Likely weewx-WD is not installed so set to None
+            self.insolation_binding = None
+        if self.insolation_binding is None:
+            # Try [StdReport][[w34highcharts]]
+            try:
+                self.insolation_binding = generator.config_dict['StdReport']['w34highcharts'].get('insolation_binding')
+                # Just in case insolation_binding is included but not set
+                if self.insolation_binding == '':
+                    self.insolation_binding = None
+            except KeyError:
+                # Should only occur if the user chnaged the name of
+                # [[w34highcharts]] in [StdReport]
+                self.insolation_binding = None
+
+    def get_extension_list(self, timespan, db_lookup):
+        """Generate the JSON vectors and return as a list of dictionaries."""
+
+        if (self.search_list_extension != None):
+                return [self.search_list_extension]
+        
+        t1 = time.time()
+
+        # Get UTC offset
+        stop_struct = time.localtime(timespan.stop)
+        utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
+
+        # Get our start time, numDays days ago but aligned with start of day
+        # first get the start of today
+        _ts = startOfDay(timespan.stop)
+        # then go back numDays days
+        _ts_dt = datetime.datetime.fromtimestamp(_ts)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
+        _start_ts = time.mktime(_start_dt.timetuple())
+        
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+                
+        # Get our radiation vector
+        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
+                                                                                'radiation')
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        radiationRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[1], "1f")[-2])
+        # Do the rounding
+        radiationRound_vt =  [roundNone(x,radiationRound) for x in radiation_vt[0]]
+        # Get our time vector in ms (w34highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        radiation_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+
+        # Get our insolation vector. Insolation data is not normally archived
+        # so only try to get it if we have a binding for it. Wrap in a
+        # try..except to catch any errors. If we don't have a binding then set
+        # the vector to None
+        if self.insolation_binding is not None:
+            try:
+                (time_start_vt, time_stop_vt, insolation_vt) = db_lookup(self.insolation_binding).getSqlVectors(TimeSpan(_start_ts, timespan.stop),
+                                                                                                                'maxSolarRad')
+                # Can't use ValueHelper so round our results manually
+                # Get the number of decimal points
+                insolationRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[1], "1f")[-2])
+                # Do the rounding
+                insolationRound_vt =  [roundNone(x,insolationRound) for x in insolation_vt[0]]
+                # Get our time vector in ms (w34highcharts requirement)
+                # Need to do it for each getSqlVectors result as they might be different
+                insolation_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+            except weewx.UnknownBinding:
+                raise
+        else:
+            insolationRound_vt = None
+
+        # Get our UV vector
+        (time_start_vt, time_stop_vt, uv_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'UV')
+        # Can't use ValueHelper so round our results manually
+        # Get the number of decimal points
+        uvRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uv_vt[1], "1f")[-2])
+        # Do the rounding
+        uvRound_vt =  [roundNone(x,uvRound) for x in uv_vt[0]]
+        # Get our time vector in ms (w34highcharts requirement)
+        # Need to do it for each getSqlVectors result as they might be different
+        UV_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+
+        # Format our vectors in json format. Need the zip() to get time/value pairs
+        # Assumes all vectors have the same number of elements
+        radiation_json = json.dumps(zip(radiation_time_ms, radiationRound_vt))
+        # convert our insolation vector to JSON, if we don't have one then set
+        # it to None
+        if insolationRound_vt is not None:
+            insolation_json = json.dumps(zip(insolation_time_ms, insolationRound_vt))
+        else:
+            insolation_json = None
+        uv_json = json.dumps(zip(UV_time_ms, uvRound_vt))
+
+        # Create uva json
+        try:
+                (time_start_vt, time_stop_vt, uva_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'uva')
+                uvaRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uva_vt[1], "1f")[-2])
+                uvaRound_vt =  [roundNone(x,uvaRound) for x in uva_vt[0]]
+                uva_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                uva_json = json.dumps(zip(uva_time_ms, uvaRound_vt))
+        except:
+                uva_json = None
+                
+        # Create uvb json
+        try:
+                (time_start_vt, time_stop_vt, uvb_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'uvb')
+                uvbRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uvb_vt[1], "1f")[-2])
+                uvbRound_vt =  [roundNone(x,uvbRound) for x in uvb_vt[0]]
+                uvb_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                uvb_json = json.dumps(zip(uvb_time_ms, uvbRound_vt))
+        except:
+                uvb_json = None
+                
+        # Create uvaWm json
+        try:
+                (time_start_vt, time_stop_vt, uvaWm_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'uvaWm')
+                uvaWmRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uvaWm_vt[1], "1f")[-2])
+                uvaWmRound_vt =  [roundNone(x,uvaWmRound) for x in uvaWm_vt[0]]
+                uvaWm_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                uvaWm_json = json.dumps(zip(uvaWm_time_ms, uvaWmRound_vt))
+        except:
+                uvaWm_json = None
+                
+        # Create uvbWm json
+        try:
+                (time_start_vt, time_stop_vt, uvbWm_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'uvbWm')
+                uvbWmRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uvbWm_vt[1], "1f")[-2])
+                uvbWmRound_vt =  [roundNone(x,uvbWmRound) for x in uvbWm_vt[0]]
+                uvbWm_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                uvbWm_json = json.dumps(zip(uvbWm_time_ms, uvbWmRound_vt))
+        except:
+                uvbWm_json = None
+                
+        # Create full spectrum json
+        try:
+                (time_start_vt, time_stop_vt, spectrum_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'full_spectrum')
+                spectrumRound = int(self.generator.skin_dict['Units']['StringFormats'].get(spectrum_vt[1], "1f")[-2])
+                spectrumRound_vt =  [roundNone(x,spectrumRound) for x in spectrum_vt[0]]
+                spectrum_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                spectrum_json = json.dumps(zip(spectrum_time_ms, spectrumRound_vt))
+        except:
+                spectrum_json = None    
+ 
+         # Create lux json
+        try:
+                (time_start_vt, time_stop_vt, lux_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'lux')
+                luxRound = int(self.generator.skin_dict['Units']['StringFormats'].get(lux_vt[1], "1f")[-2])
+                luxRound_vt =  [roundNone(x,luxRound) for x in lux_vt[0]]
+                lux_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                lux_json = json.dumps(zip(lux_time_ms, luxRound_vt))
+        except:
+                lux_json = None  
+                  
+        # Create infrared json
+        try:
+                (time_start_vt, time_stop_vt, infrared_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'infrared')
+                infraredRound = int(self.generator.skin_dict['Units']['StringFormats'].get(infrared_vt[1], "1f")[-2])
+                infraredRound_vt =  [roundNone(x,infraredRound) for x in infrared_vt[0]]
+                infrared_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
+                infrared_json = json.dumps(zip(infrared_time_ms, infraredRound_vt))
+        except:
+                infrared_json = None    
+                                                       
+        # Put into a dictionary to return
+        self.search_list_extension = {
+                                 'radiationWeekjson' : radiation_json,
+                                 'insolationWeekjson' : insolation_json,
+                                 'uvaWeek_json' : uva_json,
+                                 'uvbWeek_json' : uvb_json,
+                                 'uvaWmWeek_json' : uvaWm_json,
+                                 'uvbWmWeek_json' : uvbWm_json,
+                                 'uvWeekjson' : uv_json,
+                                 'full_spectrumWeek_json' : spectrum_json,
+                                 'luxWeek_json' : lux_json,
+                                 'infraredWeek_json' : infrared_json,
+                                 'utcOffset': utc_offset,
+                                 'weekPlotStart' : _start_ts * 1000,
+                                 'weekPlotEnd' : timespan.stop * 1000}
+
+        t2 = time.time()
+        logdbg2("w34highcharts_solar_week SLE executed in %0.3f seconds" % (t2 - t1))
+
+        # Return our json data
+        return [self.search_list_extension]
+     
+class w34highcharts_indoor_derived_week(SearchList):
+    """SearchList to generate JSON vectors for w34highcharts week plots."""
+
+    def __init__(self, generator):
+        SearchList.__init__(self, generator)
+        self.search_list_extension = None
+        try:
+                self.numDays = self.generator.skin_dict['Extras']['DayReport'].get('numDays')
+                if self.numDays == '':
+                    self.numDays= 7
+                self.numDays = int(self.numDays)
+        except KeyError:
+                self.numDays = 7
+                
+        # appTemp. First try to get the binding from weewx-WD if installed
+        try:
+            self.apptemp_binding = generator.config_dict['Weewx-WD'].get('data_binding')
+        except KeyError:
+            # Likely weewx-WD is not installed so set to None
+            self.apptemp_binding = None
+        if self.apptemp_binding is None:
+            # Try [StdReport][[w34highcharts]]
+            try:
+                self.apptemp_binding = generator.config_dict['StdReport']['w34highcharts'].get('apptemp_binding')
+                # Just in case apptemp_binding is included but not set
+                if self.apptemp_binding == '':
+                    self.apptemp_binding = None
+            except KeyError:
+                # Should only occur if the user chnaged the name of
+                # [[w34highcharts]] in [StdReport]
+                self.apptemp_binding = None
+
+    def get_extension_list(self, timespan, db_lookup):
+        """Generate the JSON vectors and return as a list of dictionaries."""
+
+        if (self.search_list_extension != None):
+                return [self.search_list_extension]
+        
+        t1 = time.time()
+
+        # Get UTC offset
+        stop_struct = time.localtime(timespan.stop)
+        utc_offset = (calendar.timegm(stop_struct) - calendar.timegm(time.gmtime(time.mktime(stop_struct))))/60
+
+        # Get our start time, numDays days ago but aligned with start of day
+        # first get the start of today
+        _ts = startOfDay(timespan.stop)
+        # then go back numDays days
+        _ts_dt = datetime.datetime.fromtimestamp(_ts)
+        _start_dt = _ts_dt - datetime.timedelta(days=self.numDays)
+        _start_ts = time.mktime(_start_dt.timetuple())
+
+        if (self.numDays == 3):
+                _start_ts = time.mktime((_ts_dt - datetime.timedelta(days=0)).timetuple())
+                _end_ts = time.mktime((_ts_dt + datetime.timedelta(days=3)).timetuple())
+                timespan = TimeSpan(_start_ts, _end_ts)
+        
+        # Get our temperature vector
+        (time_start_vt, time_stop_vt, inTemp_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'inTemp')
+        inTemp_vt = self.generator.converter.convert(inTemp_vt)
+        tempRound = int(self.generator.skin_dict['Units']['StringFormats'].get(inTemp_vt[1], "1f")[-2])
+        inTempRound_vt =  [roundNone(x,tempRound) for x in inTemp_vt[0]]
+        inTemp_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
 
         # Get our apparent temperature vector. appTemp data is not normally
         # archived so only try to get it if we have a binding for it. Wrap in a
@@ -263,10 +755,9 @@ class highchartsWeek(SearchList):
                 apptempRound = int(self.generator.skin_dict['Units']['StringFormats'].get(appTemp_vt[1], "1f")[-2])
                 # Do the rounding
                 appTempRound_vt =  [roundNone(x,apptempRound) for x in appTemp_vt[0]]
-                # Get our time vector in ms (Highcharts requirement)
+                # Get our time vector in ms (w34highcharts requirement)
                 # Need to do it for each getSqlVectors result as they might be different
                 appTemp_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-                #appTemp_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
             except weewx.UnknownBinding:
                 raise
         else:
@@ -280,10 +771,9 @@ class highchartsWeek(SearchList):
         windchillRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windchill_vt[1], "1f")[-2])
         # Do the rounding
         windchillRound_vt =  [roundNone(x,windchillRound) for x in windchill_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
+        # Get our time vector in ms (w34highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         windchill_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #windchill_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
 
         # Get our heat index vector
         (time_start_vt, time_stop_vt, heatindex_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
@@ -294,158 +784,24 @@ class highchartsWeek(SearchList):
         heatindexRound = int(self.generator.skin_dict['Units']['StringFormats'].get(heatindex_vt[1], "1f")[-2])
         # Do the rounding
         heatindexRound_vt =  [roundNone(x,heatindexRound) for x in heatindex_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
+        # Get our time vector in ms (w34highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
         heatindex_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #heatindex_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
 
         # Get our humidity vector
-        (time_start_vt, time_stop_vt, outHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'outHumidity')
         (time_start_vt, time_stop_vt, inHumidity_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'inHumidity')
         # Can't use ValueHelper so round our results manually
         # Get the number of decimal points
-        outHumidityRound = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_vt[1], "1f")[-2])
         inHumidityRound = int(self.generator.skin_dict['Units']['StringFormats'].get(inHumidity_vt[1], "1f")[-2])
         # Do the rounding
-        outHumidityRound_vt =  [roundNone(x,outHumidityRound) for x in outHumidity_vt[0]]
         inHumidityRound_vt =  [roundNone(x,inHumidityRound) for x in inHumidity_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
+        # Get our time vector in ms (w34highcharts requirement)
         # Need to do it for each getSqlVectors result as they might be different
-        outHumidity_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #outHumidity_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
         inHumidity_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #inHumidity_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-        # Get our barometer vector
-        (time_start_vt, time_stop_vt, barometer_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                                'barometer')
-        barometer_vt = self.generator.converter.convert(barometer_vt)
-        # Can't use ValueHelper so round our results manually
-        # Get the number of decimal points
-        barometerRound = int(self.generator.skin_dict['Units']['StringFormats'].get(barometer_vt[1], "1f")[-2])
-        # Do the rounding
-        barometerRound_vt =  [roundNone(x,barometerRound) for x in barometer_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
-        # Need to do it for each getSqlVectors result as they might be different
-        barometer_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #barometer_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-
-        # Get our wind speed vector
-        (time_start_vt, time_stop_vt, windSpeed_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                                'windSpeed')
-        windSpeed_vt = self.generator.converter.convert(windSpeed_vt)
-        # Can't use ValueHelper so round our results manually
-        # Get the number of decimal points
-        windspeedRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windSpeed_vt[1], "1f")[-2])
-        # Do the rounding
-        windSpeedRound_vt =  [roundNone(x,windspeedRound) for x in windSpeed_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
-        # Need to do it for each getSqlVectors result as they might be different
-        windSpeed_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #windSpeed_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-
-        # Get our wind gust vector
-        (time_start_vt, time_stop_vt, windGust_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                               'windGust')
-        windGust_vt = self.generator.converter.convert(windGust_vt)
-        # Can't use ValueHelper so round our results manually
-        # Get the number of decimal points
-        windgustRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windGust_vt[1], "1f")[-2])
-        # Do the rounding
-        windGustRound_vt =  [roundNone(x,windgustRound) for x in windGust_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
-        # Need to do it for each getSqlVectors result as they might be different
-        windGust_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #windGust_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-
-        # Get our wind direction vector
-        (time_start_vt, time_stop_vt, windDir_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'windDir')
-        # Can't use ValueHelper so round our results manually
-        # Get the number of decimal points
-        windDirRound = int(self.generator.skin_dict['Units']['StringFormats'].get(windDir_vt[1], "1f")[-2])
-        # Do the rounding
-        windDirRound_vt =  [roundNone(x,windDirRound) for x in windDir_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
-        # Need to do it for each getSqlVectors result as they might be different
-        windDir_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #windDir_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-
-        # Get our rain vector, need to sum over the hour
-        (time_start_vt, time_stop_vt, rain_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'rain', 'sum', 3600)
-        (time_start_vt, time_stop_vt, rainRate_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),'rainRate', 'sum', 3600)
-        # Check if we have a partial hour at the end
-        # If we do then set the last time in the time vector to the hour
-        # Avoids display issues with the column chart
-        # Need to make sure we have at least 2 records though
-        if len(time_stop_vt[0]) > 1:
-            if time_stop_vt[0][-1] < time_stop_vt[0][-2] + 3600:
-                time_stop_vt[0][-1] = time_stop_vt[0][-2] + 3600
-        # Convert our rain vector
-        rain_vt = self.generator.converter.convert(rain_vt)
-        rainRate_vt = self.generator.converter.convert(rainRate_vt)
-        # Can't use ValueHelper so round our results manually
-        # Get the number of decimal points
-        rainRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rain_vt[1], "1f")[-2])
-        rainRateRound = int(self.generator.skin_dict['Units']['StringFormats'].get(rainRate_vt[1], "1f")[-2])
-        # Do the rounding
-        rainRound_vt =  [roundNone(x,rainRound) for x in rain_vt[0]]
-        rainRateRound_vt =  [roundNone(x,rainRateRound) for x in rainRate_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
-        # Need to do it for each getSqlVectors result as they might be different
-        timeRain_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #timeRain_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-
-        # Get our radiation vector
-        (time_start_vt, time_stop_vt, radiation_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                                'radiation')
-        # Can't use ValueHelper so round our results manually
-        # Get the number of decimal points
-        radiationRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[1], "1f")[-2])
-        # Do the rounding
-        radiationRound_vt =  [roundNone(x,radiationRound) for x in radiation_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
-        # Need to do it for each getSqlVectors result as they might be different
-        radiation_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #radiation_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-
-        # Get our insolation vector. Insolation data is not normally archived
-        # so only try to get it if we have a binding for it. Wrap in a
-        # try..except to catch any errors. If we don't have a binding then set
-        # the vector to None
-        if self.insolation_binding is not None:
-            try:
-                (time_start_vt, time_stop_vt, insolation_vt) = db_lookup(self.insolation_binding).getSqlVectors(TimeSpan(_start_ts, timespan.stop),
-                                                                                                                'maxSolarRad')
-                # Can't use ValueHelper so round our results manually
-                # Get the number of decimal points
-                insolationRound = int(self.generator.skin_dict['Units']['StringFormats'].get(radiation_vt[1], "1f")[-2])
-                # Do the rounding
-                insolationRound_vt =  [roundNone(x,insolationRound) for x in insolation_vt[0]]
-                # Get our time vector in ms (Highcharts requirement)
-                # Need to do it for each getSqlVectors result as they might be different
-                insolation_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-                #insolation_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
-            except weewx.UnknownBinding:
-                raise
-        else:
-            insolationRound_vt = None
-
-        # Get our UV vector
-        (time_start_vt, time_stop_vt, uv_vt) = db_lookup().getSqlVectors(TimeSpan(_start_ts, timespan.stop), 'UV')
-        # Can't use ValueHelper so round our results manually
-        # Get the number of decimal points
-        uvRound = int(self.generator.skin_dict['Units']['StringFormats'].get(uv_vt[1], "1f")[-2])
-        # Do the rounding
-        uvRound_vt =  [roundNone(x,uvRound) for x in uv_vt[0]]
-        # Get our time vector in ms (Highcharts requirement)
-        # Need to do it for each getSqlVectors result as they might be different
-        UV_time_ms =  [time_stop_vt[0][0] if (x == 0) else time_stop_vt[0][x] - time_stop_vt[0][0] for x in range(len(time_stop_vt[0]))]
-        #UV_time_ms =  [float(x) * 1000 for x in time_stop_vt[0]]
 
         # Format our vectors in json format. Need the zip() to get time/value pairs
         # Assumes all vectors have the same number of elements
-        outTemp_json = json.dumps(zip(outTemp_time_ms, outTempRound_vt))
         inTemp_json = json.dumps(zip(inTemp_time_ms, inTempRound_vt))
-        dewpoint_json = json.dumps(zip(dewpoint_time_ms, dewpointRound_vt))
         # convert our appTemp vector to JSON, if we don't have one then set
         # it to None
         if appTempRound_vt is not None:
@@ -454,59 +810,34 @@ class highchartsWeek(SearchList):
             appTemp_json = None
         windchill_json = json.dumps(zip(windchill_time_ms, windchillRound_vt))
         heatindex_json = json.dumps(zip(heatindex_time_ms, heatindexRound_vt))
-        outHumidity_json = json.dumps(zip(outHumidity_time_ms, outHumidityRound_vt))
         inHumidity_json = json.dumps(zip(inHumidity_time_ms, inHumidityRound_vt))
-        barometer_json = json.dumps(zip(barometer_time_ms, barometerRound_vt))
-        windSpeed_json = json.dumps(zip(windSpeed_time_ms, windSpeedRound_vt))
-        windGust_json = json.dumps(zip(windGust_time_ms, windGustRound_vt))
-        windDir_json = json.dumps(zip(windDir_time_ms, windDirRound_vt))
-        radiation_json = json.dumps(zip(radiation_time_ms, radiationRound_vt))
-        # convert our insolation vector to JSON, if we don't have one then set
-        # it to None
-        if insolationRound_vt is not None:
-            insolation_json = json.dumps(zip(insolation_time_ms, insolationRound_vt))
-        else:
-            insolation_json = None
-        uv_json = json.dumps(zip(UV_time_ms, uvRound_vt))
-        rain_json = json.dumps(zip(timeRain_ms, rainRound_vt))
-        rainRate_json = json.dumps(zip(timeRain_ms, rainRateRound_vt))
 
         # Put into a dictionary to return
-        search_list_extension = {'outTempWeekjson' : outTemp_json,
+        self.search_list_extension = {
                                  'inTempWeekjson' : inTemp_json,
-                                 'dewpointWeekjson' : dewpoint_json,
                                  'appTempWeekjson' : appTemp_json,
                                  'windchillWeekjson' : windchill_json,
                                  'heatindexWeekjson' : heatindex_json,
-                                 'outHumidityWeekjson' : outHumidity_json,
                                  'inHumidityWeekjson' : inHumidity_json,
-                                 'barometerWeekjson' : barometer_json,
-                                 'windSpeedWeekjson' : windSpeed_json,
-                                 'windGustWeekjson' : windGust_json,
-                                 'windDirWeekjson' : windDir_json,
-                                 'rainWeekjson' : rain_json,
-                                 'rainRateWeekjson' : rainRate_json,
-                                 'radiationWeekjson' : radiation_json,
-                                 'insolationWeekjson' : insolation_json,
-                                 'uvWeekjson' : uv_json,
                                  'utcOffset': utc_offset,
                                  'weekPlotStart' : _start_ts * 1000,
                                  'weekPlotEnd' : timespan.stop * 1000}
 
         t2 = time.time()
-        logdbg2("highchartsWeek SLE executed in %0.3f seconds" % (t2 - t1))
+        logdbg2("w34highcharts_indoor_derived_week SLE executed in %0.3f seconds" % (t2 - t1))
 
         # Return our json data
-        return [search_list_extension]
-
-class highchartsYear(SearchList):
-    """SearchList to generate JSON vectors for Highcharts week plots.""""""SearchList to generate JSON vectors for Highcharts year plots."""
+        return [self.search_list_extension]
+     
+class w34highchartsYear(SearchList):
+    """SearchList to generate JSON vectors for w34highcharts week plots.""""""SearchList to generate JSON vectors for w34highcharts year plots."""
 
     def __init__(self, generator):
         SearchList.__init__(self, generator)
+        self.search_list_extension = None
 
         # Do we have a binding for appTemp? weewx-WD can provide (if installed)
-        # or the user can specify in [StdReport][[Highcharts]] or failing this
+        # or the user can specify in [StdReport][[w34highcharts]] or failing this
         # we will ignore appTemp.
 
         # First try to get the binding from weewx-WD if installed
@@ -516,15 +847,15 @@ class highchartsYear(SearchList):
             # Likely weewx-WD is not installed so set to None
             self.apptemp_binding = None
         if self.apptemp_binding is None:
-            # Try [StdReport][[Highcharts]]
+            # Try [StdReport][[w34highcharts]]
             try:
-                self.apptemp_binding = generator.config_dict['StdReport']['Highcharts'].get('apptemp_binding')
+                self.apptemp_binding = generator.config_dict['StdReport']['w34highcharts'].get('apptemp_binding')
                 # Just in case apptemp_binding is included but not set
                 if self.apptemp_binding == '':
                     self.apptemp_binding = None
             except KeyError:
                 # Should only occur if the user chnaged the name of
-                # [[Highcharts]] in [StdReport]
+                # [[w34highcharts]] in [StdReport]
                 self.apptemp_binding = None
 
     def get_extension_list(self, timespan, db_lookup):
@@ -539,7 +870,9 @@ class highchartsYear(SearchList):
                      as its only parameter, will return a database manager
                      object.
          """
-
+        if (self.search_list_extension != None):
+                return [self.search_list_extension]
+        
         t1 = time.time()
 
         # Get UTC offset
@@ -670,7 +1003,7 @@ class highchartsYear(SearchList):
                                                      'UV',
                                                      _timespan,
                                                      ['min', 'max', 'avg'])
-
+        
         # Get no of decimal places to use when formatting results
         tempPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(outTempMin_vt[1], "1f")[-2])
         outHumidityPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(outHumidity_dict['min'][1], "1f")[-2])
@@ -796,8 +1129,125 @@ class highchartsYear(SearchList):
         uvMax_json = json.dumps(zip(time_ms, uvMaxRound))
         uvAvg_json = json.dumps(zip(time_ms, uvAvgRound))
 
+        # Create uva json
+        try:
+                (uva_time_vt, uva_dict) = getDaySummaryVectors(db_lookup(), 'uva', timespan,['max', 'avg'])
+                uvaPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(uva_dict['max'][1], "1f")[-2])
+                uvaMaxRound = [roundNone(x,uvaPlaces) for x in uva_dict['max'][0]]
+                uvaAvgRound = [roundNone(x,uvaPlaces) for x in uva_dict['avg'][0]]
+                uvaMax_json = json.dumps(zip(time_ms, uvaMaxRound))
+                uvaAvg_json = json.dumps(zip(time_ms, uvaAvgRound))
+        except:
+                uvaMax_json = None
+                uvaAvg_json = None
+                
+        # Create uvb json
+        try:
+                (uvb_time_vt, uvb_dict) = getDaySummaryVectors(db_lookup(), 'uvb', timespan,['max', 'avg'])
+                uvbPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(uvb_dict['max'][1], "1f")[-2])
+                uvbMaxRound = [roundNone(x,uvbPlaces) for x in uvb_dict['max'][0]]
+                uvbAvgRound = [roundNone(x,uvbPlaces) for x in uvb_dict['avg'][0]]
+                uvbMax_json = json.dumps(zip(time_ms, uvbMaxRound))
+                uvbAvg_json = json.dumps(zip(time_ms, uvbAvgRound))
+        except:
+                uvbMax_json = None
+                uvbAvg_json = None
+                
+        # Create uvaWm json
+        try:
+                (uvaWm_time_vt, uvaWm_dict) = getDaySummaryVectors(db_lookup(), 'uvaWm', timespan,['max', 'avg'])
+                uvaWmPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(uvaWm_dict['max'][1], "1f")[-2])
+                uvaWmMaxRound = [roundNone(x,uvaWmPlaces) for x in uvaWm_dict['max'][0]]
+                uvaWmAvgRound = [roundNone(x,uvaWmPlaces) for x in uvaWm_dict['avg'][0]]
+                uvaWmMax_json = json.dumps(zip(time_ms, uvaWmMaxRound))
+                uvaWmAvg_json = json.dumps(zip(time_ms, uvaWmAvgRound))
+        except:
+                uvaWmMax_json = None
+                uvaWmAvg_json = None
+                
+        # Create uvbWm json
+        try:
+                (uvbWm_time_vt, uvbWm_dict) = getDaySummaryVectors(db_lookup(), 'uvbWm', timespan,['max', 'avg'])
+                uvbWmPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(uvbWm_dict['max'][1], "1f")[-2])
+                uvbWmMaxRound = [roundNone(x,uvbWmPlaces) for x in uvbWm_dict['max'][0]]
+                uvbWmAvgRound = [roundNone(x,uvbWmPlaces) for x in uvbWm_dict['avg'][0]]
+                uvbWmMax_json = json.dumps(zip(time_ms, uvbWmMaxRound))
+                uvbWmAvg_json = json.dumps(zip(time_ms, uvbWmAvgRound))
+        except:
+                uvbWmMax_json = None
+                uvbWmAvg_json = None
+                                            
+        # Create energy json
+        try:
+                (energy_time_vt, energy_dict) = getDaySummaryVectors(db_lookup(), 'energy', timespan,['max', 'avg'])
+                energyPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(energy_dict['max'][1], "1f")[-2])
+                energyMaxRound = [roundNone(x,energyPlaces) for x in energy_dict['max'][0]]
+                energyAvgRound = [roundNone(x,energyPlaces) for x in energy_dict['avg'][0]]
+                energyMax_json = json.dumps(zip(time_ms, energyMaxRound))
+                energyAvg_json = json.dumps(zip(time_ms, energyAvgRound))
+        except:
+                energyMax_json = None
+                energyAvg_json = None
+                
+        # Create distance json
+        try:
+                (distance_time_vt, distance_dict) = getDaySummaryVectors(db_lookup(), 'avg_distance', timespan,['max', 'avg'])
+                distancePlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(distance_dict['max'][1], "1f")[-2])
+                distanceMaxRound = [roundNone(x,distancePlaces) for x in distance_dict['max'][0]]
+                distanceAvgRound = [roundNone(x,distancePlaces) for x in distance_dict['avg'][0]]
+                distanceMax_json = json.dumps(zip(time_ms, distanceMaxRound))
+                distanceAvg_json = json.dumps(zip(time_ms, distanceAvgRound))
+        except:
+                distanceMax_json = None
+                distanceAvg_json = None
+                
+        # Create strikes json
+        try:
+                (strikes_time_vt, strikes_dict) = getDaySummaryVectors(db_lookup(), 'lightning_strikes', timespan,['sum'])
+                strikesPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(strikes_dict['sum'][1], "1f")[-2])
+                strikesSumRound = [roundNone(x,strikesPlaces) for x in strikes_dict['sum'][0]]
+                strikesSum_json = json.dumps(zip(time_ms, strikesSumRound))
+        except:
+                strikesSum_json = None
+
+        # Create full_spectrum json
+        try:
+                (full_spectrum_time_vt, full_spectrum_dict) = getDaySummaryVectors(db_lookup(), 'full_spectrum', timespan,['max', 'avg'])
+                full_spectrumPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(full_spectrum_dict['max'][1], "1f")[-2])
+                full_spectrumMaxRound = [roundNone(x,full_spectrumPlaces) for x in full_spectrum_dict['max'][0]]
+                full_spectrumAvgRound = [roundNone(x,full_spectrumPlaces) for x in full_spectrum_dict['avg'][0]]
+                full_spectrumMax_json = json.dumps(zip(time_ms, full_spectrumMaxRound))
+                full_spectrumAvg_json = json.dumps(zip(time_ms, full_spectrumAvgRound))
+        except:
+                full_spectrumMax_json = None
+                full_spectrumAvg_json = None
+                
+        # Create lux json
+        try:
+                (lux_time_vt, lux_dict) = getDaySummaryVectors(db_lookup(), 'lux', timespan,['max', 'avg'])
+                luxPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(lux_dict['max'][1], "1f")[-2])
+                luxMaxRound = [roundNone(x,luxPlaces) for x in lux_dict['max'][0]]
+                luxAvgRound = [roundNone(x,luxPlaces) for x in lux_dict['avg'][0]]
+                luxMax_json = json.dumps(zip(time_ms, luxMaxRound))
+                luxAvg_json = json.dumps(zip(time_ms, luxAvgRound))
+        except:
+                luxMax_json = None
+                luxAvg_json = None
+
+        # Create infrared json
+        try:
+                (infrared_time_vt, infrared_dict) = getDaySummaryVectors(db_lookup(), 'infrared', timespan,['max', 'avg'])
+                infraredPlaces = int(self.generator.skin_dict['Units']['StringFormats'].get(infrared_dict['max'][1], "1f")[-2])
+                infraredMaxRound = [roundNone(x,infraredPlaces) for x in infrared_dict['max'][0]]
+                infraredAvgRound = [roundNone(x,infraredPlaces) for x in infrared_dict['avg'][0]]
+                infraredMax_json = json.dumps(zip(time_ms, infraredMaxRound))
+                infraredAvg_json = json.dumps(zip(time_ms, infraredAvgRound))
+        except:
+                infraredMax_json = None
+                infraredAvg_json = None
+                
         # Put into a dictionary to return
-        search_list_extension = {'outTempMinMax_json' : outTempMinMax_json,
+        self.search_list_extension = {'outTempMinMax_json' : outTempMinMax_json,
                                  'outTempAvg_json' : outTempAvg_json,
                                  'inTempMinMax_json' : inTempMinMax_json,
                                  'inTempAvg_json' : inTempAvg_json,
@@ -833,22 +1283,41 @@ class highchartsYear(SearchList):
                                  'radiationAvg_json' : radiationAvg_json,
                                  'uvMax_json' : uvMax_json,
                                  'uvAvg_json' : uvAvg_json,
+                                 'uvaMax_json' : uvaMax_json,
+                                 'uvaAvg_json' : uvaAvg_json,
+                                 'uvbMax_json' : uvbMax_json,
+                                 'uvbAvg_json' : uvbAvg_json,
+                                 'uvaWmMax_json' : uvaWmMax_json,
+                                 'uvaWmAvg_json' : uvaWmAvg_json,
+                                 'uvbWmMax_json' : uvbWmMax_json,
+                                 'uvbWmAvg_json' : uvbWmAvg_json,
+                                 'strikesSum_json' : strikesSum_json,
+                                 'distanceMax_json' : distanceMax_json ,
+                                 'distanceAvg_json' : distanceAvg_json,
+                                 'energyMax_json' : energyMax_json,
+                                 'energyAvg_json' : energyAvg_json,
+                                 'full_spectrumMax_json' : full_spectrumMax_json,
+                                 'full_spectrumAvg_json' : full_spectrumAvg_json,
+                                 'luxMax_json' : luxMax_json,
+                                 'luxAvg_json' : luxAvg_json,
+                                 'infraredMax_json' : infraredMax_json,
+                                 'infraredAvg_json' : infraredAvg_json,
                                  'utcOffset': utc_offset,
                                  'yearPlotStart' : _timespan.start * 1000,
                                  'yearPlotEnd' : _timespan.stop * 1000}
-
         t2 = time.time()
-        logdbg2("highchartsYear SLE executed in %0.3f seconds" % (t2 - t1))
+        logdbg2("w34highchartsYear SLE executed in %0.3f seconds" % (t2 - t1))
 
         # Return our json data
-        return [search_list_extension]
+        return [self.search_list_extension]
 
-class highchartsWindRose(SearchList):
-    """SearchList to generate JSON vectors for Highcharts windrose plots."""
+class w34highcharts_wind_rose_week(SearchList):
+    """SearchList to generate JSON vectors for w34highcharts windrose plots."""
 
     def __init__(self, generator):
         # Call our superclass' __init__
         SearchList.__init__(self, generator)
+        self.sle_dict = None
 
         # Get a dictionary of ous skin settings
         self.windrose_dict = self.generator.skin_dict['Extras']['WindRose']
@@ -1036,7 +1505,7 @@ class highchartsWindRose(SearchList):
         samples = len(time_vec_speed_vt[0])
         # Calc factor to be applied to convert counts to %
         pcentFactor = 100.0/samples
-        #loginf(str(pcentFactor));
+        #loginf(str(samples));
         # Loop through each sample and increment direction counts
         # and speed ranges for each direction as necessary. 'None'
         # direction is counted as 'calm' (or 0 speed) and
@@ -1079,8 +1548,8 @@ class highchartsWindRose(SearchList):
             i += 1
         # Bullseye diameter is specified in skin.conf as a % of y axis range on
         # polar plot. To make space for bullseye we start the y axis at a small
-        # -ve number. We supply Highcharts with the -ve value in y axis units
-        # and Highcharts and some javascript takes care of the rest. # First we
+        # -ve number. We supply w34highcharts with the -ve value in y axis units
+        # and w34highcharts and some javascript takes care of the rest. # First we
         # need to work out our y axis max and the use skin.conf bullseye size
         # value to calculate the -ve value for our y axis min.
         maxDirPercent = round(pcentFactor * max(dirBin),self.precision) # the
@@ -1147,6 +1616,7 @@ class highchartsWindRose(SearchList):
         # Get our yAxis min/max settings
         wr_dict['yAxisjson'] = '{"max": %f, "min": %f}' % (maxYaxis, -1.0 * bullseyeRadius)
         # Get our stacked column colours in json format
+        wr_dict['samples'] = str(samples)
         wr_dict['coloursjson'] = json.dumps(self.petal_colours)
         # Manually construct our plot title in json format
         wr_dict['titlejson'] = "[\"" + self.title + "\"]"
@@ -1183,6 +1653,9 @@ class highchartsWindRose(SearchList):
                      object.
          """
 
+        if (self.sle_dict != None):
+                return [self.sle_dict]
+        
         t1 = time.time()
 
         # Look for plot period, if not defined then set a default
@@ -1191,7 +1664,7 @@ class highchartsWindRose(SearchList):
         except (KeyError, TypeError):
             _period_list = ['day']  # 24 hours
         if _period_list is None:
-            return None
+            return Non
         elif hasattr(_period_list, '__iter__') and len(_period_list) > 0:
             sle_dict ={}
             for _period_raw in _period_list:
@@ -1259,12 +1732,15 @@ class highchartsWindRose(SearchList):
                 elif period >= 604800: # nominal week:
                     if self.agg_interval == None:
                         self.agg_interval = 3600
+                else:
+                        self.agg_interval = 60
                 # Can now get our windrose data
                 _suffix = str(period) if _period not in ['day', 'week', 'month', 'year', 'all', 'alltime'] else str(_period)
                 sle_dict['wr' + _suffix] = self.calcWindRose(timespan, db_lookup, period)
 
+        self.sle_dict = sle_dict
         t2 = time.time()
-        logdbg2("highchartsWindRose SLE executed in %0.3f seconds" % (t2 - t1))
+        logdbg2("w34highchartsWindRose SLE executed in %0.3f seconds" % (t2 - t1))
 
         # Return our json data
         return [sle_dict]
