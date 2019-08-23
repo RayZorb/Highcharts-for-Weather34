@@ -12,6 +12,7 @@ var createweeklyfunctions = {
     tempderivedplot: [addWeekOptions, create_tempderived_chart],
     humidityplot: [addWeekOptions, create_humidity_chart],
     barometerplot: [addWeekOptions, create_barometer_chart],
+    bartempwindplot: [addWeekOptions, create_bartempwind_chart],
     dewpointplot: [addWeekOptions, create_dewpoint_chart],
     windplot: [addWeekOptions, create_wind_chart],
     windallplot: [addWeekOptions, create_windall_chart],
@@ -73,6 +74,7 @@ var jsonfileforplot = {
     humidityplot: [['temp_week.json'],['year.json'],['temp_week1.json']],
     barometerplot: [['bar_rain_week.json'],['year.json'],['bar_rain_week1.json']],
     barsmallplot: [['bar_rain_week.json'],['year.json'],[null]],
+    bartempwindplot: [['bar_rain_week.json','temp_week.json','wind_week.json'],[null],[null]],
     windplot: [['wind_week.json'],['year.json'],['wind_week1.json']],
     windsmallplot: [['wind_week.json'],['year.json'],[null]],
     windallplot: [['wind_week.json'],['year.json'],[null]],
@@ -90,7 +92,7 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json'],[null]]
 };
 
-var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot'];
+var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot','bartempwindplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
@@ -751,6 +753,17 @@ function create_barometer_chart(options, span, seriesData, units){
         }
     }
     options.yAxis[0].title.text = "(" + units.pressure + ")";
+    return options;
+};
+
+function create_bartempwind_chart(options, span, seriesData, units){
+    options = create_chart_options(options, 'spline', 'Barometer/Temp/Wind', units.pressure, [['Barometer', 'spline'], ['Temp', 'spline',1,,,{valueSuffix: units.temp}],['Wind', 'column',2,,,{valueSuffix: units.wind}]]);
+    options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometer));
+    options.series[1].data = convert_pressure(seriesData[1].temperatureplot.units, units.temp, reinflate_time(seriesData[1].temperatureplot.outTemp));
+    options.series[2].data = convert_pressure(seriesData[2].windplot.units, units.wind, reinflate_time(seriesData[2].windplot.windSpeed));
+    options.yAxis[0].title.text = "(" + units.pressure + ")";
+    options.yAxis[1].title.text = "(\xB0" + units.temp + ")";
+    options.yAxis[2].title.text = "(" + units.wind + ")";
     return options;
 };
 
@@ -1444,6 +1457,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         return;
     });
 };
+
 $.datepicker.setDefaults({
     dateFormat: 'yy-mm-dd',
     onSelect: function () {
