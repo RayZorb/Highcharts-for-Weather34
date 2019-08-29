@@ -18,6 +18,7 @@ var createweeklyfunctions = {
     windallplot: [addWeekOptions, create_windall_chart],
     winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
+    lightningplot: [addYearOptions, create_lightning_chart],
     rainplot: [addWeekOptions, create_rain_chart],
     rainmonthplot: [create_rain_month_chart],
     luminosityplot: [addWeekOptions, create_luminosity_chart],
@@ -1030,13 +1031,10 @@ function create_lightning_chart(options, span, seriesData, units){
     options.series[4].data = reinflate_time(seriesData[0].lightningplot.energyAvg);
     options.yAxis[0].title.text = "Average Distance";
     options.yAxis[0].min = 0;
-    options.yAxis[0].tickInterval = 1;
     options.yAxis[0].allowDecimals = true;
     options.yAxis[1].title.text = "Number of Strikes";
-    options.yAxis[1].tickInterval = 1;
     options.yAxis[1].min = 0;
     options.yAxis[2].title.text = "Energy";
-    options.yAxis[2].tickInterval = 1;
     options.yAxis[2].min = 0;
     options.xAxis[0].minTickInterval =0;
     return options;
