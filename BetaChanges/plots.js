@@ -37,6 +37,7 @@ var createyearlyfunctions = {
     barometerplot: [addYearOptions, create_barometer_chart],
     barsmallplot: [addYearOptions, setBarSmall, create_barometer_chart],
     dewpointplot: [addYearOptions, create_dewpoint_chart],
+    dewpointradialplot: [create_dewpoint_radial_chart],
     windsmallplot: [addYearOptions, setWindSmall, create_wind_chart],
     winddirplot: [addYearOptions, create_winddir_chart],
     windplot: [addYearOptions, create_wind_chart],
@@ -60,6 +61,7 @@ var postcreatefunctions = {
     windsmallplot: [post_create_small_chart],
     rainsmallplot: [post_create_small_chart],
     rainmonthplot: [remove_range_selector],
+    dewpointradialplot: [remove_range_selector],
     radsmallplot: [post_create_small_chart],
     uvsmallplot: [post_create_small_chart],
     windroseplot: [post_create_windrose_chart]
@@ -72,6 +74,7 @@ var jsonfileforplot = {
     tempallplot: [['temp_week.json'],['year.json'],['temp_week1.json']],
     tempderivedplot: [['indoor_derived_week.json'],['year.json'],['indoor_derived_week1.json']],
     dewpointplot: [['temp_week.json'],['year.json'],['temp_week1.json']],
+    dewpointradialplot: [[null],['year.json'],[null]],
     humidityplot: [['temp_week.json'],['year.json'],['temp_week1.json']],
     barometerplot: [['bar_rain_week.json'],['year.json'],['bar_rain_week1.json']],
     barsmallplot: [['bar_rain_week.json'],['year.json'],[null]],
@@ -93,6 +96,7 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json'],[null]]
 };
 
+var tempcolors = [[-10,"#3369e7"],[-5,"#3b9cac"],[0,"#00a4b4"],[5,"#00a4b4"],[10,"#88b04b"],[15,"#e6a141"],[20,"#ff7c39"],[25,"#efa80f"],[30,"#d05f2d"],[35,"#d86858"],[40,"#fd7641"],[45,"#de2c52"],[50,"#de2c52"]];
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot','bartempwindplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
@@ -459,6 +463,7 @@ function addYearOptions(obj) {
 function custom_tooltip(tooltip, first_line) {
     var order = [], i, j, temp = [], temp1 = [], points = tooltip.points;
     if (points == undefined) points = [tooltip.point];
+    console.log(tooltip);
     for (j = 0; j < points.length; j++)
         order.push(j);
     if (first_line == "date"){
@@ -684,6 +689,43 @@ function create_tempderived_chart(options, span, seriesData, units){
     options.yAxis[0].tickInterval = 10;
     return options;
 };
+
+function create_dewpoint_radial_chart(options, span, seriesData, units){
+    dataMinMax = convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointminmax));
+    dataAvg = convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointaverage));
+    minMax =[];
+    for (var i = 0;i < dataMinMax.length; i++){
+        var date = new Date(dataMinMax[i][0]);
+        var temp = convert_temp(units.temp, "C", dataAvg[i][1])
+        for (var j = 0; j < tempcolors.length-1; j++){
+            if (temp <= tempcolors[j][0] && tempcolors[j+1][0] > temp){
+                minMax.push({x:dataMinMax[i][0], low:dataMinMax[i][1], high:dataMinMax[i][2], name:date.getFullYear() + "-" + (date.getMonth()+1) +"-" + date.getDate(), color:tempcolors[j][1]});
+                break;
+            }
+        }
+    }
+    options.plotOptions.series = {
+        turboThreshold: 0,
+        stacking: "normal",
+        showInLegend: false
+    };
+    options.tooltip.formatter = function() {return custom_tooltip(this, "date")};
+     // useHTML: true,
+      //headerFormat: "{point.x:%d %B, %Y}",
+     // pointFormat: "<table>\n  <tr>\n    <th>low</th>\n    <td>{point.low}</td>\n  </tr>\n  <tr>\n    <th>high</th>\n    <td>{point.high}</td>\n  </tr>\n</table>"
+    //};
+    options.series[0].data = minMax;
+    options.series[0].name = "Temp"
+    options.chart.type = "columnrange";
+    options.chart.polar = true;
+    options.yAxis.max =31;
+    options.yAxis.min =-10;
+    options.yAxis.showFirstLabel = false;
+    options.xAxis.gridLineWidth = 0.5;
+    options.xAxis.type = "datetime";
+    options.xAxis.tickInterval = 2592000000;
+    return options;
+}
 
 function create_dewpoint_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
