@@ -710,18 +710,20 @@ function create_dewpoint_radial_chart(options, span, seriesData, units){
         }
     }
     options.plotOptions.series = {
-        turboThreshold: 0,
         stacking: "normal",
-        showInLegend: false
+   //     showInLegend: false
     };
-    options.tooltip.formatter = function() {return custom_tooltip(this, "date", true)};
-    options.series[0].data = minMax;
-    options.series[0].name = "Temp"
     options.chart.type = "columnrange";
     options.chart.polar = true;
-    options.yAxis.max =31;
-    options.yAxis.min =-10;
-    options.yAxis.showFirstLabel = false;
+    options.series[0].name = "Dewpoint"
+    options.series[1] = [];
+    options.series[1].name = "Temp"
+    options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempminmax));
+    options.series[0].data = minMax;
+    options.tooltip.formatter = function() {return custom_tooltip(this, "date", true)};
+    options.yAxis.max = 31;
+    options.yAxis.min = -10;
+    options.yAxis.showLastLabel = true;
     options.xAxis.gridLineWidth = 0.5;
     options.xAxis.type = "datetime";
     options.xAxis.tickInterval = 2592000000;
