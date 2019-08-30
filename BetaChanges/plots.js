@@ -460,14 +460,16 @@ function addYearOptions(obj) {
     return obj
 };
 
-function custom_tooltip(tooltip, first_line) {
+function custom_tooltip(tooltip, first_line, lowHigh = false) {
     var order = [], i, j, temp = [], temp1 = [], points = tooltip.points;
     if (points == undefined) points = [tooltip.point];
-    console.log(tooltip);
     for (j = 0; j < points.length; j++)
         order.push(j);
     if (first_line == "date"){
-        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
+        if (lowHigh)
+            temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y',new Date(tooltip.x)) + '</span><br/>';
+        else
+            temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
         if (compare_dates){
             for (i = 0; i < compare_dates_ts.length; i++)
                 if (compare_dates_ts[i][0] == tooltip.x && compare_dates_ts[i][1] != null){
@@ -480,7 +482,10 @@ function custom_tooltip(tooltip, first_line) {
        temp = '<span style="font-size: 10px">' + first_line[tooltip.x] + '</span><br/>';
     $(order).each(function(i,j){
         if (points[j] != undefined){
-            temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + parseFloat(points[j].y.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
+            if (lowHigh)
+                temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': Low ' + parseFloat(points[j].y.toFixed(2)) + ' High ' + parseFloat(points[j].point.high.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
+            else
+                temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + parseFloat(points[j].y.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
             if (temp1.length > 0 && i == order.length/2 -1)
                 temp += temp1;
         }
@@ -709,11 +714,7 @@ function create_dewpoint_radial_chart(options, span, seriesData, units){
         stacking: "normal",
         showInLegend: false
     };
-    options.tooltip.formatter = function() {return custom_tooltip(this, "date")};
-     // useHTML: true,
-      //headerFormat: "{point.x:%d %B, %Y}",
-     // pointFormat: "<table>\n  <tr>\n    <th>low</th>\n    <td>{point.low}</td>\n  </tr>\n  <tr>\n    <th>high</th>\n    <td>{point.high}</td>\n  </tr>\n</table>"
-    //};
+    options.tooltip.formatter = function() {return custom_tooltip(this, "date", true)};
     options.series[0].data = minMax;
     options.series[0].name = "Temp"
     options.chart.type = "columnrange";
