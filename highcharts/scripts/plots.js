@@ -18,6 +18,7 @@ var createweeklyfunctions = {
     windallplot: [addWeekOptions, create_windall_chart],
     winddirplot: [addWeekOptions, create_winddir_chart],
     windroseplot: [addWindRoseOptions, setWindRose, create_windrose_chart],
+    lightningplot: [addYearOptions, create_lightning_chart],
     rainplot: [addWeekOptions, create_rain_chart],
     rainmonthplot: [create_rain_month_chart],
     luminosityplot: [addWeekOptions, create_luminosity_chart],
@@ -333,6 +334,7 @@ function create_common_options(){
             opposite: true,
             startOnTick: true,
             endOnTick: true,
+            visible: false,
             tickLength: 4,
             tickPosition: 'outside',
             tickWidth: 1,
@@ -538,7 +540,8 @@ function create_compare_days_ts(series, series1){
     compare_dates_ts = [];
     var a = series.map(function(arr){return arr.slice(0,1);});
     var b = reinflate_time(series1.map(function(arr){return arr.slice(0,1);}),null,true);
-    for(var i=0;i<a.length;i++)compare_dates_ts.push([a[i] == undefined ? null : a[i], b[i] == undefined ? null : b[i]].flat());
+    //for(var i=0;i<a.length;i++)compare_dates_ts.push([a[i] == undefined ? null : a[i], b[i] == undefined ? null : b[i]].flat()); // Correct way
+    for(var i=0;i<a.length;i++)compare_dates_ts.push([a[i] == undefined ? null : a[i], b[i] == undefined ? null : b[i]].reduce((acc, val) => acc.concat(val), []));  // Microsoft way
 }
 
 function setTempSmall(options) {
@@ -1028,13 +1031,10 @@ function create_lightning_chart(options, span, seriesData, units){
     options.series[4].data = reinflate_time(seriesData[0].lightningplot.energyAvg);
     options.yAxis[0].title.text = "Average Distance";
     options.yAxis[0].min = 0;
-    options.yAxis[0].tickInterval = 1;
     options.yAxis[0].allowDecimals = true;
     options.yAxis[1].title.text = "Number of Strikes";
-    options.yAxis[1].tickInterval = 1;
     options.yAxis[1].min = 0;
     options.yAxis[2].title.text = "Energy";
-    options.yAxis[2].tickInterval = 1;
     options.yAxis[2].min = 0;
     options.xAxis[0].minTickInterval =0;
     return options;
@@ -1408,7 +1408,8 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
             buttons.push({text: "Compare Dates", onclick: compare_callback()});
     }
     jQuery.getMultipleJSON(...files).done(function(...results){
-        var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span);
+        //var options = setup_plots(results.flat(), units, create_common_options(), plot_type, span); //Correct Way
+        var options = setup_plots(results.reduce((acc, val) => acc.concat(val), []), units, create_common_options(), plot_type, span); //Microsoft Way
         chart = new Highcharts.StockChart(options,function(chart){setTimeout(function(){$('input.highcharts-range-selector',$('#'+chart.options.chart.renderTo)).datepicker()},0)});
         chart.options.zoomType = 'x';
         chart.pointer.zoomX = true;
