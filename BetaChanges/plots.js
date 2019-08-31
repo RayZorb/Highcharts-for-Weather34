@@ -95,7 +95,7 @@ var jsonfileforplot = {
 
 var tempcolors = [[-10,"#3369e7"],[-5,"#3b9cac"],[0,"#00a4b4"],[5,"#00a4b4"],[10,"#88b04b"],[15,"#e6a141"],[20,"#ff7c39"],[25,"#efa80f"],[30,"#d05f2d"],[35,"#d86858"],[40,"#fd7641"],[45,"#de2c52"],[50,"#de2c52"]];
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot','bartempwindplot'];
-var radialplots = ['dewpointplot','temperatureplot'];
+var radialplots = ['dewpointplot','temperatureplot','indoorplot','humidityplot','barometerplot','radiationplot','uvplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
@@ -480,7 +480,7 @@ function custom_tooltip(tooltip, first_line, lowHigh = false) {
     }else
        temp = '<span style="font-size: 10px">' + first_line[tooltip.x] + '</span><br/>';
     $(order).each(function(i,j){
-        if (points[j] != undefined){
+        if (points[j] != undefined && points[j].y != undefined && points[j].point.high != undefined){
             if (lowHigh)
                 temp += '<span style="color: '+points[j].series.color+'">' + getTranslation(points[j].series.name) + ': ' + getTranslation('Lowest') + ' ' + parseFloat(points[j].y.toFixed(2)) + ' ' + getTranslation('Highest') + ' ' + parseFloat(points[j].point.high.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
             else
@@ -606,6 +606,13 @@ function create_temperature_chart(options, span, seriesData, units){
 };
 
 function create_indoor_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempminmax)));
+        dataAvg.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Temperature'], units.temp);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Greenhouse Temperature Humidity Ranges & Averages', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempminmax));
@@ -732,6 +739,13 @@ function create_dewpoint_chart(options, span, seriesData, units){
 };
 
 function create_humidity_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(reinflate_time(seriesData[0].humidityplot.outHumidityminmax));
+        dataAvg.push(reinflate_time(seriesData[0].humidityplot.outHumidityaverage));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Humidity'], null);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Humidity Ranges & Averages', null,[['Humidity Range', 'columnrange',,,,{valueSuffix: '%'}],['Average Humidity','spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = reinflate_time(seriesData[0].humidityplot.outHumidityminmax);
@@ -764,6 +778,13 @@ function setBarSmall(obj) {
 };
 
 function create_barometer_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometerminmax)));
+        dataAvg.push(convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometeraverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Barometer'], null);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Barometer Ranges & Averages',units.pressure,[['Barometer Range', 'columnrange'],['Average Barometer','spline']]);
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometerminmax));
@@ -1102,6 +1123,13 @@ function setRadSmall(options) {
 };
 
 function create_radiation_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(reinflate_time(seriesData[0].radiationplot.radiationmax));
+        dataAvg.push(reinflate_time(seriesData[0].radiationplot.radiationaverage));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Radiation'], null);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'column', 'Solar Radiation Maximum & Average','W/m\u00B2', [['Max Solar Radiation', 'column'], ["Avg Solar Radiation", 'column'], ['Max UVAWm', 'column',,false,false], ["Avg UVAWm", 'column',,false,false], ['Max UVBWm', 'column',,false,false], ["Avg UVBWm", 'column',,false,false]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiationmax);
@@ -1209,6 +1237,13 @@ function setUvSmall(options) {
 };
 
 function create_uv_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(reinflate_time(seriesData[0].uvplot.uvmax));
+        dataAvg.push(reinflate_time(seriesData[0].uvplot.uvaverage));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['UV Index'], null);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'column', 'UV Index Maximum & Average', null, [['UV Max', 'column'], ['UV Avg', 'column'], ['UVA Max', 'column',, false, false], ['UVA Avg', 'column',, false, false], ['UVB Max', 'column',, false, false], ['UVB Avg', 'column',, false, false]]);
         options.series[0].data = reinflate_time(seriesData[0].uvplot.uvmax);
@@ -1279,7 +1314,7 @@ function do_radial_chart(options, dataMinMax, dataAvg, names, unit){
         minMax[k] = [];
         for (var i = 0; i < dataMinMax[k].length; i++){
             var date = new Date(dataMinMax[k][i][0]);
-            var temp = convert_temp(unit, "C", dataAvg[k][i][1])
+            var temp = unit != null ? convert_temp(unit, "C", dataAvg[k][i][1]) : 40;
             for (var j = 0; j < tempcolors.length-1; j++){
                 if (temp <= tempcolors[j][0] && tempcolors[j+1][0] > temp){
                     minMax[k].push({x:dataMinMax[k][i][0], low:dataMinMax[k][i][1], high:dataMinMax[k][i][2], name:date.getFullYear() + "-" + (date.getMonth()+1) +"-" + date.getDate(), color:tempcolors[j][1]});
