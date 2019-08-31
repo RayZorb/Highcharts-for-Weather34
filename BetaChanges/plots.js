@@ -95,7 +95,7 @@ var jsonfileforplot = {
 
 var tempcolors = [[-10,"#3369e7"],[-5,"#3b9cac"],[0,"#00a4b4"],[5,"#00a4b4"],[10,"#88b04b"],[15,"#e6a141"],[20,"#ff7c39"],[25,"#efa80f"],[30,"#d05f2d"],[35,"#d86858"],[40,"#fd7641"],[45,"#de2c52"],[50,"#de2c52"]];
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot','bartempwindplot'];
-var radialplots = ['dewpointplot','temperatureplot','indoorplot','humidityplot','barometerplot','radiationplot','uvplot'];
+var radialplots = ['dewpointplot','temperatureplot','indoorplot','humidityplot','barometerplot','tempderivedplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
@@ -671,6 +671,15 @@ function create_tempall_chart(options, span, seriesData, units){
 };
 
 function create_tempderived_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillminmax)));
+        dataMinMax.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.heatindexminmax)));
+        dataAvg.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillaverage)));
+        dataAvg.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.heatindexaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Windchill', 'Heatindex'], units.temp);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Windchill Heatindex Apparent Ranges & Averages', '\xB0' + units.temp, [['Windchill Range', 'columnrange'],['Average Windchill','spline'],['Heatindex Range', 'columnrange'],['Average Heatindex','spline'],['Apparent Range', 'columnrange',, false,false],['Apparent Avg', 'spline',, false,false]]);
         options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillminmax));
@@ -1123,13 +1132,6 @@ function setRadSmall(options) {
 };
 
 function create_radiation_chart(options, span, seriesData, units){
-    if (do_radial){
-        var dataMinMax = [];
-        var dataAvg = [];
-        dataMinMax.push(reinflate_time(seriesData[0].radiationplot.radiationmax));
-        dataAvg.push(reinflate_time(seriesData[0].radiationplot.radiationaverage));
-        return do_radial_chart(options, dataMinMax, dataAvg, ['Radiation'], null);
-    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'column', 'Solar Radiation Maximum & Average','W/m\u00B2', [['Max Solar Radiation', 'column'], ["Avg Solar Radiation", 'column'], ['Max UVAWm', 'column',,false,false], ["Avg UVAWm", 'column',,false,false], ['Max UVBWm', 'column',,false,false], ["Avg UVBWm", 'column',,false,false]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiationmax);
@@ -1237,13 +1239,6 @@ function setUvSmall(options) {
 };
 
 function create_uv_chart(options, span, seriesData, units){
-    if (do_radial){
-        var dataMinMax = [];
-        var dataAvg = [];
-        dataMinMax.push(reinflate_time(seriesData[0].uvplot.uvmax));
-        dataAvg.push(reinflate_time(seriesData[0].uvplot.uvaverage));
-        return do_radial_chart(options, dataMinMax, dataAvg, ['UV Index'], null);
-    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'column', 'UV Index Maximum & Average', null, [['UV Max', 'column'], ['UV Avg', 'column'], ['UVA Max', 'column',, false, false], ['UVA Avg', 'column',, false, false], ['UVB Max', 'column',, false, false], ['UVB Avg', 'column',, false, false]]);
         options.series[0].data = reinflate_time(seriesData[0].uvplot.uvmax);
