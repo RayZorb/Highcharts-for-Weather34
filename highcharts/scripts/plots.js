@@ -93,7 +93,9 @@ var jsonfileforplot = {
     uvsmallplot: [['solar_week.json'],['year.json'],[null]]
 };
 
+var tempcolors = [[-10,"#3369e7"],[-5,"#3b9cac"],[0,"#00a4b4"],[5,"#00a4b4"],[10,"#88b04b"],[15,"#e6a141"],[20,"#ff7c39"],[25,"#efa80f"],[30,"#d05f2d"],[35,"#d86858"],[40,"#fd7641"],[45,"#de2c52"],[50,"#de2c52"]];
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot','bartempwindplot'];
+var radialplots = ['dewpointplot','temperatureplot','indoorplot','humidityplot','barometerplot','tempderivedplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
@@ -103,6 +105,7 @@ var reload_span = null;
 var compare_dates_ts = [];
 var compare_dates = false;
 var do_realtime = false;
+var do_radial = false
 var auto_update = false;
 var day_plots = false;
 var buttons = null;
@@ -456,13 +459,16 @@ function addYearOptions(obj) {
     return obj
 };
 
-function custom_tooltip(tooltip, first_line) {
+function custom_tooltip(tooltip, first_line, lowHigh = false) {
     var order = [], i, j, temp = [], temp1 = [], points = tooltip.points;
     if (points == undefined) points = [tooltip.point];
     for (j = 0; j < points.length; j++)
         order.push(j);
     if (first_line == "date"){
-        temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
+        if (lowHigh)
+            temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y',new Date(tooltip.x)) + '</span><br/>';
+        else
+            temp = '<span style="font-size: 10px">' + Highcharts.dateFormat('%e %B %Y %H:%M',new Date(tooltip.x)) + '</span><br/>';
         if (compare_dates){
             for (i = 0; i < compare_dates_ts.length; i++)
                 if (compare_dates_ts[i][0] == tooltip.x && compare_dates_ts[i][1] != null){
@@ -474,8 +480,12 @@ function custom_tooltip(tooltip, first_line) {
     }else
        temp = '<span style="font-size: 10px">' + first_line[tooltip.x] + '</span><br/>';
     $(order).each(function(i,j){
-        if (points[j] != undefined){
-            temp += '<span style="color: '+points[j].series.color+'">' + points[j].series.name + ': ' + parseFloat(points[j].y.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
+        if (points[j] != undefined && points[j].y != undefined){
+            if (lowHigh){
+                if (points[j].point.high != undefined)
+                    temp += '<span style="color: '+points[j].series.color+'">' + getTranslation(points[j].series.name) + ': ' + getTranslation('Lowest') + ' ' + parseFloat(points[j].y.toFixed(2)) + ' ' + getTranslation('Highest') + ' ' + parseFloat(points[j].point.high.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
+            }else
+                temp += '<span style="color: '+points[j].series.color+'">' + getTranslation(points[j].series.name) + ': ' + parseFloat(points[j].y.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
             if (temp1.length > 0 && i == order.length/2 -1)
                 temp += temp1;
         }
@@ -508,6 +518,8 @@ function create_chart_options(options, type, title, valueSuffix, values, first_l
         for (var j = 0; j < fields.length; j++)
             if (values[i][j] != null){
                 options.series[i][fields[j]] = (fields[j] == 'name' ? getTranslation(values[i][j]) : values[i][j]);  
+                if (fields[j] == 'yAxis')
+                    options[fields[j]][values[i][j]].visible = true;
                 if (fields[j] == 'xAxis'){
                     options[fields[j]][values[i][j]].visible = true;
                     options[fields[j]][values[i][j]].linkedTo = 0;
@@ -552,7 +564,16 @@ function setTempSmall(options) {
 };
 
 function create_temperature_chart(options, span, seriesData, units){
-     if (span[0] == "yearly"){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempminmax)));
+        dataMinMax.push(convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointminmax)));
+        dataAvg.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempaverage)));
+        dataAvg.push(convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Temperature', 'Dewpoint'], units.temp);
+    }
+    if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint Ranges & Averages', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint', 'spline']]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempminmax));
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempaverage));
@@ -588,6 +609,13 @@ function create_temperature_chart(options, span, seriesData, units){
 };
 
 function create_indoor_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempminmax)));
+        dataAvg.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Temperature'], units.temp);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Greenhouse Temperature Humidity Ranges & Averages', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempminmax));
@@ -646,6 +674,15 @@ function create_tempall_chart(options, span, seriesData, units){
 };
 
 function create_tempderived_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillminmax)));
+        dataMinMax.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.heatindexminmax)));
+        dataAvg.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillaverage)));
+        dataAvg.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.heatindexaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Windchill', 'Heatindex'], units.temp);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Windchill Heatindex Apparent Ranges & Averages', '\xB0' + units.temp, [['Windchill Range', 'columnrange'],['Average Windchill','spline'],['Heatindex Range', 'columnrange'],['Average Heatindex','spline'],['Apparent Range', 'columnrange',, false,false],['Apparent Avg', 'spline',, false,false]]);
         options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillminmax));
@@ -686,7 +723,14 @@ function create_tempderived_chart(options, span, seriesData, units){
 };
 
 function create_dewpoint_chart(options, span, seriesData, units){
-    if (span[0] == "yearly"){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointminmax)));
+        dataAvg.push(convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ["Dewpoint"], units.temp);
+    }
+    else if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Dewpoint Ranges & Averages', '\xB0' + units.temp, [['Dewpoint Range', 'columnrange'],['Dewpoint','spline']]);
         options.series[0].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointminmax));
         options.series[1].data = convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointaverage));
@@ -707,6 +751,13 @@ function create_dewpoint_chart(options, span, seriesData, units){
 };
 
 function create_humidity_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(reinflate_time(seriesData[0].humidityplot.outHumidityminmax));
+        dataAvg.push(reinflate_time(seriesData[0].humidityplot.outHumidityaverage));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Humidity'], null);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Humidity Ranges & Averages', null,[['Humidity Range', 'columnrange',,,,{valueSuffix: '%'}],['Average Humidity','spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = reinflate_time(seriesData[0].humidityplot.outHumidityminmax);
@@ -739,6 +790,13 @@ function setBarSmall(obj) {
 };
 
 function create_barometer_chart(options, span, seriesData, units){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometerminmax)));
+        dataAvg.push(convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometeraverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Barometer'], null);
+    }
     if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Barometer Ranges & Averages',units.pressure,[['Barometer Range', 'columnrange'],['Average Barometer','spline']]);
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometerminmax));
@@ -1248,6 +1306,39 @@ function create_uv_chart(options, span, seriesData, units){
     return options;
 };
 
+function do_radial_chart(options, dataMinMax, dataAvg, names, unit){
+    minMax = [];
+    for (var k = 0; k < dataMinMax.length; k++){
+        minMax[k] = [];
+        for (var i = 0; i < dataMinMax[k].length; i++){
+            var date = new Date(dataMinMax[k][i][0]);
+            var temp = unit != null ? convert_temp(unit, "C", dataAvg[k][i][1]) : 40;
+            for (var j = 0; j < tempcolors.length-1; j++){
+                if (temp <= tempcolors[j][0] && tempcolors[j+1][0] > temp){
+                    minMax[k].push({x:dataMinMax[k][i][0], low:dataMinMax[k][i][1], high:dataMinMax[k][i][2], name:date.getFullYear() + "-" + (date.getMonth()+1) +"-" + date.getDate(), color:tempcolors[j][1]});
+                    break;
+                }
+            }
+        }
+    }
+    options.chart.type = "columnrange";
+    options.chart.polar = true;
+    options.plotOptions.series = {stacking: "normal"};
+    for (var k = 0; k < dataMinMax.length; k++){
+        options.series[k] = [];
+        options.series[k].name = getTranslation(names[k]);
+        options.series[k].data = minMax[k];
+    }
+    options.tooltip.formatter = function() {return custom_tooltip(this, "date", true)};
+    options.yAxis.max = 31;
+    options.yAxis.min = -10;
+    options.yAxis.showLastLabel = true;
+    options.xAxis.gridLineWidth = 0.5;
+    options.xAxis.type = "datetime";
+    options.xAxis.tickInterval = 2592000000;
+    return options;
+};
+
 function do_realtime_update(chart, plot_type, units){
     if (!do_realtime){
         if (timer2 != null){
@@ -1340,7 +1431,7 @@ function setup_plots(seriesData, units, options, plot_type, span){
     return options
 };
 
-function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null, realtime = false){
+function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null, realtime = false, radial = false){
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span, realtime);
     day_plots = dplots;
@@ -1348,6 +1439,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
     reload_plot_type = plot_type;
     reload_span = span;
     do_realtime = realtime;
+    do_radial = radial
     if (reload_plot_type_span != null){
         reload_plot_type = reload_plot_type_span.split(":")[0];
         reload_span = reload_plot_type_span.split(":")[1];
@@ -1379,9 +1471,14 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                                     }                                
                                     setTimeout(display_chart, 0, units, plot_type,span,false,false,reload_plot_type+":"+reload_span, false)}}
         function realtime_callback(){return function(){add_realtime_button(units, plot_type)}}
+        function radial_callback(){return function(){
+                                    if (auto_update) return;
+                                    if (do_realtime) return;
+                                    setTimeout(display_chart, 0, units, plot_type,span,false,false,reload_plot_type+":"+reload_span, false, true)}}                                    
         function compare_callback(){return function(){
                                     if (auto_update) return;
                                     if (do_realtime) return;
+                                    if (span != 'yearly') return;
                                     var epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
                                     var epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
@@ -1402,8 +1499,11 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false)});
+        console.log(radialplots.hasOwnProperty(plot_type), span);
         if (realtimeplot.hasOwnProperty(plot_type))
             buttons.push({text: "Realtime Update", onclick: realtime_callback()});
+        if (radialplots.includes(plot_type) && span == 'yearly')
+            buttons.push({text: "Radial Chart", onclick: radial_callback()});
         if (jsonfileforplot[plot_type][2][0] != null)
             buttons.push({text: "Compare Dates", onclick: compare_callback()});
     }
@@ -1417,11 +1517,13 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         if (postcreatefunctions.hasOwnProperty(plot_type))
             for (var i = 0; i < postcreatefunctions[plot_type].length; i++)
                 postcreatefunctions[plot_type][i](chart);
-        if (do_realtime){
-            remove_range_selector(chart);           
-            for (var j =0; j < realtimeplot[plot_type][0].length; j++)
-                chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
-            timer2 = setInterval(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : realtimeinterval*1000), chart, plot_type, units);
+        if (do_realtime || do_radial){
+            remove_range_selector(chart);
+            if (do_realtime){         
+                for (var j =0; j < realtimeplot[plot_type][0].length; j++)
+                    chart.series[j].setData(options.series[j].data.slice(-realtimeinterval*realtimeXscaleFactor));
+                timer2 = setInterval(do_realtime_update, (realtimeplot[plot_type][0].length == 0 ? realtimeplot[plot_type][4]*1000 : realtimeinterval*1000), chart, plot_type, units);
+            }
             return;
         }
         if (auto_update && timer1 == null){
