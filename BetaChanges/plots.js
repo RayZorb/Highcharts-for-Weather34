@@ -480,10 +480,11 @@ function custom_tooltip(tooltip, first_line, lowHigh = false) {
     }else
        temp = '<span style="font-size: 10px">' + first_line[tooltip.x] + '</span><br/>';
     $(order).each(function(i,j){
-        if (points[j] != undefined && points[j].y != undefined && points[j].point.high != undefined){
-            if (lowHigh)
-                temp += '<span style="color: '+points[j].series.color+'">' + getTranslation(points[j].series.name) + ': ' + getTranslation('Lowest') + ' ' + parseFloat(points[j].y.toFixed(2)) + ' ' + getTranslation('Highest') + ' ' + parseFloat(points[j].point.high.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
-            else
+        if (points[j] != undefined && points[j].y != undefined){
+            if (lowHigh){
+                if (points[j].point.high != undefined)
+                    temp += '<span style="color: '+points[j].series.color+'">' + getTranslation(points[j].series.name) + ': ' + getTranslation('Lowest') + ' ' + parseFloat(points[j].y.toFixed(2)) + ' ' + getTranslation('Highest') + ' ' + parseFloat(points[j].point.high.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
+            }else
                 temp += '<span style="color: '+points[j].series.color+'">' + getTranslation(points[j].series.name) + ': ' + parseFloat(points[j].y.toFixed(2)) + points[j].series.tooltipOptions.valueSuffix + '</span><br/>';
             if (temp1.length > 0 && i == order.length/2 -1)
                 temp += temp1;
@@ -517,6 +518,8 @@ function create_chart_options(options, type, title, valueSuffix, values, first_l
         for (var j = 0; j < fields.length; j++)
             if (values[i][j] != null){
                 options.series[i][fields[j]] = (fields[j] == 'name' ? getTranslation(values[i][j]) : values[i][j]);  
+                if (fields[j] == 'yAxis')
+                    options[fields[j]][values[i][j]].visible = true;
                 if (fields[j] == 'xAxis'){
                     options[fields[j]][values[i][j]].visible = true;
                     options[fields[j]][values[i][j]].linkedTo = 0;
