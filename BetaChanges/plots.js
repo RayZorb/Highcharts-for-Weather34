@@ -1433,7 +1433,7 @@ function setup_plots(seriesData, units, options, plot_type, span){
 
 function display_chart(units, plot_type, span, dplots = false, cdates = false, reload_plot_type_span = null, realtime = false, radial = false){
     if (!Array.isArray(span)) span = [span];
-    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span, realtime);
+    console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span, realtime, radial);
     day_plots = dplots;
     compare_dates = cdates;
     reload_plot_type = plot_type;
@@ -1478,7 +1478,6 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         function compare_callback(){return function(){
                                     if (auto_update) return;
                                     if (do_realtime) return;
-                                    if (span != 'yearly') return;
                                     var epoch  = (new Date($('input.highcharts-range-selector:eq(0)').val()).getTime()/1000);
                                     var epoch1 = (new Date($('input.highcharts-range-selector:eq(1)').val()).getTime()/1000);
                                     if (isNaN(epoch) || isNaN(epoch1)) return;
@@ -1499,7 +1498,6 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         buttons = Highcharts.getOptions().exporting.buttons.contextButton.menuItems;
         buttons.push({text: "Reload Chart", onclick: callback(units, plot_type, span, true)});
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false)});
-        console.log(radialplots.hasOwnProperty(plot_type), span);
         if (realtimeplot.hasOwnProperty(plot_type))
             buttons.push({text: "Realtime Update", onclick: realtime_callback()});
         if (radialplots.includes(plot_type) && span == 'yearly')
