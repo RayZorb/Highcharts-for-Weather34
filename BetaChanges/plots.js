@@ -1209,7 +1209,7 @@ function create_radiation_chart(options, span, seriesData, units){
 
 function create_raduv_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'spline', 'Solar Radiation/UV Index Max & Avg', null, [['Solar Radiation Max', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],['Solar Radiation Avg', 'spline',1,,,{valueSuffix: ' W/m\u00B2'}],["UV Index Max", 'spline',1],["UV Index Avg", 'spline',1]]);
+        options = create_chart_options(options, 'spline', 'Solar Radiation/UV Index Max & Avg', null, [['Solar Radiation Max', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],['Solar Radiation Avg', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],["UV Index Max", 'spline',1],["UV Index Avg", 'spline',1]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiationmax);
         options.series[1].data = reinflate_time(seriesData[0].radiationplot.radiationaverage);
         options.series[2].data = reinflate_time(seriesData[0].uvplot.uvmax);
