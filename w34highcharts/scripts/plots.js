@@ -289,7 +289,6 @@ function create_common_options(){
             },
         }],
         yAxis: [{
-            endOnTick: true,
             labels: {
                 x: -4,
                 y: 4,
@@ -939,6 +938,7 @@ function setWindRose(options){
         minorTickWidth: 1,
         opposite: false,
         showLastLabel: true,
+        showFirstLabel: false,
         startOnTick: true,
         tickLength: 4,
         tickWidth: 1,
@@ -1343,8 +1343,7 @@ function do_radial_chart(options, dataMinMax, dataAvg, names, colors){
         options.series[k].data = minMax[k];
     }
     options.tooltip.formatter = function() {return custom_tooltip(this, "date", true)};
-    options.yAxis.min = -10;
-    options.yAxis.showLastLabel = true;
+    options.yAxis = { lineWidth: 1, showLastLabel: false, showFirstLabel: false }
     options.xAxis.gridLineWidth = 0.5;
     options.xAxis.type = "datetime";
     options.xAxis.tickInterval = 2592000000;
