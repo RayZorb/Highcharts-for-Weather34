@@ -94,8 +94,11 @@ var jsonfileforplot = {
 };
 
 var tempcolors = [[-10,"#3369e7"],[-5,"#3b9cac"],[0,"#00a4b4"],[5,"#00a4b4"],[10,"#88b04b"],[15,"#e6a141"],[20,"#ff7c39"],[25,"#efa80f"],[30,"#d05f2d"],[35,"#d86858"],[40,"#fd7641"],[45,"#de2c52"],[50,"#de2c52"]];
+var humcolors = [[0,"#3369e7"],[10,"#3b9cac"],[20,"#00a4b4"],[30,"#00a4b4"],[40,"#88b04b"],[50,"#e6a141"],[60,"#ff7c39"],[70,"#efa80f"],[80,"#d05f2d"],[90,"#d86858"],[100,"#fd7641"]];
+var barcolors = [[28.0,"#3369e7"],[28.25,"#3b9cac"],[28.5,"#00a4b4"],[28.75,"#00a4b4"],[29.0,"#88b04b"],[29.25,"#e6a141"],[29.5,"#ff7c39"],[29.75,"#efa80f"],[30.0,"#d05f2d"],[30.25,"#d86858"],[30.5,"#fd7641"],[30.75,"#de2c52"],[31,"#de2c52"]];
+var windcolors = [[0,"#3369e7"],[2.5,"#3b9cac"],[5,"#00a4b4"],[7.5,"#00a4b4"],[10,"#88b04b"],[12.5,"#e6a141"],[15,"#ff7c39"],[17.5,"#efa80f"],[20,"#d05f2d"],[22.5,"#d86858"],[25,"#fd7641"],[27.5,"#de2c52"],[30,"#de2c52"]];
 var plotsnoswitch = ['tempsmallplot','barsmallplot','windsmallplot','rainsmallplot','rainmonthplot','radsmallplot','uvsmallplot','windroseplot','lightningplot','bartempwindplot'];
-var radialplots = ['dewpointplot','temperatureplot','indoorplot','humidityplot','barometerplot','tempderivedplot'];
+var radialplots = ['dewpointplot','temperatureplot','indoorplot','humidityplot','barometerplot','tempderivedplot','windplot'];
 var monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 var windrosespans = ["1h","24h","Week","Month","Year"];
 var realtimeXscaleFactor = 300/realtimeinterval;
@@ -569,11 +572,11 @@ function create_temperature_chart(options, span, seriesData, units){
         var dataAvg = [];
         dataMinMax.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempminmax)));
         dataMinMax.push(convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointminmax)));
-        dataAvg.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempaverage)));
-        dataAvg.push(convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointaverage)));
-        return do_radial_chart(options, dataMinMax, dataAvg, ['Temperature', 'Dewpoint'], units.temp);
+        dataAvg.push(convert_temp(seriesData[0].temperatureplot.units, "C", reinflate_time(seriesData[0].temperatureplot.outTempaverage)));
+        dataAvg.push(convert_temp(seriesData[0].dewpointplot.units, "C", reinflate_time(seriesData[0].dewpointplot.dewpointaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Temperature', 'Dewpoint'], tempcolors);
     }
-    if (span[0] == "yearly"){
+    else if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Temperature Dewpoint Ranges & Averages', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Dewpoint Range', 'columnrange'],['Average Dewpoint', 'spline']]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempminmax));
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.outTempaverage));
@@ -613,10 +616,10 @@ function create_indoor_chart(options, span, seriesData, units){
         var dataMinMax = [];
         var dataAvg = [];
         dataMinMax.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempminmax)));
-        dataAvg.push(convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempaverage)));
-        return do_radial_chart(options, dataMinMax, dataAvg, ['Temperature'], units.temp);
+        dataAvg.push(convert_temp(seriesData[0].temperatureplot.units, "C", reinflate_time(seriesData[0].temperatureplot.inTempaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Temperature'], tempcolors);
     }
-    if (span[0] == "yearly"){
+    else if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Greenhouse Temperature Humidity Ranges & Averages', '\xB0' + units.temp, [['Temperature Range', 'columnrange'],['Average Temperature','spline'],['Humidity Range', 'columnrange', 1,,, {valueSuffix: '%'}],['Humidity', 'spline', 1,,,{valueSuffix: '%'}]]);
         options.series[0].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempminmax));
         options.series[1].data = convert_temp(seriesData[0].temperatureplot.units, units.temp, reinflate_time(seriesData[0].temperatureplot.inTempaverage))
@@ -679,11 +682,11 @@ function create_tempderived_chart(options, span, seriesData, units){
         var dataAvg = [];
         dataMinMax.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillminmax)));
         dataMinMax.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.heatindexminmax)));
-        dataAvg.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillaverage)));
-        dataAvg.push(convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.heatindexaverage)));
-        return do_radial_chart(options, dataMinMax, dataAvg, ['Windchill', 'Heatindex'], units.temp);
+        dataAvg.push(convert_temp(seriesData[0].windchillplot.units, "C", reinflate_time(seriesData[0].windchillplot.windchillaverage)));
+        dataAvg.push(convert_temp(seriesData[0].windchillplot.units, "C", reinflate_time(seriesData[0].windchillplot.heatindexaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Windchill', 'Heatindex'], tempcolors);
     }
-    if (span[0] == "yearly"){
+    else if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Windchill Heatindex Apparent Ranges & Averages', '\xB0' + units.temp, [['Windchill Range', 'columnrange'],['Average Windchill','spline'],['Heatindex Range', 'columnrange'],['Average Heatindex','spline'],['Apparent Range', 'columnrange',, false,false],['Apparent Avg', 'spline',, false,false]]);
         options.series[0].data = convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillminmax));
         options.series[1].data = convert_temp(seriesData[0].windchillplot.units, units.temp, reinflate_time(seriesData[0].windchillplot.windchillaverage));
@@ -727,8 +730,8 @@ function create_dewpoint_chart(options, span, seriesData, units){
         var dataMinMax = [];
         var dataAvg = [];
         dataMinMax.push(convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointminmax)));
-        dataAvg.push(convert_temp(seriesData[0].dewpointplot.units, units.temp, reinflate_time(seriesData[0].dewpointplot.dewpointaverage)));
-        return do_radial_chart(options, dataMinMax, dataAvg, ["Dewpoint"], units.temp);
+        dataAvg.push(convert_temp(seriesData[0].dewpointplot.units, "C", reinflate_time(seriesData[0].dewpointplot.dewpointaverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ["Dewpoint"], tempcolors);
     }
     else if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Dewpoint Ranges & Averages', '\xB0' + units.temp, [['Dewpoint Range', 'columnrange'],['Dewpoint','spline']]);
@@ -756,9 +759,9 @@ function create_humidity_chart(options, span, seriesData, units){
         var dataAvg = [];
         dataMinMax.push(reinflate_time(seriesData[0].humidityplot.outHumidityminmax));
         dataAvg.push(reinflate_time(seriesData[0].humidityplot.outHumidityaverage));
-        return do_radial_chart(options, dataMinMax, dataAvg, ['Humidity'], null);
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Humidity'], humcolors);
     }
-    if (span[0] == "yearly"){
+    else if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Humidity Ranges & Averages', null,[['Humidity Range', 'columnrange',,,,{valueSuffix: '%'}],['Average Humidity','spline',,,,{valueSuffix: '%'}]]);
         options.series[0].data = reinflate_time(seriesData[0].humidityplot.outHumidityminmax);
         options.series[1].data = reinflate_time(seriesData[0].humidityplot.outHumidityaverage);
@@ -794,10 +797,10 @@ function create_barometer_chart(options, span, seriesData, units){
         var dataMinMax = [];
         var dataAvg = [];
         dataMinMax.push(convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometerminmax)));
-        dataAvg.push(convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometeraverage)));
-        return do_radial_chart(options, dataMinMax, dataAvg, ['Barometer'], null);
+        dataAvg.push(convert_pressure(seriesData[0].barometerplot.units, "inHg", reinflate_time(seriesData[0].barometerplot.barometeraverage)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Barometer'], barcolors);
     }
-    if (span[0] == "yearly"){
+    else if (span[0] == "yearly"){
         options = create_chart_options(options, 'columnrange', 'Barometer Ranges & Averages',units.pressure,[['Barometer Range', 'columnrange'],['Average Barometer','spline']]);
         options.series[0].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometerminmax));
         options.series[1].data = convert_pressure(seriesData[0].barometerplot.units, units.pressure, reinflate_time(seriesData[0].barometerplot.barometeraverage));
@@ -836,7 +839,14 @@ function setWindSmall(options) {
 };
 
 function create_wind_chart(options, span, seriesData, units){
-    if (span[0] == "yearly"){
+    if (do_radial){
+        var dataMinMax = [];
+        var dataAvg = [];
+        dataMinMax.push(convert_wind(seriesData[0].windplot.units, units.wind, reinflate_time(seriesData[0].windplot.windmax)));
+        dataAvg.push(convert_wind(seriesData[0].windplot.units, "mph", reinflate_time(seriesData[0].windplot.windAvmax)));
+        return do_radial_chart(options, dataMinMax, dataAvg, ['Wind Gust Speed'], windcolors);
+    }
+    else if (span[0] == "yearly"){
         options = create_chart_options(options, 'area', 'Wind Speed Gust Max & Averages', units.wind,[['Wind Gust', 'area'],['Average Gust','area'],['Average Wind','area']]);
         options.series[0].data = convert_wind(seriesData[0].windplot.units, units.wind, reinflate_time(seriesData[0].windplot.windmax));
         options.series[1].data = convert_wind(seriesData[0].windplot.units, units.wind, reinflate_time(seriesData[0].windplot.windAvmax));
@@ -1209,7 +1219,7 @@ function create_radiation_chart(options, span, seriesData, units){
 
 function create_raduv_chart(options, span, seriesData, units){
     if (span[0] == "yearly"){
-        options = create_chart_options(options, 'spline', 'Solar Radiation/UV Index Max & Avg', null, [['Solar Radiation Max', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],['Solar Radiation Avg', 'spline',1,,,{valueSuffix: ' W/m\u00B2'}],["UV Index Max", 'spline',1],["UV Index Avg", 'spline',1]]);
+        options = create_chart_options(options, 'spline', 'Solar Radiation/UV Index Max & Avg', null, [['Solar Radiation Max', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],['Solar Radiation Avg', 'spline',,,,{valueSuffix: ' W/m\u00B2'}],["UV Index Max", 'spline',1],["UV Index Avg", 'spline',1]]);
         options.series[0].data = reinflate_time(seriesData[0].radiationplot.radiationmax);
         options.series[1].data = reinflate_time(seriesData[0].radiationplot.radiationaverage);
         options.series[2].data = reinflate_time(seriesData[0].uvplot.uvmax);
@@ -1306,16 +1316,18 @@ function create_uv_chart(options, span, seriesData, units){
     return options;
 };
 
-function do_radial_chart(options, dataMinMax, dataAvg, names, unit){
+function do_radial_chart(options, dataMinMax, dataAvg, names, colors){
     minMax = [];
     for (var k = 0; k < dataMinMax.length; k++){
         minMax[k] = [];
         for (var i = 0; i < dataMinMax[k].length; i++){
             var date = new Date(dataMinMax[k][i][0]);
-            var temp = unit != null ? convert_temp(unit, "C", dataAvg[k][i][1]) : 40;
-            for (var j = 0; j < tempcolors.length-1; j++){
-                if (temp <= tempcolors[j][0] && tempcolors[j+1][0] > temp){
-                    minMax[k].push({x:dataMinMax[k][i][0], low:dataMinMax[k][i][1], high:dataMinMax[k][i][2], name:date.getFullYear() + "-" + (date.getMonth()+1) +"-" + date.getDate(), color:tempcolors[j][1]});
+            for (var j = 0; j < colors.length-1; j++){
+                if (dataAvg[k][i][1] <= colors[j][0] && colors[j+1][0] > dataAvg[k][i][1] || j == colors.length -1){
+                    if (dataMinMax[k][i].length == 2)
+                        minMax[k].push({x:dataMinMax[k][i][0], low:0, high:dataMinMax[k][i][1], name:date.getFullYear() + "-" + (date.getMonth()+1) +"-" + date.getDate(), color:colors[j][1]});
+                    else
+                        minMax[k].push({x:dataMinMax[k][i][0], low:dataMinMax[k][i][1], high:dataMinMax[k][i][2], name:date.getFullYear() + "-" + (date.getMonth()+1) +"-" + date.getDate(), color:colors[j][1]});
                     break;
                 }
             }
@@ -1326,11 +1338,11 @@ function do_radial_chart(options, dataMinMax, dataAvg, names, unit){
     options.plotOptions.series = {stacking: "normal"};
     for (var k = 0; k < dataMinMax.length; k++){
         options.series[k] = [];
+        options.series[k].showInLegend = (minMax.length > 1) ? true : false;
         options.series[k].name = getTranslation(names[k]);
         options.series[k].data = minMax[k];
     }
     options.tooltip.formatter = function() {return custom_tooltip(this, "date", true)};
-    options.yAxis.max = 31;
     options.yAxis.min = -10;
     options.yAxis.showLastLabel = true;
     options.xAxis.gridLineWidth = 0.5;
@@ -1566,4 +1578,3 @@ $.datepicker.setDefaults({
         this.onblur();
     }
 });
-
