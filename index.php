@@ -147,7 +147,7 @@ if ('serviceWorker' in navigator) {
 <?php if ($position6=='forecast3ds.php'){echo'<a alt="Dark Sky Forecast " title="Dark Sky Forecast " href="outlookds.php" data-lity>'. $chartinfo. " Daily Forecast </a>";}?>
 <?php if ($position6=='forecast3wu.php' || $position6=='forecast3wularge.php') {echo ' <a alt="weather underground forecast" title="weather underground forecast" href="outlookwu.php" data-lity>'. $chartinfo. " Daily F.cast </a>";}?>
 <?php if ($position6=='forecast3ds.php' || ($dshourly=='yes' && $apikey!= '11111111111111' && ($position6=='forecast3wu.php' || $position6=='forecast3wularge.php'))) {echo '<a alt="Hourly Forecast" title="Hourly Forecast" href="forecastdshour.php" data-lity>&nbsp;'. $chartinfo. " Hourly F.cast</a>";}?></span>
-<span class="yearpopup"> <a alt="Meteoalarm" title="Meteoalarm" href="meteoalarm.php" data-lity><?php echo $chartinfo?> <?php echo 'Meteoalarm';?></a></span>
+
       </div>
   <span class='moduletitle'>
     <?php echo $position6title ;?>  (<valuetitleunit>&deg;<?php echo $weather["temp_units"] ;?></valuetitleunit>)  </span><br />
@@ -158,7 +158,7 @@ if ('serviceWorker' in navigator) {
   <span class="yearpopup"> <a alt="nearby metar station" title="nearby metar station" href="metarnearby.php" data-lity><?php echo $chartinfo?> <?php echo 'Nearby Metar';?> <?php if(filesize('jsondata/metar34.txt')<160){echo "(<ored>Offline</ored>)";}else echo "" ?></a></span>
   <span class="monthpopup"><a href="windyradar.php" title="Windy.com Radar" alt="Windy.com Radar" data-lity><?php echo $chartinfo?> Radar</a></span>
   <span class="monthpopup"><a href="windywind.php" title="Windy.com Wind Map" alt="Windy.com Wind Map" data-lity><?php echo $chartinfo?> Wind Map</a></span>
-  <span class="yearpopup">  <a alt="aqi" title="aqi" href="aqipopup.php" data-lity > <?php echo $chartinfo?> AQI </a></span>
+  
   
   </div>
   <span class='moduletitle'><?php echo $lang['Currentsky'];?></span><br />
