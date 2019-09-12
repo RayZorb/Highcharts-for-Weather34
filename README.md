@@ -37,12 +37,17 @@ A modified index.php page is included with links to some of these charts. You ca
 
 # Installation and Setup Instructions
 
-1. Download the .zip file to the root folder of WX-HWS template installation.
-2. Unzip the file which will result in a new folder, highcharts.
-3. Included in this folder are versions of index.php, barometeralmanac.php, rainfallalmanac.php, solaralmanac.php, tempalmanac.php,uvalmanac.php, windalmanac.php which include the essential links to the new charts. Rename your existing WX-HWS files (for example index.php to index.php.cjs) and replace them with the new versions.
-4. Go to the languages folder in this repository. Copy the two files contained within to the languages folder of your WX-HWS installation.
-5. Go to your skins/Highcharts folder and rename your Highcharts skin.conf file and json folder. Replace it with the skin.conf file and json folder found in the skin/Highcharts folder in this repository.         
-6. Go to the [CheetahGenerator] stanza and change [YOUR_PATH] to reflect your own path. For example it might be '/var/www/html/pws/highcharts'
+1. Download the .zip file to a convienient location.
+2. Unzip the file which will result in a new folder, highcharts-for-wx-hws-master.
+3. Included in this folder a new version of index.php plus w34barometeralmanac.php, w34rainfallalmanac.php, w34solaralmanac.php, w34tempalmanac.php,w34uvalmanac.php, w34windalmanac.php which include the essential links to the new charts. Rename your existing WX-HWS index.php file found in the root of your WX-HWS installation (for example index.php to index.php.cjs) and replace it with the new version. 
+4. Go to the languages folder in this repository download. Copy the two files contained within to the languages folder of your WX-HWS installation.
+5. Copy the 6 almanac files (named above) into your WX-HWS root folder.
+6. Copy the two files in the languages folder into your WX-HWS languages folder.
+7. Copy the w34highcharts folder into your WX-HWS root folder.
+8. Open the skins folder and copy the w34Highcharts within to your WeeWX installation skins folder. Depending on your installation, you will generally find your skins folder either at /home/weewx/skins or /etc/weewx/skins.
+9. Open the user folder and copy the two files within to your WeeWX installation user folder. Depending on your installation type, you will generally find your user folder either at /home/weewx/bin/user or /usr/bin/user.
+10. Stop WeeWX and edit it your weewx.conf file (either at /home/weewx or /etc/weewx).
+6. Go to the [CheetahGenerator] stanza and change [YOUR_PATH] to reflect your own path. For example it might be '/var/www/html/pws/w34highcharts'
 7. Go to your WeeWX installation and find the /bin/user folder. Rename the highchartsSearchX.py to say highchartsSearchX.py.backup and copy the highchartsSearchX.py in the user folder of this repository into /bin/user folder in its place. 
 8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
 9. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
