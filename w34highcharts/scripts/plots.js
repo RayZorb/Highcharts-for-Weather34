@@ -1485,7 +1485,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         function radial_callback(){return function(){
                                     if (auto_update) return;
                                     if (do_realtime) return;
-                                    setTimeout(display_chart, 0, units, plot_type,span,false,false,reload_plot_type+":"+reload_span, false, true)}}                                    
+                                    setTimeout(display_chart, 0, units, plot_type,"yearly",false,false,reload_plot_type+":"+reload_span, false, true)}}                                    
         function compare_callback(){return function(){
                                     if (auto_update) return;
                                     if (do_realtime) return;
@@ -1511,7 +1511,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
         buttons.push({text: "Auto Update Chart OFF", onclick: callback(units, plot_type, span, false)});
         if (realtimeplot.hasOwnProperty(plot_type))
             buttons.push({text: "Realtime Update", onclick: realtime_callback()});
-        if (radialplots.includes(plot_type) && span == 'yearly')
+        if (radialplots.includes(plot_type))
             buttons.push({text: "Radial Chart", onclick: radial_callback()});
         if (jsonfileforplot[plot_type][2][0] != null)
             buttons.push({text: "Compare Dates", onclick: compare_callback()});
