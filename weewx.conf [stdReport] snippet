@@ -1,5 +1,5 @@
 [[Highcharts]]
-        skin = Highcharts
+        skin = w34Highcharts
         [[[Units]]]
             [[[[StringFormats]]]]
                 mm_per_hour = %.1f
