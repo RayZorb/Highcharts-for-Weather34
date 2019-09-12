@@ -1,4 +1,4 @@
-# Highcharts for WX-HWS
+# Highcharts for WX-HWS (requires WeeWX 3.9.2 or later)
 
 Credits: -
 
@@ -129,64 +129,21 @@ A modified index.php page is included with links to some of these charts. You ca
                                         [[[[[YearJSON]]]]]
                                             stale_age = 3600
 
-6. Go to the [CheetahGenerator] stanza and change [YOUR_PATH] to reflect your own path. For example it might be '/var/www/html/pws/w34highcharts'
-7. Go to your WeeWX installation and find the /bin/user folder. Rename the highchartsSearchX.py to say highchartsSearchX.py.backup and copy the highchartsSearchX.py in the user folder of this repository into /bin/user folder in its place. 
-8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = "mbcharts";' to read '$chartsource   = "highcharts";'
+ 
+8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = 'mbcharts;' to read '$chartsource   = 'w34highcharts';
 9. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
 10. Open your website page and click on any of the chart links and a new chart will be displayed.
-11. You will find additional controls which allows you change the time frame and zoom-in on data etc.
-12. The charts that are set up to be generated are as follows: -
-
-            Temperature/Dewpoint = 'temperatureplot'
+11. You will find additional controls which allows you change the time frame and zoom-in on data etc. 
+12. Apart from the many features metioned earlier, the context menu (button top right in each chart) allows the charts to be displayed full screen, printed or saved.
             
-            Wind Chill/Heat Index/Apparent Temperature = 'windchillplot'
-            
-            Humidity = 'humidityplot'
-            
-            Barometer = 'barometerplot'
-            
-            Wind = 'windplot'
-            
-            Wind Direction = 'winddirplot'
-            
-            Wind Rose = 'windroseplot'
-            
-            Rain = 'rainplot'
-            
-            Solar =  'radiationplot'
-            
-            UV = 'uvplot'
-            
-13. You will notice that not all of these charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
+13. You will notice that not all of the available charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
 
             href="<?php echo $chartsource;?>/highcharts.html?chart='[chart_ID]'&span='[time_frame]'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity >
             
-            The complete list of chart IDs available are as follows (the small plots are included in the almanacs): -
-            
-            temperatureplot,
-            indoorplot,
-            tempsmallplot,
-            tempallplot,
-            tempderivedplot,
-            humidityplot,
-            barometerplot,
-            barsmallplot,
-            dewpointplot,
-            windsmallplot,
-            winddirplot,
-            windplot,
-            windallplot,
-            windroseplot,
-            rainplot,
-            rainsmallplot,
-            radiationplot,
-            raduvplot,
-            radsmallplot,
-            uvplot,
-            uvsmallplot
             
             
-Any problems, contact me on steepleian@gmail.com or raise an Issue            
+            
+Any problems, please raise an Issue in this repository           
             
             
             
