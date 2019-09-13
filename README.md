@@ -44,7 +44,7 @@ A modified index.php page is included with links to some of these charts. You ca
 5. Copy the 6 almanac files (named above) into your WX-HWS root folder.
 6. Copy the two files in the languages folder into your WX-HWS languages folder.
 7. Copy the w34highcharts folder into your WX-HWS root folder.
-8. Open the skins folder and copy the w34Highcharts within to your WeeWX installation skins folder. Depending on your installation, you will generally find your skins folder either at /home/weewx/skins or /etc/weewx/skins.
+8. Open the skins folder and copy the w34Highcharts and w34Highcharts-day folders within to your WeeWX installation skins folder. Depending on your installation, you will generally find your skins folder either at /home/weewx/skins or /etc/weewx/skins.
 9. Open the user folder and copy the two files within to your WeeWX installation user folder. Depending on your installation type, you will generally find your user folder either at /home/weewx/bin/user or /usr/bin/user.
 10. Stop WeeWX and edit it your weewx.conf file (either at /home/weewx or /etc/weewx) and add the following snippet under the [stdReport] stanza: -
                         
