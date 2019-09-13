@@ -131,12 +131,17 @@ A modified index.php page is included with links to some of these charts. You ca
 
  
 8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = 'mbcharts;' to read '$chartsource   = 'w34highcharts';
-9. Re-start WeeWX. Wait for the first archive period to elapse. Additional folders 'json' and 'json_day' should now have been created in the highcharts folder. These contain the day, week and year json data files which are updated every archive period.
-10. Open your website page and click on any of the chart links and a new chart will be displayed.
-11. You will find additional controls which allows you change the time frame and zoom-in on data etc. 
-12. Apart from the many features metioned earlier, the context menu (button top right in each chart) allows the charts to be displayed full screen, printed or saved.
+9. Finally make sure that you have ownership of your WX-HWS root folder and it contents. From the command line: -
+
+            sudo chown username: www-data -R /your_path_to_WX-HWS_root_folder. 
+            For example sudo chown fredbloggs: www-data -R /var/www/html
             
-13. You will notice that not all of the available charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
+10. Re-start WeeWX. Wait for the first archive period to elapse. Additional folders 'json' and 'json_day' should now have been created in the highcharts folder. These contain the day, week and year json data files which are updated every archive period.
+11. Open your website page and click on any of the chart links and a new chart will be displayed.
+12. You will find additional controls which allows you change the time frame and zoom-in on data etc. 
+13. Apart from the many features metioned earlier, the context menu (button top right in each chart) allows the charts to be displayed full screen, printed or saved.
+            
+14. You will notice that not all of the available charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
 
             href="<?php echo $chartsource;?>/highcharts.html?chart='[chart_ID]'&span='[time_frame]'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" data-lity >
             
