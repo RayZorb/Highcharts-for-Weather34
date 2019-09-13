@@ -39,7 +39,7 @@ A modified index.php page is included with links to some of these charts. You ca
 
 1. Download the .zip file to a convienient location.
 2. Unzip the file which will result in a new folder, highcharts-for-wx-hws-master.
-3. Included in this folder a new version of index.php plus w34barometeralmanac.php, w34rainfallalmanac.php, w34solaralmanac.php, w34tempalmanac.php,w34uvalmanac.php, w34windalmanac.php which include the essential links to the new charts. Rename your existing WX-HWS index.php file found in the root of your WX-HWS installation (for example index.php to index.php.cjs) and replace it with the new version. 
+3. Included in this folder a new versions of index.php and easywxsetup.php plus new files w34barometeralmanac.php, w34rainfallalmanac.php, w34solaralmanac.php, w34tempalmanac.php,w34uvalmanac.php, w34windalmanac.php which include the essential links to the new charts. Rename your existing WX-HWS index.php and easywxsetup.php files found in the root of your WX-HWS installation (for example index.php to index.php.cjs) and replace them with the new versions. 
 4. Go to the languages folder in this repository download. Copy the two files contained within to the languages folder of your WX-HWS installation.
 5. Copy the 6 almanac files (named above) into your WX-HWS root folder.
 6. Copy the two files in the languages folder into your WX-HWS languages folder.
@@ -131,7 +131,7 @@ A modified index.php page is included with links to some of these charts. You ca
 
  
 8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = 'mbcharts;' to read '$chartsource   = 'w34highcharts';
-9. Re-start WeeWX. Wait for the first archive period to elapse. An additional folder 'json' should now be created in the highcharts folder. This contains the week and year json data files which are updated every archive period.
+9. Re-start WeeWX. Wait for the first archive period to elapse. Additional folders 'json' and 'json_day' should now have been created in the highcharts folder. These contain the day, week and year json data files which are updated every archive period.
 10. Open your website page and click on any of the chart links and a new chart will be displayed.
 11. You will find additional controls which allows you change the time frame and zoom-in on data etc. 
 12. Apart from the many features metioned earlier, the context menu (button top right in each chart) allows the charts to be displayed full screen, printed or saved.
