@@ -6,7 +6,7 @@ Gary (gjr80) whose WeeWX Highcharts extension (https://github.com/gjr80/weewx-hi
             
 Jerry Dietrich who did 99% of the heavy lifting by engaging and volunteering his ideas, vision and coding skill at an early stage of this project. This project would certainly not have reached this point without his massive input. Thank you Jerry.
 
-This repository contains the instructions and code to enable Highcharts to be used with the WeeWX version of weather34 home weather template as an alternative to the default CanvasJS. Please make sure that you are using the current version of WX-HWS from https://github.com/steepleian/WX-HWS. This extension does not require the 'https://github.com/gjr80/weewx-highcharts' extension to be installed first, however, if you already have that extension installed there should be no conflicts between the two.
+This repository contains the instructions and code to enable Highcharts to be used with the WeeWX version of weather34 home weather template as an alternative to the default CanvasJS. Please make sure that you are using the current version of WX-HWS from https://github.com/steepleian/WX-HWS. This extension does not require the 'https://github.com/gjr80/weewx-highcharts' extension to be installed first, however, if you already have that extension present there should be no conflicts between the two.
 
 Although this extension is offered here as a manual install, the intention is to include it as a standard feature in a fully packaged future version of WX-HWS which is currently in preparation.
 
