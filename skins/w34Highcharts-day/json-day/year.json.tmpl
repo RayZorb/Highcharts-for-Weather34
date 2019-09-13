@@ -1,0 +1,97 @@
+##errorCatcher Echo
+##
+##This program is free software; you can redistribute it and/or modify it
+##under the terms of the GNU General Public License as published by the Free
+##Software Foundation; either version 2 of the License, or (at your option)
+##any later version.
+##
+##This program is distributed in the hope that it will be useful, but WITHOUT
+##ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+##FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+##more details.
+##
+##############################################################################
+##                                                                           #
+## Highcharts for weewx Extension                                            #
+##                                                                           #
+## Year observation plots JSON data file template                            #
+##                                                                           #
+## Version: 0.2.1                                     Date: 16 May 2017      #
+##                                                                           #
+##############################################################################
+[{
+"_version": "year.json.tmpl version 1.0.0", 
+"utcoffset": $utcOffset, 
+"timespan": {"start": $yearPlotStart, "stop": $yearPlotEnd}, 
+"temperatureplot": {
+"outTempminmax": $outTempMinMax_json, 
+"outTempaverage": $outTempAvg_json, 
+"inTempminmax": $inTempMinMax_json, 
+"inTempaverage": $inTempAvg_json, 
+"units": "$unit.label.outTemp"#slurp
+}, 
+"dewpointplot": {
+"dewpointminmax": $dewpointMinMax_json, 
+"dewpointaverage": $dewpointAvg_json, 
+"units": "$unit.label.outTemp"#slurp
+}, 
+"windchillplot": {
+#if $appTempMinMax_json is not None
+"appTempminmax": $appTempMinMax_json, 
+#end if
+#if $appTempAvg_json is not None
+"appTempaverage": $appTempAvg_json, 
+#end if
+"windchillaverage": $windchillAvg_json, 
+"windchillminmax": $windchillMinMax_json, 
+"heatindexaverage": $heatindexAvg_json, 
+"heatindexminmax": $heatindexMinMax_json, 
+"units": "$unit.label.outTemp"#slurp
+}, 
+"humidityplot": {
+"outHumidityminmax": $outHumidityMinMax_json, 
+"outHumidityaverage": $outHumidityAvg_json, 
+"inHumidityminmax": $inHumidityMinMax_json, 
+"inHumidityaverage": $inHumidityAvg_json, 
+"units": "$unit.label.outHumidity"#slurp
+}, 
+"barometerplot": {
+"barometerminmax": $barometerMinMax_json, 
+"barometeraverage": $barometerAvg_json, 
+"units": "$unit.label.barometer"#slurp
+}, 
+"windplot": {
+"windmax": $windMax_json, 
+"windaverage": $windAvg_json, 
+"windAvmax": $windSpeedMax_json, 
+"windAverage": $windSpeedAvg_json, 
+"units": "$unit.label.windSpeed"#slurp
+}, 
+"winddirplot": {"windDir": $windDir_json, 
+"units": "$unit.label.windDir"#slurp
+}, 
+"rainplot": {
+"rainsum": $rainSum_json, 
+"units": "$unit.label.rain"#slurp
+}, 
+"radiationplot": {
+"radiationmax": $radiationMax_json, 
+"radiationaverage": $radiationAvg_json, 
+"units": "$unit.label.radiation"#slurp
+}, 
+"uvplot": {
+"uvmax": $uvMax_json, 
+"uvaverage": $uvAvg_json, 
+"units": "$unit.label.UV"#slurp
+}, 
+"windroseMonth": {#slurp
+"series": $wrmonth['windrosejson'], 
+"xAxis": {"categories": $wrmonth['xAxisCategoriesjson']}, 
+"yAxis": $wrmonth['yAxisjson']
+},
+"windroseYear": {#slurp
+"series": $wryear['windrosejson'], 
+"xAxis": {"categories": $wryear['xAxisCategoriesjson']}, 
+"yAxis": $wryear['yAxisjson']
+}
+}]
