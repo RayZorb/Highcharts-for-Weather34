@@ -4,7 +4,7 @@ var pathweewxbin ='/home/weewx/bin'  //Physical path to weewx include files for 
 //var pathweewxbin ='/usr/share/weewx'  //Physical path to weewx include files for wee_report_w34 if DEB installed WeeWX
 
 var realtimefile =  pathweewx   + "realtime.txt";    //Location of real-time data from web server
-var pathjsonfiles = pathpws + "w34highcharts/json/";                    //Location weewx report output json files from home location of weewx. DO NOT CHANGE UNLESS YOU CHANGE SKIN DIRECTORY.
+var pathjsonfiles = pathpws + "json/";                    //Location weewx report output json files from home location of weewx. DO NOT CHANGE UNLESS YOU CHANGE SKIN DIRECTORY.
 
 var dayplotsurl =   pathpws   + "w34highcharts/getDayChart.php"; //Location of day reports php file from home location of pws.
 var pathjsondayfiles = "json_day/";                         //Location day report output json files from home location of where wee_report_34 run. DO NOT CHANGE UNLESS YOU CHANGE SKIN DIRECTORY.
