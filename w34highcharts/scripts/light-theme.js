@@ -182,8 +182,9 @@
               symbolFill: '#EC6D6B',
               symbolStroke: '#EC6D6B',
               symbolStrokeWidth: 0,
-              x: -730,
-              y: -12,
+              align: 'left',
+              x: 10,
+              
               theme: {
                         states: {
                             hover: {
@@ -203,8 +204,9 @@
               symbolFill: '#FDBC40',
               symbolStroke: '#FDBC40',
               symbolStrokeWidth: 0,
-              x: -710,
-              y: -12,
+              align: 'left',
+              x: 30,
+              
               backgroundColor: null,
               theme: {
                         states: {
@@ -222,8 +224,9 @@
                 symbolFill: '#33C84A',
                 symbolStroke: '#33C84A',
                 symbolStrokeWidth: 0,
-                x: -690,
-                y: -12,
+                align: 'left',
+              	x: 50,
+                
                 width: 24,
                 backgroundColor: null,
                 theme: {
