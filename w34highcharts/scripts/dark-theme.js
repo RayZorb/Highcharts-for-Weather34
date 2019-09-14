@@ -49,7 +49,7 @@
         }, null, document.getElementsByTagName('head')[0]);
 
         Highcharts.theme = {
-            colors: ['rgba(255, 148, 82, 0.95)', 'rgba(0, 164, 180, 1)', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066',
+            colors: ['rgba(255, 124, 57, 0.8)', '#1ABECE', '#f45b5b', '#7798BF', '#aaeeee', '#ff0066',
                 '#eeaaee', '#55BF3B', '#DF5353', '#7798BF', '#aaeeee'],
             chart: {
                 backgroundColor: 'rgba(40, 45, 52,.4)',
@@ -75,9 +75,9 @@
               	crosshair: {
             	width: 1,
             	color: '#009bab',
-            	dashStyle: 'shortdot'
+            	dashStyle: 'shortdash'
         	},
-              	gridLineDashStyle: 'shortdash',
+              	gridLineDashStyle: 'shortdot',
               	gridLineWidth: 1, 
               	gridLineColor: 'RGBA(64, 65, 66, 0.8)',
                 labels: {
@@ -95,6 +95,7 @@
                     }
                 }
             },
+          		
             yAxis: {
                 crosshair: {
             	width: 1,
@@ -182,8 +183,9 @@
               symbolFill: '#EC6D6B',
               symbolStroke: '#EC6D6B',
               symbolStrokeWidth: 0,
-              x: -730,
-              y: -12,
+ 			  align: 'left',
+              x: 10,
+              
               theme: {
                         states: {
                             hover: {
@@ -203,8 +205,9 @@
               symbolFill: '#FDBC40',
               symbolStroke: '#FDBC40',
               symbolStrokeWidth: 0,
-              x: -710,
-              y: -12,
+              align: 'left',
+              x: 30,
+              
               backgroundColor: null,
               theme: {
                         states: {
@@ -222,8 +225,9 @@
                 symbolFill: '#33C84A',
                 symbolStroke: '#33C84A',
                 symbolStrokeWidth: 0,
-                x: -690,
-                y: -12,
+                align: 'left',
+              	x: 50,
+                
                 width: 24,
                 backgroundColor: null,
                 theme: {
@@ -243,6 +247,7 @@
           	navigation: {
                 buttonOptions: {
                     symbolStroke: '#DDDDDD',
+                  
                     theme: {
                         fill: 'transparent'
                     }
