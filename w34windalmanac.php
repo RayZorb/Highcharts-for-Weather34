@@ -380,7 +380,7 @@ Max Recorded <br><blue><?php echo $weather["windamaxtime"];?></blue></div>
     
   <articlegraph> 
   <div class=actualt><?php echo date('Y');?> Wind (<?php echo $weather["wind_units"]?>)</div>  
-  <iframe  src="highcharts/dark-charts.html?chart='windsmallplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" frameborder="0" scrolling="no" width="100%" height="210px"></iframe>
+  <iframe  src="w34highcharts/dark-charts.html?chart='windsmallplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" frameborder="0" scrolling="no" width="100%" height="210px"></iframe>
    
   </articlegraph> 
   
