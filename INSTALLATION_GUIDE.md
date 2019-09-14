@@ -94,15 +94,16 @@
 
  
 8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = 'mbcharts;' to read '$chartsource   = 'w34highcharts';
-9. Finally make sure that you have ownership of your WX-HWS root folder and it contents. From the command line: -
+9. Setting the correct paths.
+10. Finally make sure that you have ownership of your WX-HWS root folder and it contents. From the command line: -
 
             sudo chown username: www-data -R /your_path_to_WX-HWS_root_folder. 
             (as an example sudo chown fredbloggs: www-data -R /var/www/html)
             
-10. Re-start WeeWX. Wait for the first archive period to elapse. Additional folder 'json' should now have been created in the 'w34highcharts folder'. The 'json_day' folder will be created in the 'w34highcharts-day' folder the first time the user requests a day report either by using compare days or "picking" a day in the past. These contain the day, week and year json data files which are updated every archive period.
-11. Open your website page and click on any of the chart links and a new chart will be displayed.
-12. You will find additional controls which allows you change the time frame and zoom-in on data etc. 
-13. Apart from the many features metioned earlier, the context menu (button top right in each chart) allows the charts to be displayed full screen, printed or saved.
+11. Re-start WeeWX. Wait for the first archive period to elapse. Additional folder 'json' should now have been created in the 'w34highcharts folder'. The 'json_day' folder will be created in the 'w34highcharts-day' folder the first time the user requests a day report either by using compare days or "picking" a day in the past. These contain the day, week and year json data files which are updated every archive period.
+12. Open your website page and click on any of the chart links and a new chart will be displayed.
+13. You will find additional controls which allows you change the time frame and zoom-in on data etc. 
+14. Apart from the many features metioned earlier, the context menu (button top right in each chart) allows the charts to be displayed full screen, printed or saved.
             
 14. You will notice that not all of the available charts are represented in the links on the alternative index page. If you wish to add or change the links the following format must be used, where '[chart_ID]' is the name of the chart e.g. 'humidityplot and '[time_frame]' is either 'weekly' or 'yearly': -
 
