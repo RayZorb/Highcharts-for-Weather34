@@ -94,7 +94,22 @@
 
  
 8. Find and edit your WX-HWS file settings1.php. At line 38, change '$chartsource   = 'mbcharts;' to read '$chartsource   = 'w34highcharts';
-9. Setting the correct paths.
+9. Setting the correct paths. Go to 'w34highcharts/scripts' in the root of your WX-HWS installation and edit the file 'plots_config.js'. The path settings are in the first few lines: -
+
+        var pathweewx = '/weewx/'             //Path from web server home location to weewx directory
+        var pathpws   = '/pws/'               //Path from web server home location to weather34 directory
+        var pathweewxbin ='/home/weewx/bin'  //Physical path to weewx include files for wee_report_w34 if setup.py installed WeeWX
+        //var pathweewxbin ='/usr/share/weewx'  //Physical path to weewx include files for wee_report_w34 if DEB installed WeeWX
+
+        var realtimefile =  pathweewx   + "realtime.txt";    //Location of real-time data from web server
+        var pathjsonfiles = pathpws + "w34highcharts/json/";                    //Location weewx report output json files from home             location of weewx. DO NOT CHANGE UNLESS YOU CHANGE SKIN DIRECTORY.
+
+        var dayplotsurl =   pathpws   + "w34highcharts/getDayChart.php"; //Location of day reports php file from home location of pws.
+        var pathjsondayfiles = "json_day/";                         //Location day report output json files from home location of where         wee_report_34 run. DO NOT CHANGE UNLESS YOU CHANGE SKIN DIRECTORY.
+        var weereportcmd = "./wee_reports_w34";                     //Command to run wee_report_34. DO NOT CHANGE.
+        
+Ensure that these paths are correct for your installation.        
+
 10. Finally make sure that you have ownership of your WX-HWS root folder and it contents. From the command line: -
 
             sudo chown username: www-data -R /your_path_to_WX-HWS_root_folder. 
