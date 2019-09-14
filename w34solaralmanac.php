@@ -195,7 +195,7 @@ align-items:center;justify-content:center;margin-bottom:10px;top:0}
 <main class="grid1">
   <articlegraph> 
   <div class=actualt>Today <span style="color:#ff9350">Solar W/m<supwm2>2</supwm2></div>  
-    <iframe  src="highcharts/dark-charts.html?chart='radsmallplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" frameborder="0" scrolling="no" width="100%" height="210px"></iframe>
+    <iframe  src="w34highcharts/dark-charts.html?chart='radsmallplot'&span='yearly'&temp='<?php echo $weather['temp_units'];?>'&pressure='<?php echo $weather['barometer_units'];?>'&wind='<?php echo $weather['wind_units'];?>'&rain='<?php echo $weather['rain_units']?>" frameborder="0" scrolling="no" width="100%" height="210px"></iframe>
  
   </articlegraph> 
   
