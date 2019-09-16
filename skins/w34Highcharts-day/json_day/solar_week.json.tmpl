@@ -25,6 +25,12 @@
 "timespan": {"start": $weekPlotStart, "stop": $weekPlotEnd},
 ##
 "radiationplot": {
+#if $uvaWmWeek_json is not None
+"uvaWmWeek": $uvaWmWeek_json, 
+#end if
+#if $uvbWmWeek_json is not None
+"uvbWmWeek": $uvbWmWeek_json, 
+#end if
 #if $insolationWeekjson is not None
 "radiation": $radiationWeekjson,
 "insolation": $insolationWeekjson,
@@ -36,6 +42,21 @@
 ##
 "uvplot": {
 "uv": $uvWeekjson,
+#if $uvaWeek_json is not None
+"uvaWeek": $uvaWeek_json, 
+#end if
+#if $uvbWeek_json is not None
+"uvbWeek": $uvbWeek_json, 
+#end if
+#if $full_spectrumWeek_json is not None
+"full_spectrumWeek": $full_spectrumWeek_json, 
+#end if
+#if $luxWeek_json is not None
+"luxWeek": $luxWeek_json, 
+#end if
+#if $infraredWeek_json is not None
+"infraredWeek": $infraredWeek_json, 
+#end if
 "units": "$unit.label.UV"#slurp
 }
 }]
