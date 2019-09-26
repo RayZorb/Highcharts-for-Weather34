@@ -183,6 +183,7 @@ function create_common_options(){
             },
             series: {states: {hover: {halo: {size: 0,}}}, 
                 turboThreshold:100,
+                connectNulls: true,
             },
             scatter: {
                 dataGrouping: {
@@ -416,11 +417,11 @@ function addWeekOptions(obj, span, seriesData, units, plot_type) {
         text: '24h'
     }, {
         type: 'hour',
-        count: 36,
-        text: '36h'
+        count: 35,
+        text: '35h'
     }, {
         type: 'all',
-        text: compare_dates ? '72h' : '7d'
+        text: compare_dates  || day_plots ? '72h' : '7d'
     }]
     if (realtimeplot.hasOwnProperty(plot_type)){obj.rangeSelector.buttons.push({
         text: getTranslation("RT"),
@@ -448,8 +449,8 @@ function addYearOptions(obj) {
         text: '1m'
     }, {
         type: 'month',
-        count: 6,
-        text: '6m'
+        count: 5,
+        text: '5m'
     }, {
         type: 'all',
         text: '1y'
