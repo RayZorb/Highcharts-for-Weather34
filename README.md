@@ -1,4 +1,4 @@
-# Highcharts for WX-HWS (requires WeeWX 3.9.0 or later)
+# Highcharts for Weather34 (requires WeeWX 3.9.2 or later)
 
 Credits: -
 
