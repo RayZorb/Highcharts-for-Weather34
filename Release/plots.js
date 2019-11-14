@@ -121,7 +121,9 @@ var windrosespan;
 var categories;
 var utcoffset;
 var chart;
-
+var url_units;
+var url_plot_type;
+;
 /*****************************************************************************
 Read multiple json files at the same time found at this URL
 https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-one-getjson-request
@@ -183,7 +185,6 @@ function create_common_options(){
             },
             series: {states: {hover: {halo: {size: 0,}}}, 
                 turboThreshold:100,
-                connectNulls: true,
             },
             scatter: {
                 dataGrouping: {
@@ -417,11 +418,11 @@ function addWeekOptions(obj, span, seriesData, units, plot_type) {
         text: '24h'
     }, {
         type: 'hour',
-        count: 35,
-        text: '35h'
+        count: 36,
+        text: '36h'
     }, {
         type: 'all',
-        text: compare_dates  || day_plots ? '72h' : '7d'
+        text: compare_dates ? '72h' : '7d'
     }]
     if (realtimeplot.hasOwnProperty(plot_type)){obj.rangeSelector.buttons.push({
         text: getTranslation("RT"),
@@ -449,8 +450,8 @@ function addYearOptions(obj) {
         text: '1m'
     }, {
         type: 'month',
-        count: 5,
-        text: '5m'
+        count: 6,
+        text: '6m'
     }, {
         type: 'all',
         text: '1y'
@@ -1447,6 +1448,8 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
     if (!Array.isArray(span)) span = [span];
     console.log(units, plot_type, span, dplots, cdates, reload_plot_type_span, realtime, radial);
     day_plots = dplots;
+    url_units = units;
+    url_plot_type = plot_type;
     compare_dates = cdates;
     reload_plot_type = plot_type;
     reload_span = span;
@@ -1545,7 +1548,7 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
                 chart.series[i].update({
                     cursor: 'pointer',
                     point: {
-                       events: {click: function(e){
+                       events: {click:function(e){
                             if (day_plots) 
                                 setTimeout(display_chart, 0, units, plot_type, ['weekly']); 
                             else if (span[0] == 'yearly'){
@@ -1573,8 +1576,8 @@ function display_chart(units, plot_type, span, dplots = false, cdates = false, r
 
 $.datepicker.setDefaults({
     dateFormat: 'yy-mm-dd',
-    onSelect: function () {
-        this.onchange();
-        this.onblur();
+    onSelect: function(dateText) {
+        chart.showLoading('Loading data from database...');
+        window.location.href= dayplotsurl+"?units="+url_units.temp+","+url_units.pressure+","+url_units.wind+","+url_units.rain+"&plot_type="+url_plot_type+","+pathjsondayfiles+jsonfileforplot[url_plot_type][0]+","+weereportcmd+","+reload_plot_type+":"+reload_span+",false"+"&weewxpathbin="+pathweewxbin+"&epoch="+(new Date(this.value).getTime()/1000);
     }
 });
