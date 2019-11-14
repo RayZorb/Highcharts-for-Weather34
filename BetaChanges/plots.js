@@ -123,7 +123,8 @@ var utcoffset;
 var chart;
 var url_units;
 var url_plot_type;
-;
+var first_tp_display = true;
+
 /*****************************************************************************
 Read multiple json files at the same time found at this URL
 https://stackoverflow.com/questions/19026331/call-multiple-json-data-files-in-one-getjson-request
@@ -494,6 +495,10 @@ function custom_tooltip(tooltip, first_line, lowHigh = false) {
                 temp += temp1;
         }
     });
+    if (first_tp_display){
+        first_tp_display = false;
+        temp += "When mouse cursor turns to a hand then left click to drill down into chart data"
+    }
     return temp;
 };
 
