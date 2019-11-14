@@ -422,7 +422,7 @@ function addWeekOptions(obj, span, seriesData, units, plot_type) {
         text: '36h'
     }, {
         type: 'all',
-        text: compare_dates ? '72h' : '7d'
+        text: compare_dates || day_plots ? '72h' : '7d'
     }]
     if (realtimeplot.hasOwnProperty(plot_type)){obj.rangeSelector.buttons.push({
         text: getTranslation("RT"),
