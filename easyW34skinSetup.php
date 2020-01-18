@@ -42,7 +42,7 @@ $_POST["services"] = "ds.wu.eq.ki.me.aq.pu";
 IF (ISSET($_POST["Submit"])) {
 
 $string = '<?php
-$apikey = "'. $_POST["wuapi"]. '";
+$apikey = "'. $_POST["apikey"]. '";
 $wuapikey = "'. $_POST["wuapikey"]. '";
 $weatherflowID = "'. $_POST["wfid"]. '";
 $weatherflowoption   = "'. $_POST["weatherflowoption"]. '";
