@@ -508,10 +508,11 @@ WeeWX Software Paths to Data files</div><br/>
  <label name="chartsource"></label>
         <select id="chartsource" name="chartsource" class="choose1">
             <option>mbcharts</option>
+	    <option>w34highcharts</option>		
 
         </select>
     <br/>
-    <span style="color:red">(Fixed Option WU history charts no longer supported)</span>
+    <span style="color:red"></span>
 </div>
 <br/>
 
